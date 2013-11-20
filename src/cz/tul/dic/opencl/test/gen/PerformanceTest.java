@@ -108,10 +108,9 @@ public class PerformanceTest {
         DataStorage.setScenarioCount(scenarioCount);
         
         int lineCount = scenarios.size();
-        lineCount *= CustomMath.power2(IMAGE_WIDTH_MAX / IMAGE_WIDTH_MIN);
-        lineCount *= 2;
-        lineCount *= CustomMath.power2(FACET_SIZE_MAX / FACET_SIZE_MIN);
-        lineCount *= CustomMath.power2(DEFORMATION_COUNT_MAX / DEFORMATION_COUNT_MIN);
+        lineCount *= IMAGE_WIDTH_MAX / IMAGE_WIDTH_MIN;        
+        lineCount *= CustomMath.power2(FACET_SIZE_MAX / FACET_SIZE_MIN) + 1;
+        lineCount *= CustomMath.power2(DEFORMATION_COUNT_MAX / DEFORMATION_COUNT_MIN) + 1;
         DataStorage.setLineCount(lineCount);
         
         DataStorage.exportData(new File("D:\\testData.csv"));

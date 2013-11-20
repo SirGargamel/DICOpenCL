@@ -4,3 +4,12 @@
 counts = csvread('d:\\testData.csv',0,0,[0,0,0,1]);
 fullData = csvread('d:\\testData.csv',2,0);
 
+for line=0:counts[0]
+    for scenario=0:counts[1]
+    
+    
+    
+    
+    end;
+end;
+

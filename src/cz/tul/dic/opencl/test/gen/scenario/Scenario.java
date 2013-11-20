@@ -53,9 +53,9 @@ public abstract class Scenario {
                     max--;
                     currentVariant = 0;
                     break;
-                default:                    
+                default:
                     break;
-            }            
+            }
         }
         return result;
     }
@@ -72,16 +72,18 @@ public abstract class Scenario {
 
     public void reset() {
         currentVariant = 0;
+        max = maxVariantCount;
+        currentWorkSize = WorkSize.FULL;
     }
 
     public String getDescription() {
         return kernel.name;
     }
-    
+
     public int getVariantCount() {
-        return (3 * maxVariantCount) - 3;
+        return maxVariantCount + (maxVariantCount - 1) + (maxVariantCount - 2);
     }
-    
+
     protected abstract int getIntDescription();
 
     protected int getLWS0() {
