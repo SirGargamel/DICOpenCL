@@ -1,7 +1,12 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package cz.tul.dic.opencl;
 
-import com.jogamp.opencl.CLContext;
-import com.jogamp.opencl.CLDevice;
+import cz.tul.dic.opencl.test.gen.PerformanceTest;
+import java.io.IOException;
 
 /**
  *
@@ -9,9 +14,7 @@ import com.jogamp.opencl.CLDevice;
  */
 public class Main {
 
-    public static void main(final String[] args) {
-        // main entry point
-        CLDevice device = CLContext.create(CLDevice.Type.GPU).getMaxFlopsDevice();
+    public static void main(final String[] args) throws IOException {
+        PerformanceTest.computeImageFillTest();
     }
-    
 }
