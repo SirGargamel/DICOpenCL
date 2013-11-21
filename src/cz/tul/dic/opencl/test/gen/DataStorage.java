@@ -16,15 +16,15 @@ public class DataStorage {
 
     private static final String DELIMITER_VALUE = ",";
     private static final String DELIMITER_LINE = "\n";
-    private static final Map<ParameterSet, Long> data;
+    private static final Map<ParameterSet, Result> data;
     private static int lineCount, scenarioCount;
 
     static {
         data = new TreeMap<>();
     }
 
-    public static void storeData(final ParameterSet params, final long time) {
-        data.put(params, time);
+    public static void storeData(final ParameterSet params, final long time, final float[] result) {
+        data.put(params, new Result(time, result));
     }
     
     public static void setLineCount(final int count) {
@@ -52,7 +52,7 @@ public class DataStorage {
             bw.write("Time [ms]");
             bw.write(DELIMITER_LINE);
             
-            for (Entry<ParameterSet, Long> e : data.entrySet()) {
+            for (Entry<ParameterSet, Result> e : data.entrySet()) {
                 ps = e.getKey();
                 for (Parameter p : params) {
                     if (ps.contains(p)) {
@@ -60,9 +60,28 @@ public class DataStorage {
                     }
                     bw.write(DELIMITER_VALUE);
                 }
-                bw.write(Long.toString(e.getValue() / 1000));
+                bw.write(Long.toString(e.getValue().getTime() / 1000));
                 bw.write(DELIMITER_LINE);
             }
+        }
+    }
+    
+    private static class Result {
+        
+        private final long time;
+        private final float[] result;
+
+        public long getTime() {
+            return time;
+        }
+
+        public float[] getResult() {
+            return result;
+        }
+
+        public Result(long time, float[] result) {
+            this.time = time;
+            this.result = result;
         }
     }
 }

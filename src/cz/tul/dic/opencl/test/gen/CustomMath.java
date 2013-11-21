@@ -1,4 +1,4 @@
-package cz.tul.dic.opencl;
+package cz.tul.dic.opencl.test.gen;
 
 /**
  *

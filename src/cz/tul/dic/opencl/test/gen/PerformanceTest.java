@@ -5,8 +5,7 @@ import com.jogamp.opencl.CLDevice;
 import com.jogamp.opencl.CLDevice.Type;
 import com.jogamp.opencl.CLPlatform;
 import com.jogamp.opencl.util.Filter;
-import cz.tul.dic.opencl.CustomMath;
-import cz.tul.dic.opencl.test.gen.scenario.ComputeJavaIntDirect;
+import cz.tul.dic.opencl.test.gen.scenario.Compute2DIntGpuDirect;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
 import java.io.File;
 import java.io.IOException;
@@ -23,12 +22,12 @@ import java.util.Random;
 public class PerformanceTest {
 
     private static final int IMAGE_WIDTH_MIN = 256;
-    private static final int IMAGE_WIDTH_MAX = 2048;
+    private static final int IMAGE_WIDTH_MAX = 1024;
     private static final int IMAGE_HEIGHT_MIN = 192;
     private static final int FACET_SIZE_MIN = 10;
     private static final int FACET_SIZE_MAX = 160;
     private static final int DEFORMATION_COUNT_MIN = 100;
-    private static final int DEFORMATION_COUNT_MAX = 800;
+    private static final int DEFORMATION_COUNT_MAX = 1600;
 
     public static void computeImageFillTest() throws IOException {
         // select best GPU (non-integrated one for laptops)
@@ -54,11 +53,13 @@ public class PerformanceTest {
         final List<Scenario> scenarios = prepareScenarios(device);
 
         int[][] images;
+        float[] averages;
         int[] facets, deformations;
         long time;
         ParameterSet ps;
-        boolean result;
+        float[] result;
         int scenarioCount = 0;
+        Scenario sc;
         try {
             // execute scenarios
             int w, h;
@@ -66,6 +67,7 @@ public class PerformanceTest {
                 w = dim * IMAGE_WIDTH_MIN;
                 h = dim * IMAGE_HEIGHT_MIN;
                 images = generateImages(w, h);
+                averages = calculateAverages(images);
 
                 for (int s = FACET_SIZE_MIN; s <= FACET_SIZE_MAX; s *= 2) {
                     facets = generateFacets(w, h, s);
@@ -73,7 +75,8 @@ public class PerformanceTest {
                     for (int d = DEFORMATION_COUNT_MIN; d <= DEFORMATION_COUNT_MAX; d *= 2) {
                         deformations = generateDeformations(d);
 
-                        for (Scenario sc : scenarios) {
+                        for (int i = 0; i < scenarios.size(); i++) {
+                            sc = scenarios.get(i);
                             sc.reset();
                             while (sc.hasNext()) {
                                 ps = new ParameterSet();
@@ -81,16 +84,18 @@ public class PerformanceTest {
                                 ps.addParameter(Parameter.IMAGE_HEIGHT, h);
                                 ps.addParameter(Parameter.FACET_SIZE, s);
                                 ps.addParameter(Parameter.DEFORMATION_COUNT, d);
+                                ps.addParameter(Parameter.VARIANT, i);
 
                                 time = nanoTime();
-                                result = sc.computeScenario(images[0], images[1], facets, deformations, ps, device);
+                                result = sc.compute(images[0], averages[0], images[1], averages[1], facets, deformations, ps, device);
                                 time = nanoTime() - time;
 
-                                if (result) {
+                                if (result != null) {
                                     System.out.println("Finished " + sc.getDescription() + " in " + (time / 1000) + "ms with params " + ps);
-                                    DataStorage.storeData(ps, time);
+                                    DataStorage.storeData(ps, time, result);
                                 } else {
                                     System.out.println("Failed " + sc.getDescription() + " with params " + ps);
+                                    DataStorage.storeData(ps, -1, null);
                                 }
                             }
                             scenarioCount = sc.getVariantCount();
@@ -106,20 +111,20 @@ public class PerformanceTest {
         }
 
         DataStorage.setScenarioCount(scenarioCount);
-        
+
         int lineCount = scenarios.size();
-        lineCount *= IMAGE_WIDTH_MAX / IMAGE_WIDTH_MIN;        
+        lineCount *= IMAGE_WIDTH_MAX / IMAGE_WIDTH_MIN;
         lineCount *= CustomMath.power2(FACET_SIZE_MAX / FACET_SIZE_MIN) + 1;
         lineCount *= CustomMath.power2(DEFORMATION_COUNT_MAX / DEFORMATION_COUNT_MIN) + 1;
         DataStorage.setLineCount(lineCount);
-        
+
         DataStorage.exportData(new File("D:\\testData.csv"));
     }
 
     private static List<Scenario> prepareScenarios(final CLDevice device) throws IOException {
         final List<Scenario> scenarios = new ArrayList<>(1);
 
-        scenarios.add(new ComputeJavaIntDirect(device));
+        scenarios.add(new Compute2DIntGpuDirect(device));
 
         return scenarios;
     }
@@ -136,6 +141,19 @@ public class PerformanceTest {
         }
 
         return result;
+    }
+
+    private static float[] calculateAverages(final int[][] images) {
+        final float[] sum = new float[images.length];
+
+        for (int img = 0; img < images.length; img++) {
+            for (int i = 0; i < images[img].length; i++) {
+                sum[img] += images[img][i];
+            }
+            sum[img] /= (float) images[img].length;
+        }
+
+        return sum;
     }
 
     private static int[] generateFacets(final int width, final int height, final int size) {

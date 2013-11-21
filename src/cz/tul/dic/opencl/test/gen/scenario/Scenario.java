@@ -4,8 +4,7 @@ import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLDevice;
 import com.jogamp.opencl.CLKernel;
 import com.jogamp.opencl.CLProgram;
-import cz.tul.dic.opencl.CustomMath;
-import cz.tul.dic.opencl.test.gen.Parameter;
+import cz.tul.dic.opencl.test.gen.CustomMath;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
 import java.io.IOException;
 
@@ -34,12 +33,12 @@ public abstract class Scenario {
         currentWorkSize = WorkSize.FULL;
     }
 
-    public boolean computeScenario(
-            final int[] imageA, final int[] imageB,
+    public float[] compute(
+            final int[] imageA, final float imageAavg,
+            final int[] imageB, final float imageBavg,
             final int[] facets, final int[] deformations,
             final ParameterSet params, final CLDevice queue) {
-        boolean result = computeScenario(imageA, imageB, facets, deformations, params, queue, currentVariant);
-        params.addParameter(Parameter.VARIANT, getIntDescription());
+        float[] result = computeScenario(imageA, imageAavg, imageB, imageBavg, facets, deformations, params, queue);        
         currentVariant++;
         if (currentVariant == max) {
             switch (currentWorkSize) {
@@ -60,11 +59,12 @@ public abstract class Scenario {
         return result;
     }
 
-    abstract boolean computeScenario(
-            final int[] imageA, final int[] imageB,
+    abstract float[] computeScenario(
+            final int[] imageA, final float imageAavg,
+            final int[] imageB, final float imageBavg,
             final int[] facets, final int[] deformations,
-            final ParameterSet params, final CLDevice queue,
-            int variant);
+            final ParameterSet params, 
+            final CLDevice queue);
 
     public boolean hasNext() {
         return (currentWorkSize != WorkSize.QUARTER) || (currentVariant < max);
@@ -82,9 +82,7 @@ public abstract class Scenario {
 
     public int getVariantCount() {
         return maxVariantCount + (maxVariantCount - 1) + (maxVariantCount - 2);
-    }
-
-    protected abstract int getIntDescription();
+    }    
 
     protected int getLWS0() {
         return (int) Math.pow(2, currentVariant);
