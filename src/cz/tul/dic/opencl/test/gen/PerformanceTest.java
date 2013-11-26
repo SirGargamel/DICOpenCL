@@ -1,7 +1,5 @@
 package cz.tul.dic.opencl.test.gen;
 
-import com.jogamp.opencl.CLContext;
-import com.jogamp.opencl.CLDevice;
 import com.jogamp.opencl.CLDevice.Type;
 import com.jogamp.opencl.CLPlatform;
 import com.jogamp.opencl.util.Filter;
@@ -10,7 +8,6 @@ import cz.tul.dic.opencl.test.gen.scenario.Scenario;
 import java.io.File;
 import java.io.IOException;
 import static java.lang.System.nanoTime;
-import static java.lang.System.out;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -25,9 +22,10 @@ public class PerformanceTest {
     private static final int IMAGE_WIDTH_MAX = 1024;
     private static final int IMAGE_HEIGHT_MIN = 192;
     private static final int FACET_SIZE_MIN = 10;
-    private static final int FACET_SIZE_MAX = 160;
-    private static final int DEFORMATION_COUNT_MIN = 100;
-    private static final int DEFORMATION_COUNT_MAX = 1600;
+    private static final int FACET_SIZE_MAX = 40;
+    private static final int DEFORMATION_COUNT_MIN = 200;
+    private static final int DEFORMATION_COUNT_MAX = 800;
+    private static final int DEFORMATION_ABS_MAX = 5;
 
     public static void computeImageFillTest() throws IOException {
         // select best GPU (non-integrated one for laptops)
@@ -44,17 +42,14 @@ public class PerformanceTest {
             platform = CLPlatform.getDefault();
         }
 
-        CLContext context = CLContext.create(platform, Type.GPU);
-        out.println("created " + context);
+        ContextHandler ch = new ContextHandler(platform);
 
-        CLDevice device = context.getMaxFlopsDevice(Type.GPU);
-        out.println("Using " + device);
-
-        final List<Scenario> scenarios = prepareScenarios(device);
+        final List<Scenario> scenarios = prepareScenarios(ch);
 
         int[][] images;
         float[] averages;
-        int[] facets, deformations;
+        int[] facets;
+        float[] deformations;
         long time;
         ParameterSet ps;
         float[] result;
@@ -83,31 +78,33 @@ public class PerformanceTest {
                                 ps.addParameter(Parameter.IMAGE_WIDTH, w);
                                 ps.addParameter(Parameter.IMAGE_HEIGHT, h);
                                 ps.addParameter(Parameter.FACET_SIZE, s);
+                                ps.addParameter(Parameter.FACET_COUNT, facets.length / (s * s * 2));
                                 ps.addParameter(Parameter.DEFORMATION_COUNT, d);
                                 ps.addParameter(Parameter.VARIANT, i);
 
                                 time = nanoTime();
-                                result = sc.compute(images[0], averages[0], images[1], averages[1], facets, deformations, ps, device);
+                                result = sc.compute(images[0], averages[0], images[1], averages[1], facets, deformations, ps);
                                 time = nanoTime() - time;
 
                                 if (result != null) {
-                                    System.out.println("Finished " + sc.getDescription() + " in " + (time / 1000) + "ms with params " + ps);
-                                    DataStorage.storeData(ps, time, result);
+                                    System.out.println("Finished " + sc.getDescription() + " in " + (time / 1000000) + "ms with params " + ps);
                                 } else {
-                                    System.out.println("Failed " + sc.getDescription() + " with params " + ps);
-                                    DataStorage.storeData(ps, -1, null);
+                                    System.out.println("Failed   " + sc.getDescription() + " with params " + ps);
+                                    ch.reset();
                                 }
+                                DataStorage.storeData(ps, time, result);
                             }
                             scenarioCount = sc.getVariantCount();
                         }
                     }
                 }
             }
-        } catch (Exception ex) {
+        } catch (Exception | Error ex) {
             ex.printStackTrace(System.err);
+            ch.reset();
         } finally {
             // cleanup all resources associated with this context.
-            context.release();
+            ch.getContext().release();
         }
 
         DataStorage.setScenarioCount(scenarioCount);
@@ -121,10 +118,10 @@ public class PerformanceTest {
         DataStorage.exportData(new File("D:\\testData.csv"));
     }
 
-    private static List<Scenario> prepareScenarios(final CLDevice device) throws IOException {
+    private static List<Scenario> prepareScenarios(final ContextHandler contextHandler) throws IOException {
         final List<Scenario> scenarios = new ArrayList<>(1);
 
-        scenarios.add(new Compute2DIntGpuDirect(device));
+        scenarios.add(new Compute2DIntGpuDirect(contextHandler));
 
         return scenarios;
     }
@@ -158,20 +155,27 @@ public class PerformanceTest {
 
     private static int[] generateFacets(final int width, final int height, final int size) {
         final int count = (width / size) * (height / size);
-        final int[] result = new int[count * size * size];
+        final int facetCordSize = size * size * 2;
+        final int[] result = new int[count * facetCordSize];
 
         Random rnd = new Random();
+        int x, y, divX, divY;
         int baseX, baseY, base;
-        int offset = 5;
+        int offset = DEFORMATION_ABS_MAX;
         for (int i = 0; i < count; i++) {
-            base = i * size * size;
-            // generate baseX and baseY            
-            baseX = rnd.nextInt(width - (2 * offset)) + offset;
-            baseY = rnd.nextInt(height - (2 * offset)) + offset;
+            base = i * facetCordSize;
+            // generate baseX and baseY of facet       
+            baseX = rnd.nextInt(width - (2 * offset) - size) + offset;
+            baseY = rnd.nextInt(height - (2 * offset) - size) + offset;
             // generate points
-            for (int x = 0; x < size; x++) {
-                for (int y = 0; y < size; y++) {
-                    result[base + (x * size) + y] = ((baseX + x) * size) + (baseY + y);
+            for (int dy = 0; dy < size; dy++) {
+                y = baseY + dy;
+                divY = dy * size * 2;
+                for (int dx = 0; dx < size; dx++) {
+                    x = baseX + dx;
+                    divX = dx * 2;
+                    result[base + divY + divX] = x;
+                    result[base + divY + divX + 1] = y;
                 }
             }
         }
@@ -179,15 +183,14 @@ public class PerformanceTest {
         return result;
     }
 
-    private static int[] generateDeformations(final int deformationCount) {
-        final int[] result = new int[deformationCount * 2];
+    private static float[] generateDeformations(final int deformationCount) {
+        final float[] result = new float[deformationCount * 2];
 
-        Random rnd = new Random();
-        for (int i = 0; i < deformationCount; i++) {
-            result[i * 2] = rnd.nextInt(11) - 5;
-            result[(i * 2) + 1] = rnd.nextInt(11) - 5;
-        }
-
+//        Random rnd = new Random();
+//        for (int i = 0; i < deformationCount; i++) {
+//            result[i * 2] = rnd.nextInt(DEFORMATION_ABS_MAX) - (DEFORMATION_ABS_MAX / 2);
+//            result[(i * 2) + 1] = rnd.nextInt(DEFORMATION_ABS_MAX) - (DEFORMATION_ABS_MAX / 2);
+//        }
         return result;
     }
 

@@ -1,65 +1,75 @@
 int computeIndex(const int x, const int y, const int width) {
-    return ((y * width) + x);    
+    return (y * width) + x;    
 }
 
 kernel void Compute2DIntGpuDirect(
-    global read_only int * restrict imageA, global read_only int * restrict imageB, 
-    global read_only int * restrict facets, global int * restrict deformedFacets,
-    global read_only int * restrict deformations,
-    global write_only float * restrict result,
+    global read_only int * imageA, global read_only int * imageB, 
+    global read_only int * facets,
+    global read_only float * deformations,
+    global write_only float * result,
     const float imageAavg, const float imageBavg,
-    const int imageWidth, const int facetSize) 
+    const int imageWidth, const int deformationCount,
+    const int facetSize, const int facetCount) 
 {
-    // id checks
-    int facetCount = get_global_size(0);    
-    int facetId = get_global_id(0);
+    float temp[100*100*2];
+    // id checks    
+    size_t facetId = get_global_id(0);
     if (facetId >= facetCount) {
         return;
-    }    
-    int deformationCount = get_global_size(1);
-    int deformationId = get_global_id(1);
-    if ((2*deformationId) >= deformationCount) {
+    }        
+    size_t deformationId = get_global_id(1);
+    if (deformationId >= deformationCount) {
         return;
     }
     // index computation
     int facetSize2 = facetSize * facetSize;
     int facetCoordCount = facetSize2 * 2;
     
-    int baseIndexFacet = facetId * facetCoordCount;    
+    int baseIndexFacet = facetId * facetCoordCount;         
     int baseIndexDeformation = deformationId * 2;
     // deform facet
-    int index;
+    int indexFacet;    
     for (int i = 0; i < facetSize2; i++) {
-        index = baseIndexFacet + i * 2;
-        deformedFacets[index] = facets[index] + deformations[baseIndexDeformation];
-        deformedFacets[index + 1] = facets[index + 1] + deformations[baseIndexDeformation + 1];
+        indexFacet = baseIndexFacet + (i * 2);        
+        
+        temp[2*i] = facets[indexFacet] + deformations[baseIndexDeformation];
+        temp[2*i + 1] = facets[indexFacet+1] + deformations[baseIndexDeformation+1];        
     }
     // compute correlation using ZNCC
     float deltaF = 0;
     float deltaG = 0;
-    int intensity, val;
+    int intensity;
+    int index;
+    float val;
     for (int i = 0; i < facetSize2; i++) {
-        index = baseIndexFacet + i * 2;
+        indexFacet = baseIndexFacet + (i * 2);
         
-        intensity = imageA[computeIndex(facets[index], facets[index + 1], imageWidth)];
+        index = computeIndex(facets[indexFacet], facets[indexFacet + 1], imageWidth);        
+        intensity = imageA[index];
         val = intensity - imageAavg;
         deltaF += val * val;
         
-        intensity = imageB[computeIndex(deformedFacets[index], deformedFacets[index + 1], imageWidth)];
+        index = computeIndex(temp[2*i], temp[2*i + 1], imageWidth);        
+        intensity = imageB[index];
         val = intensity - imageBavg;
         deltaG += val * val;
     }    
-    deltaF = sqrt(deltaF);
-    deltaG = sqrt(deltaG);
+    float deltaFs = sqrt((float) deltaF);
+    float deltaGs = sqrt((float) deltaG);
+    float delta = deltaFs * deltaGs;
     
     float resultVal = 0;
-    for (int i = 0; i < facetSize2; i++) {
-        index = baseIndexFacet + i * 2;
+    if (delta != 0) {                
+        for (int i = 0; i < facetSize2; i++) {
+            indexFacet = baseIndexFacet + (i * 2);
         
-        resultVal += (imageA[computeIndex(facets[index], facets[index + 1], imageWidth)] - imageAavg) * (imageB[computeIndex(deformedFacets[index], deformedFacets[index + 1], imageWidth)] - imageBavg) / (deltaF * deltaG);
+            resultVal += (imageA[computeIndex(facets[indexFacet], facets[indexFacet + 1], imageWidth)] - imageAavg)
+             * (imageB[computeIndex(temp[2*i], temp[2*i + 1], imageWidth)] - imageBavg);                    
+        }
+        resultVal /= delta;
     }
-    // store result
-    index = facetId * deformationCount + deformationId;
-//    result[index] = resultVal;
     
+    //store result
+    indexFacet = facetId * deformationCount + deformationId;
+    result[indexFacet] = resultVal;    
 }

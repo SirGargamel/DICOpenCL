@@ -3,6 +3,7 @@ package cz.tul.dic.opencl.test.gen;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 /**
  *
@@ -55,6 +56,19 @@ public class ParameterSet implements Comparable<ParameterSet> {
                     result = comp;
                     break;
                 }
+            }
+        }
+
+        return result;
+    }
+
+    public boolean equals(ParameterSet ps, Parameter... params) {
+        boolean result = true;
+
+        for (Parameter p : params) {
+            if (getValue(p) != ps.getValue(p)) {
+                result = false;
+                break;
             }
         }
 
