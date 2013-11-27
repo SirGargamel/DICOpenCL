@@ -32,12 +32,12 @@ public abstract class Scenario2D extends Scenario {
     }
 
     @Override
-    public float[] compute(
+    public ScenarioResult compute(
             final int[] imageA, final float imageAavg,
             final int[] imageB, final float imageBavg,
             final int[] facets, final float[] deformations,
             final ParameterSet params) {
-        float[] result = computeScenario(imageA, imageAavg, imageB, imageBavg, facets, deformations, params);
+        final ScenarioResult result = computeScenario(imageA, imageAavg, imageB, imageBavg, facets, deformations, params);
         prepareNextVariant();
 
         return result;

@@ -1,5 +1,6 @@
 package cz.tul.dic.opencl.test.gen;
 
+import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -21,7 +22,7 @@ public class DataStorage {
     private static final float EPSILON = 0.0001f;
     private static final String DELIMITER_VALUE = ",";
     private static final String DELIMITER_LINE = "\n";
-    private static final Map<ParameterSet, Long> data;
+    private static final Map<ParameterSet, ScenarioResult> data;
     private static final Map<ParameterSet, float[]> correctResults;
     private static int lineCount, scenarioCount;
 
@@ -36,11 +37,11 @@ public class DataStorage {
         }
     }
 
-    public static void storeData(final ParameterSet params, final long time, final float[] result) {
-        final long checkedTime = checkResult(params, time, result);
-        data.put(params, checkedTime);
+    public static void storeData(final ParameterSet params, final ScenarioResult result) {
+        checkResult(params, result);
+        data.put(params, result);
         try {
-            writeDataRunning(params, checkedTime);
+            writeDataRunning(params, result);
         } catch (IOException ex) {
             Logger.getLogger(DataStorage.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -54,12 +55,12 @@ public class DataStorage {
         scenarioCount = count;
     }
 
-    private static long checkResult(final ParameterSet params, final long time, final float[] result) {
-        if (result == null) {
-            return -time;
+    private static void checkResult(final ParameterSet params, final ScenarioResult result) {
+        final float[] resultData = result.getResultData();
+        if (resultData == null) {
+            result.setTotalTime(-result.getTotalTime());            
         }
-
-        long res = time;
+        
         boolean found = false;
         ParameterSet psr = null;
         for (ParameterSet ps : correctResults.keySet()) {
@@ -71,14 +72,13 @@ public class DataStorage {
         }
 
         if (!found) {
-            correctResults.put(params, result);
+            correctResults.put(params, resultData);
         } else {
             final float[] correct = correctResults.get(psr);
-            if (!areEqual(correct, result, EPSILON)) {
+            if (!areEqual(correct, resultData, EPSILON)) {
                 // TODO mark as invalid result
             }
-        }
-        return res;
+        }        
     }
 
     private static boolean areEqual(final float[] a, final float[] b, final float eps) {
@@ -103,45 +103,44 @@ public class DataStorage {
 
     private static void initTarget(final File out) throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(out, false))) {
-            final Parameter[] params = Parameter.values();
-            for (Parameter p : params) {
-                bw.write(p.toString());
-                bw.write(DELIMITER_VALUE);
-            }
-            bw.write("Time [ms]");
-            bw.write(DELIMITER_LINE);
+            writeHeaderLine(bw);
         }
     }
 
-    private static void writeDataRunning(ParameterSet ps, Long time) throws IOException {
+    private static void writeDataRunning(ParameterSet ps, ScenarioResult result) throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(runningOut, true))) {
-            writeDataLine(ps, time, bw);
+            writeDataLine(ps, result, bw);
         }
     }
 
-    public static void exportData(final File out) throws IOException {
-        final Parameter[] params = Parameter.values();
-
+    public static void exportData(final File out) throws IOException {        
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(out))) {
             bw.write(Integer.toString(lineCount));
             bw.write(DELIMITER_VALUE);
             bw.write(Integer.toString(scenarioCount));
             bw.write(DELIMITER_LINE);
+            
+            writeHeaderLine(bw);
 
-            for (Parameter p : params) {
-                bw.write(p.toString());
-                bw.write(DELIMITER_VALUE);
-            }
-            bw.write("Time [ms]");
-            bw.write(DELIMITER_LINE);
-
-            for (Entry<ParameterSet, Long> e : data.entrySet()) {
+            for (Entry<ParameterSet, ScenarioResult> e : data.entrySet()) {
                 writeDataLine(e.getKey(), e.getValue(), bw);
             }
         }
     }
 
-    private static void writeDataLine(ParameterSet ps, Long time, final BufferedWriter bw) throws IOException {
+    private static void writeHeaderLine(final BufferedWriter bw) throws IOException {
+        final Parameter[] params = Parameter.values();
+        for (Parameter p : params) {
+            bw.write(p.toString());
+            bw.write(DELIMITER_VALUE);
+        }
+        bw.write("Total time [ms]");
+        bw.write(DELIMITER_LINE);
+        bw.write("Kernel time [ms]");
+        bw.write(DELIMITER_LINE);
+    }
+
+    private static void writeDataLine(ParameterSet ps, ScenarioResult result, final BufferedWriter bw) throws IOException {
         final Parameter[] params = Parameter.values();
         for (Parameter p : params) {
             if (ps.contains(p)) {
@@ -149,7 +148,9 @@ public class DataStorage {
             }
             bw.write(DELIMITER_VALUE);
         }
-        bw.write(Long.toString(time / 1000000));
+        bw.write(Long.toString(result.getTotalTime() / 1000000));
+        bw.write(DELIMITER_VALUE);
+        bw.write(Long.toString(result.getKernelExecutionTime() / 1000000));
 
         bw.write(DELIMITER_LINE);
     }

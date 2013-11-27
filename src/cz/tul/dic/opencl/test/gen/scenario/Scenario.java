@@ -18,13 +18,13 @@ public abstract class Scenario {
         this.name = scenarioName;
     }
 
-    public abstract float[] compute(
+    public abstract ScenarioResult compute(
             final int[] imageA, final float imageAavg,
             final int[] imageB, final float imageBavg,
             final int[] facets, final float[] deformations,
             final ParameterSet params);
 
-    abstract float[] computeScenario(
+    abstract ScenarioResult computeScenario(
             final int[] imageA, final float imageAavg,
             final int[] imageB, final float imageBavg,
             final int[] facets, final float[] deformations,

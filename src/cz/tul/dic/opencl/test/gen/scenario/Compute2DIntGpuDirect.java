@@ -3,7 +3,10 @@ package cz.tul.dic.opencl.test.gen.scenario;
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;
+import com.jogamp.opencl.CLCommandQueue.Mode;
 import com.jogamp.opencl.CLContext;
+import com.jogamp.opencl.CLEvent.ProfilingCommand;
+import com.jogamp.opencl.CLEventList;
 import com.jogamp.opencl.CLException;
 import com.jogamp.opencl.CLKernel;
 import static com.jogamp.opencl.CLMemory.Mem.READ_ONLY;
@@ -27,7 +30,7 @@ public class Compute2DIntGpuDirect extends Scenario2D {
     }
 
     @Override
-    public float[] computeScenario(
+    public ScenarioResult computeScenario(
             final int[] imageA, final float imageAavg,
             final int[] imageB, final float imageBavg,
             final int[] facets, final float[] deformations,
@@ -67,14 +70,17 @@ public class Compute2DIntGpuDirect extends Scenario2D {
         params.addParameter(Parameter.LWS0, lws0);
         params.addParameter(Parameter.LWS1, lws1);
         // execute kernel
+        long duration = -1;
         try {
-            final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue();
+            CLEventList eventList = new CLEventList(1);
+
+            final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(Mode.PROFILING_MODE);
 
             queue.putWriteBuffer(bufferImageA, false);
             queue.putWriteBuffer(bufferImageB, false);
             queue.putWriteBuffer(bufferFacets, false);
-            queue.putWriteBuffer(bufferDeformations, false);
-            queue.put2DRangeKernel(kernel, 0, 0, facetGlobalWorkSize, deformationsGlobalWorkSize, lws0, lws1);            
+            queue.putWriteBuffer(bufferDeformations, false);            
+            queue.put2DRangeKernel(kernel, 0, 0, facetGlobalWorkSize, deformationsGlobalWorkSize, lws0, lws1, eventList);
             queue.putReadBuffer(bufferResult, true);
             result = readBuffer(bufferResult.getBuffer());
 
@@ -84,11 +90,15 @@ public class Compute2DIntGpuDirect extends Scenario2D {
             bufferFacets.release();
             bufferDeformations.release();
             bufferResult.release();
+
+            final long start = eventList.getEvent(0).getProfilingInfo(ProfilingCommand.START);
+            final long end = eventList.getEvent(0).getProfilingInfo(ProfilingCommand.END);
+            duration = end - start;
         } catch (CLException ex) {
-            System.err.println("CL error - " + ex.getLocalizedMessage());            
+            System.err.println("CL error - " + ex.getLocalizedMessage());
         }
 
-        return result;
+        return new ScenarioResult(result, duration);
     }
 
     private static void fillBuffer(IntBuffer buffer, int[] data) {
@@ -116,14 +126,14 @@ public class Compute2DIntGpuDirect extends Scenario2D {
 
     private static int roundUp(int groupSize, int globalSize) {
         int r = globalSize % groupSize;
-        
+
         int result;
         if (r == 0) {
             result = globalSize;
         } else {
             result = globalSize + groupSize - r;
         }
-        
+
         return result;
     }
 

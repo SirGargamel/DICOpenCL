@@ -1,10 +1,9 @@
 package cz.tul.dic.opencl.test.gen;
 
-import com.jogamp.opencl.CLDevice.Type;
-import com.jogamp.opencl.CLPlatform;
-import com.jogamp.opencl.util.Filter;
+import com.jogamp.opencl.CLContext;
 import cz.tul.dic.opencl.test.gen.scenario.Compute2DIntGpuDirect;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
+import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import java.io.File;
 import java.io.IOException;
 import static java.lang.System.nanoTime;
@@ -18,7 +17,7 @@ import java.util.Random;
  */
 public class PerformanceTest {
 
-    private static final int IMAGE_WIDTH_MIN = 256;
+    private static final int IMAGE_WIDTH_MIN = 128;
     private static final int IMAGE_WIDTH_MAX = 1024;
     private static final int IMAGE_HEIGHT_MIN = 192;
     private static final int FACET_SIZE_MIN = 10;
@@ -27,22 +26,8 @@ public class PerformanceTest {
     private static final int DEFORMATION_COUNT_MAX = 800;
     private static final int DEFORMATION_ABS_MAX = 5;
 
-    public static void computeImageFillTest() throws IOException {
-        // select best GPU (non-integrated one for laptops)
-        CLPlatform.initialize();
-        final Filter<CLPlatform> filter = new Filter<CLPlatform>() {
-            @Override
-            public boolean accept(CLPlatform item) {
-                return item.listCLDevices(Type.CPU).length == 0;
-            }
-        };
-        CLPlatform platform = CLPlatform.getDefault(filter);
-
-        if (platform == null) {
-            platform = CLPlatform.getDefault();
-        }
-
-        ContextHandler ch = new ContextHandler(platform);
+    public static void computeImageFillTest() throws IOException {        
+        final ContextHandler ch = new ContextHandler();
 
         final List<Scenario> scenarios = prepareScenarios(ch);
 
@@ -52,7 +37,7 @@ public class PerformanceTest {
         float[] deformations;
         long time;
         ParameterSet ps;
-        float[] result;
+        ScenarioResult result;
         int scenarioCount = 0;
         Scenario sc;
         try {
@@ -86,13 +71,14 @@ public class PerformanceTest {
                                 result = sc.compute(images[0], averages[0], images[1], averages[1], facets, deformations, ps);
                                 time = nanoTime() - time;
 
-                                if (result != null) {
+                                if (result.getResultData() != null) {
                                     System.out.println("Finished " + sc.getDescription() + " in " + (time / 1000000) + "ms with params " + ps);
                                 } else {
                                     System.out.println("Failed   " + sc.getDescription() + " with params " + ps);
                                     ch.reset();
                                 }
-                                DataStorage.storeData(ps, time, result);
+                                result.setTotalTime(time);
+                                DataStorage.storeData(ps, result);
                             }
                             scenarioCount = sc.getVariantCount();
                         }
@@ -100,11 +86,13 @@ public class PerformanceTest {
                 }
             }
         } catch (Exception | Error ex) {
-            ex.printStackTrace(System.err);
-            ch.reset();
+            ex.printStackTrace(System.err);            
         } finally {
             // cleanup all resources associated with this context.
-            ch.getContext().release();
+            CLContext context = ch.getContext();
+            if (!context.isReleased()) {
+                context.release();
+            }
         }
 
         DataStorage.setScenarioCount(scenarioCount);
