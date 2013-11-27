@@ -58,33 +58,35 @@ public class DataStorage {
     private static void checkResult(final ParameterSet params, final ScenarioResult result) {
         final float[] resultData = result.getResultData();
         if (resultData == null) {
-            result.setTotalTime(-result.getTotalTime());            
-        }
-        
-        boolean found = false;
-        ParameterSet psr = null;
-        for (ParameterSet ps : correctResults.keySet()) {
-            if (ps.equals(params, Parameter.DEFORMATION_COUNT, Parameter.FACET_SIZE, Parameter.IMAGE_HEIGHT, Parameter.IMAGE_WIDTH)) {
-                found = true;
-                psr = ps;
-                break;
-            }
-        }
-
-        if (!found) {
-            correctResults.put(params, resultData);
+            result.setTotalTime(-result.getTotalTime());
         } else {
-            final float[] correct = correctResults.get(psr);
-            if (!areEqual(correct, resultData, EPSILON)) {
-                // TODO mark as invalid result
+            boolean found = false;
+            ParameterSet psr = null;
+            for (ParameterSet ps : correctResults.keySet()) {
+                if (ps.equals(params, Parameter.DEFORMATION_COUNT, Parameter.FACET_SIZE, Parameter.IMAGE_HEIGHT, Parameter.IMAGE_WIDTH)) {
+                    found = true;
+                    psr = ps;
+                    break;
+                }
             }
+
+            if (!found) {
+                correctResults.put(params, resultData);
+            } else {
+                final float[] correct = correctResults.get(psr);
+                if (!areEqual(correct, resultData, EPSILON)) {
+                    // TODO mark as invalid result
+                    System.out.println("Invalid result.");
+                }
+            }
+            result.markAsStored();
         }        
     }
 
     private static boolean areEqual(final float[] a, final float[] b, final float eps) {
         boolean result = true;
 
-        if (a.length != b.length) {
+        if (a == null || b == null || a.length != b.length) {
             result = false;
         } else {
 
@@ -113,13 +115,13 @@ public class DataStorage {
         }
     }
 
-    public static void exportData(final File out) throws IOException {        
+    public static void exportData(final File out) throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(out))) {
             bw.write(Integer.toString(lineCount));
             bw.write(DELIMITER_VALUE);
             bw.write(Integer.toString(scenarioCount));
             bw.write(DELIMITER_LINE);
-            
+
             writeHeaderLine(bw);
 
             for (Entry<ParameterSet, ScenarioResult> e : data.entrySet()) {
@@ -135,7 +137,7 @@ public class DataStorage {
             bw.write(DELIMITER_VALUE);
         }
         bw.write("Total time [ms]");
-        bw.write(DELIMITER_LINE);
+        bw.write(DELIMITER_VALUE);
         bw.write("Kernel time [ms]");
         bw.write(DELIMITER_LINE);
     }
