@@ -3,6 +3,7 @@ package cz.tul.dic.opencl.test.gen;
 import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLDevice;
 import com.jogamp.opencl.CLKernel;
+import com.jogamp.opencl.CLMemory;
 import com.jogamp.opencl.CLPlatform;
 import com.jogamp.opencl.util.Filter;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
@@ -76,22 +77,16 @@ public class ContextHandler {
                 }
             }
             resetCounter = 0;
-        } else {
-            synchronized (this) {
-                try {
-                    this.wait(1000);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(ContextHandler.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
         }
 
         if (context != null && !context.isReleased()) {
+            for (CLMemory mem : context.getMemoryObjects()) {
+                mem.release();
+            }
             context.release();
         }
 
-        // select best GPU (non-integrated one for laptops)
-        CLPlatform.initialize();
+        // select best GPU (non-integrated one for laptops)        
         final Filter<CLPlatform> filter = new Filter<CLPlatform>() {
             @Override
             public boolean accept(CLPlatform item) {
@@ -104,8 +99,8 @@ public class ContextHandler {
             platform = CLPlatform.getDefault();
         }
 
-        context = CLContext.create(platform, CLDevice.Type.GPU);
-        device = context.getMaxFlopsDevice(CLDevice.Type.GPU);
+        device = platform.getMaxFlopsDevice(CLDevice.Type.GPU);
+        context = CLContext.create(device);
         System.out.println("Using " + device + " on " + context);
 
         assignScenario(scenario);

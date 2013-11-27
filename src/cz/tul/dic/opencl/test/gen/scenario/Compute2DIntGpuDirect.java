@@ -74,7 +74,7 @@ public class Compute2DIntGpuDirect extends Scenario2D {
         try {
             CLEventList eventList = new CLEventList(1);
 
-            final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(Mode.PROFILING_MODE);
+            final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(Mode.PROFILING_MODE);            
 
             queue.putWriteBuffer(bufferImageA, false);
             queue.putWriteBuffer(bufferImageB, false);
@@ -83,6 +83,10 @@ public class Compute2DIntGpuDirect extends Scenario2D {
             queue.put2DRangeKernel(kernel, 0, 0, facetGlobalWorkSize, deformationsGlobalWorkSize, lws0, lws1, eventList);
             queue.putReadBuffer(bufferResult, true);
             result = readBuffer(bufferResult.getBuffer());
+            
+            final long start = eventList.getEvent(0).getProfilingInfo(ProfilingCommand.START);
+            final long end = eventList.getEvent(0).getProfilingInfo(ProfilingCommand.END);
+            duration = end - start;
 
             // data cleanup
             bufferImageA.release();
@@ -90,10 +94,7 @@ public class Compute2DIntGpuDirect extends Scenario2D {
             bufferFacets.release();
             bufferDeformations.release();
             bufferResult.release();
-
-            final long start = eventList.getEvent(0).getProfilingInfo(ProfilingCommand.START);
-            final long end = eventList.getEvent(0).getProfilingInfo(ProfilingCommand.END);
-            duration = end - start;
+            eventList.release();            
         } catch (CLException ex) {
             System.err.println("CL error - " + ex.getLocalizedMessage());
         }

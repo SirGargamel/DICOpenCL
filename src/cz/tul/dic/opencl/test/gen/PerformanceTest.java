@@ -1,6 +1,7 @@
 package cz.tul.dic.opencl.test.gen;
 
 import com.jogamp.opencl.CLContext;
+import com.jogamp.opencl.CLPlatform;
 import cz.tul.dic.opencl.test.gen.scenario.Compute2DIntGpuDirect;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
@@ -19,7 +20,7 @@ public class PerformanceTest {
 
     private static final int IMAGE_WIDTH_MIN = 128;
     private static final int IMAGE_WIDTH_MAX = 1024;
-    private static final int IMAGE_HEIGHT_MIN = 192;
+    private static final int IMAGE_HEIGHT_MIN = IMAGE_WIDTH_MIN * 3 / 4;
     private static final int FACET_SIZE_MIN = 10;
     private static final int FACET_SIZE_MAX = 40;
     private static final int DEFORMATION_COUNT_MIN = 200;
@@ -27,6 +28,7 @@ public class PerformanceTest {
     private static final int DEFORMATION_ABS_MAX = 5;
 
     public static void computeImageFillTest() throws IOException {        
+        CLPlatform.initialize();
         final ContextHandler ch = new ContextHandler();
 
         final List<Scenario> scenarios = prepareScenarios(ch);

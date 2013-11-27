@@ -6,7 +6,7 @@ package cz.tul.dic.opencl.test.gen.scenario;
  */
 public class ScenarioResult {
     
-    private final float[] resultData;
+    private float[] resultData;
     private long totalTime;
     private final long kernelExecutionTime;
 
@@ -17,6 +17,10 @@ public class ScenarioResult {
 
     public float[] getResultData() {
         return resultData;
+    }
+    
+    public void markAsStored() {
+        resultData = null;
     }
 
     public long getKernelExecutionTime() {
