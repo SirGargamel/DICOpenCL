@@ -76,7 +76,21 @@ public abstract class Scenario2D extends Scenario {
 
     @Override
     public int getVariantCount() {
-        return CustomMath.subfact(lws1count, lws0count);
+        int count = 0;
+        final int lws0 = getLWS0();
+        final int lws1 = getLWS1();
+        
+        int variant = 0;
+        int size;
+        while (variant < maxVariant) {            
+            size = lws0 * lws1;
+            if ((size <= maxWorkSize) || (size >= MIN_WORK)) {
+                count++;
+            }
+            variant++;
+        }
+
+        return count;
     }
 
 }

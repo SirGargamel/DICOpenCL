@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -24,17 +26,16 @@ public class DataStorage {
     private static final String DELIMITER_LINE = "\n";
     private static final Map<ParameterSet, ScenarioResult> data;
     private static final Map<ParameterSet, float[]> correctResults;
-    private static int lineCount, scenarioCount;
+    private static final List<Integer> variantCount;
+    private static int lineCount;
+    private static boolean runningInited;
 
     static {
         data = new TreeMap<>();
         correctResults = new HashMap<>();
+        variantCount = new LinkedList<>();
 
-        try {
-            initTarget(runningOut);
-        } catch (IOException ex) {
-            Logger.getLogger(DataStorage.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        runningInited = false;
     }
 
     public static void storeData(final ParameterSet params, final ScenarioResult result) {
@@ -51,8 +52,8 @@ public class DataStorage {
         lineCount = count;
     }
 
-    public static void setScenarioCount(final int count) {
-        scenarioCount = count;
+    public static void addVariantCount(final int count) {
+        variantCount.add(count);
     }
 
     private static void checkResult(final ParameterSet params, final ScenarioResult result) {
@@ -80,7 +81,7 @@ public class DataStorage {
                 }
             }
             result.markAsStored();
-        }        
+        }
     }
 
     private static boolean areEqual(final float[] a, final float[] b, final float eps) {
@@ -105,11 +106,21 @@ public class DataStorage {
 
     private static void initTarget(final File out) throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(out, false))) {
+            writeParameterLine(bw);
             writeHeaderLine(bw);
         }
     }
 
     private static void writeDataRunning(ParameterSet ps, ScenarioResult result) throws IOException {
+        if (!runningInited) {
+            try {
+                initTarget(runningOut);
+                runningInited = true;
+            } catch (IOException ex) {
+                Logger.getLogger(DataStorage.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(runningOut, true))) {
             writeDataLine(ps, result, bw);
         }
@@ -117,17 +128,24 @@ public class DataStorage {
 
     public static void exportData(final File out) throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(out))) {
-            bw.write(Integer.toString(lineCount));
-            bw.write(DELIMITER_VALUE);
-            bw.write(Integer.toString(scenarioCount));
-            bw.write(DELIMITER_LINE);
-
+            writeParameterLine(bw);
             writeHeaderLine(bw);
 
             for (Entry<ParameterSet, ScenarioResult> e : data.entrySet()) {
                 writeDataLine(e.getKey(), e.getValue(), bw);
             }
         }
+    }
+
+    private static void writeParameterLine(final BufferedWriter bw) throws IOException {
+        bw.write(Integer.toString(lineCount));
+        bw.write(DELIMITER_VALUE);
+        bw.write(Integer.toString(variantCount.size()));
+        for (Integer i : variantCount) {
+            bw.write(DELIMITER_VALUE);
+            bw.write(i.toString());
+        }
+        bw.write(DELIMITER_LINE);
     }
 
     private static void writeHeaderLine(final BufferedWriter bw) throws IOException {

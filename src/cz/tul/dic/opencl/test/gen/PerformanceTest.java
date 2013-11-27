@@ -27,11 +27,20 @@ public class PerformanceTest {
     private static final int DEFORMATION_COUNT_MAX = 800;
     private static final int DEFORMATION_ABS_MAX = 5;
 
-    public static void computeImageFillTest() throws IOException {        
+    public static void computeImageFillTest() throws IOException {
         CLPlatform.initialize();
         final ContextHandler ch = new ContextHandler();
 
-        final List<Scenario> scenarios = prepareScenarios(ch);
+        final List<Scenario> scenarios = prepareScenarios(ch);        
+        for (Scenario sc : scenarios) {            
+            DataStorage.addVariantCount(sc.getVariantCount());
+        }        
+        
+        int lineCount = scenarios.size();
+        lineCount *= IMAGE_WIDTH_MAX / IMAGE_WIDTH_MIN;
+        lineCount *= CustomMath.power2(FACET_SIZE_MAX / FACET_SIZE_MIN) + 1;
+        lineCount *= CustomMath.power2(DEFORMATION_COUNT_MAX / DEFORMATION_COUNT_MIN) + 1;
+        DataStorage.setLineCount(lineCount);
 
         int[][] images;
         float[] averages;
@@ -40,7 +49,6 @@ public class PerformanceTest {
         long time;
         ParameterSet ps;
         ScenarioResult result;
-        int scenarioCount = 0;
         Scenario sc;
         try {
             // execute scenarios
@@ -82,13 +90,12 @@ public class PerformanceTest {
                                 result.setTotalTime(time);
                                 DataStorage.storeData(ps, result);
                             }
-                            scenarioCount = sc.getVariantCount();
                         }
                     }
                 }
             }
         } catch (Exception | Error ex) {
-            ex.printStackTrace(System.err);            
+            ex.printStackTrace(System.err);
         } finally {
             // cleanup all resources associated with this context.
             CLContext context = ch.getContext();
@@ -96,14 +103,6 @@ public class PerformanceTest {
                 context.release();
             }
         }
-
-        DataStorage.setScenarioCount(scenarioCount);
-
-        int lineCount = scenarios.size();
-        lineCount *= IMAGE_WIDTH_MAX / IMAGE_WIDTH_MIN;
-        lineCount *= CustomMath.power2(FACET_SIZE_MAX / FACET_SIZE_MIN) + 1;
-        lineCount *= CustomMath.power2(DEFORMATION_COUNT_MAX / DEFORMATION_COUNT_MIN) + 1;
-        DataStorage.setLineCount(lineCount);
 
         DataStorage.exportData(new File("D:\\testData.csv"));
     }
