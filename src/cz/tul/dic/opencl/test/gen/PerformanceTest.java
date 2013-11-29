@@ -84,7 +84,7 @@ public class PerformanceTest {
                                 time = nanoTime() - time;
                                 result.setTotalTime(time);
 
-                                checkResult(result);
+                                checkResult(result, ps.getValue(Parameter.FACET_COUNT));
 
                                 switch (result.getState()) {
                                     case SUCCESS:
@@ -209,7 +209,7 @@ public class PerformanceTest {
         return deformations;
     }
 
-    private static void checkResult(final ScenarioResult result) {
+    private static void checkResult(final ScenarioResult result, final int facetCount) {
         final float[] coeffs = result.getResultData();
 
         if (coeffs == null
@@ -217,15 +217,14 @@ public class PerformanceTest {
                 || !areEqual(coeffs[coeffs.length - 1], 1, EPS)) {
             result.markResultAsInvalidFixed();
         } else {
-
-            int oneCount = -2;
-            for (float f : coeffs) {
-                if (f == 1) {
-                    oneCount++;
+            int oneCount = 0;            
+            for (int i = 0; i < coeffs.length; i++) {                
+                if (areEqual(coeffs[i], 1, EPS)) {
+                    oneCount++;                                        
                 }
             }
-            if ((oneCount / (double) coeffs.length) > MAX_ERROR_RATIO) {
-                result.markResultAsInvalidDynamic();
+            if (oneCount != (facetCount * 2)) {
+                result.markResultAsInvalidFixed();
             }
         }
     }
