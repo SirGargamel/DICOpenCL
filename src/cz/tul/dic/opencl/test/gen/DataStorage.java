@@ -5,7 +5,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -21,25 +20,21 @@ import java.util.logging.Logger;
 public class DataStorage {
 
     private static final File runningOut = new File("D:\\runningExport.csv");
-    private static final float EPSILON = 0.0001f;
     private static final String DELIMITER_VALUE = ",";
     private static final String DELIMITER_LINE = "\n";
     private static final Map<ParameterSet, ScenarioResult> data;
-    private static final Map<ParameterSet, float[]> correctResults;
     private static final List<Integer> variantCount;
     private static int lineCount;
     private static boolean runningInited;
 
     static {
         data = new TreeMap<>();
-        correctResults = new HashMap<>();
         variantCount = new LinkedList<>();
 
         runningInited = false;
     }
 
     public static void storeData(final ParameterSet params, final ScenarioResult result) {
-        checkResult(params, result);
         data.put(params, result);
         try {
             writeDataRunning(params, result);
@@ -54,54 +49,6 @@ public class DataStorage {
 
     public static void addVariantCount(final int count) {
         variantCount.add(count);
-    }
-
-    private static void checkResult(final ParameterSet params, final ScenarioResult result) {
-        final float[] resultData = result.getResultData();
-        if (resultData == null) {
-            result.setTotalTime(-result.getTotalTime());
-        } else {
-            boolean found = false;
-            ParameterSet psr = null;
-            for (ParameterSet ps : correctResults.keySet()) {
-                if (ps.equals(params, Parameter.DEFORMATION_COUNT, Parameter.FACET_SIZE, Parameter.IMAGE_HEIGHT, Parameter.IMAGE_WIDTH)) {
-                    found = true;
-                    psr = ps;
-                    break;
-                }
-            }
-
-            if (!found) {
-                correctResults.put(params, resultData);
-            } else {
-                final float[] correct = correctResults.get(psr);
-                if (!areEqual(correct, resultData, EPSILON)) {
-                    // TODO mark as invalid result
-                    System.out.println("Invalid result.");
-                }
-            }
-            result.markAsStored();
-        }
-    }
-
-    private static boolean areEqual(final float[] a, final float[] b, final float eps) {
-        boolean result = true;
-
-        if (a == null || b == null || a.length != b.length) {
-            result = false;
-        } else {
-
-            float dif;
-            for (int i = 0; i < a.length; i++) {
-                dif = Math.abs(a[i] - b[i]);
-                if (dif > eps) {
-                    result = false;
-                    break;
-                }
-            }
-        }
-
-        return result;
     }
 
     private static void initTarget(final File out) throws IOException {
@@ -157,6 +104,9 @@ public class DataStorage {
         bw.write("Total time [ms]");
         bw.write(DELIMITER_VALUE);
         bw.write("Kernel time [ms]");
+        bw.write(DELIMITER_VALUE);
+        bw.write("Status");
+
         bw.write(DELIMITER_LINE);
     }
 
@@ -171,6 +121,8 @@ public class DataStorage {
         bw.write(Long.toString(result.getTotalTime() / 1000000));
         bw.write(DELIMITER_VALUE);
         bw.write(Long.toString(result.getKernelExecutionTime() / 1000000));
+        bw.write(DELIMITER_VALUE);
+        bw.write(result.getState().toString());
 
         bw.write(DELIMITER_LINE);
     }

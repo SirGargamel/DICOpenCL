@@ -26,24 +26,26 @@ public class PerformanceTest {
     private static final int DEFORMATION_COUNT_MIN = 200;
     private static final int DEFORMATION_COUNT_MAX = 800;
     private static final int DEFORMATION_ABS_MAX = 5;
+    private static final float EPS = 0.0001f;
+    private static final double MAX_ERROR_RATIO = 0.01;
 
     public static void computeImageFillTest() throws IOException {
         CLPlatform.initialize();
         final ContextHandler ch = new ContextHandler();
 
-        final List<Scenario> scenarios = prepareScenarios(ch);        
-        for (Scenario sc : scenarios) {            
+        final List<Scenario> scenarios = prepareScenarios(ch);
+        for (Scenario sc : scenarios) {
             DataStorage.addVariantCount(sc.getVariantCount());
-        }        
-        
+        }
+
         int lineCount = scenarios.size();
         lineCount *= IMAGE_WIDTH_MAX / IMAGE_WIDTH_MIN;
         lineCount *= CustomMath.power2(FACET_SIZE_MAX / FACET_SIZE_MIN) + 1;
         lineCount *= CustomMath.power2(DEFORMATION_COUNT_MAX / DEFORMATION_COUNT_MIN) + 1;
         DataStorage.setLineCount(lineCount);
 
-        int[][] images;
-        float[] averages;
+        int[] image;
+        float average;
         int[] facets;
         float[] deformations;
         long time;
@@ -56,8 +58,8 @@ public class PerformanceTest {
             for (int dim = 1; dim <= IMAGE_WIDTH_MAX / IMAGE_WIDTH_MIN; dim++) {
                 w = dim * IMAGE_WIDTH_MIN;
                 h = dim * IMAGE_HEIGHT_MIN;
-                images = generateImages(w, h);
-                averages = calculateAverages(images);
+                image = generateImage(w, h);
+                average = calculateAverage(image);
 
                 for (int s = FACET_SIZE_MIN; s <= FACET_SIZE_MAX; s *= 2) {
                     facets = generateFacets(w, h, s);
@@ -78,16 +80,27 @@ public class PerformanceTest {
                                 ps.addParameter(Parameter.VARIANT, i);
 
                                 time = nanoTime();
-                                result = sc.compute(images[0], averages[0], images[1], averages[1], facets, deformations, ps);
+                                result = sc.compute(image, average, image, average, facets, deformations, ps);
                                 time = nanoTime() - time;
-
-                                if (result.getResultData() != null) {
-                                    System.out.println("Finished " + sc.getDescription() + " in " + (time / 1000000) + "ms with params " + ps);
-                                } else {
-                                    System.out.println("Failed   " + sc.getDescription() + " with params " + ps);
-                                    ch.reset();
-                                }
                                 result.setTotalTime(time);
+
+                                checkResult(result);
+
+                                switch (result.getState()) {
+                                    case SUCCESS:
+                                        System.out.println("Finished " + sc.getDescription() + " " + (time / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
+                                        break;
+                                    case WRONG_RESULT_DYNAMIC:
+                                        System.out.println("Wrong dynamic part of result for  " + sc.getDescription() + " " + (time / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
+                                        break;
+                                    case WRONG_RESULT_FIXED:
+                                        System.out.println("Wrong fixed pprt of result for  " + sc.getDescription() + " " + (time / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
+                                        break;
+                                    case FAIL:
+                                        System.out.println("Failed " + sc.getDescription() + " with params " + ps);
+                                        ch.reset();
+                                }
+
                                 DataStorage.storeData(ps, result);
                             }
                         }
@@ -115,29 +128,25 @@ public class PerformanceTest {
         return scenarios;
     }
 
-    private static int[][] generateImages(final int width, final int height) {
+    private static int[] generateImage(final int width, final int height) {
         final int length = width * height;
-        final int[][] result = new int[2][length];
+        final int[] result = new int[length];
 
         Random rnd = new Random();
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < length; j++) {
-                result[i][j] = rnd.nextInt(256);
-            }
+        for (int j = 0; j < length; j++) {
+            result[j] = rnd.nextInt(256);
         }
 
         return result;
     }
 
-    private static float[] calculateAverages(final int[][] images) {
-        final float[] sum = new float[images.length];
+    private static float calculateAverage(final int[] image) {
+        float sum = 0;
 
-        for (int img = 0; img < images.length; img++) {
-            for (int i = 0; i < images[img].length; i++) {
-                sum[img] += images[img][i];
-            }
-            sum[img] /= (float) images[img].length;
+        for (int i = 0; i < image.length; i++) {
+            sum += image[i];
         }
+        sum /= (float) image.length;
 
         return sum;
     }
@@ -173,14 +182,57 @@ public class PerformanceTest {
     }
 
     private static float[] generateDeformations(final int deformationCount) {
-        final float[] result = new float[deformationCount * 2];
+        final float[] deformations = new float[deformationCount * 2];
 
-//        Random rnd = new Random();
-//        for (int i = 0; i < deformationCount; i++) {
-//            result[i * 2] = rnd.nextInt(DEFORMATION_ABS_MAX) - (DEFORMATION_ABS_MAX / 2);
-//            result[(i * 2) + 1] = rnd.nextInt(DEFORMATION_ABS_MAX) - (DEFORMATION_ABS_MAX / 2);
-//        }
-        return result;
+        Random rnd = new Random();
+        int val;
+        for (int i = 0; i < deformationCount; i++) {
+            val = rnd.nextInt(DEFORMATION_ABS_MAX) - (DEFORMATION_ABS_MAX / 2);
+            if (val == 0) {
+                val++;
+            }
+            deformations[i * 2] = val;
+            val = rnd.nextInt(DEFORMATION_ABS_MAX) - (DEFORMATION_ABS_MAX / 2);
+            if (val == 0) {
+                val++;
+            }
+            deformations[(i * 2) + 1] = val;
+        }
+
+        // known results
+        deformations[0] = 0;
+        deformations[1] = 0;
+
+        deformations[deformations.length - 2] = 0;
+        deformations[deformations.length - 1] = 0;
+
+        return deformations;
+    }
+
+    private static void checkResult(final ScenarioResult result) {
+        final float[] coeffs = result.getResultData();
+
+        if (coeffs == null
+                || !areEqual(coeffs[0], 1, EPS)
+                || !areEqual(coeffs[coeffs.length - 1], 1, EPS)) {
+            result.markResultAsInvalidFixed();
+        } else {
+
+            int oneCount = -2;
+            for (float f : coeffs) {
+                if (f == 1) {
+                    oneCount++;
+                }
+            }
+            if ((oneCount / (double) coeffs.length) > MAX_ERROR_RATIO) {
+                result.markResultAsInvalidDynamic();
+            }
+        }
+    }
+
+    private static boolean areEqual(final float a, final float b, final float eps) {
+        final float dif = Math.abs(a - b);
+        return dif <= eps;
     }
 
 }
