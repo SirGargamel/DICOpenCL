@@ -41,6 +41,7 @@ public class DataStorage {
         } catch (IOException ex) {
             Logger.getLogger(DataStorage.class.getName()).log(Level.SEVERE, null, ex);
         }
+        result.markAsStored();
     }
 
     public static void setLineCount(final int count) {
