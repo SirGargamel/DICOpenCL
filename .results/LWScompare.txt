@@ -1,0 +1,3 @@
+- defaultni limit WIN pro kernel je 2s (pro potøeby testovani navysen na 60s, mozna i vypnout)
+- absolutne se nevyplaci pociat na vice facetech najednou, tim padem ani na vice image
+

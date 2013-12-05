@@ -1,3 +1,0 @@
-- defaultni limit WIN pro kernel je 2s (pro potøeby testovani navysen na 60s, mozna i vypnut)
-- absolutne se nevyplaci pociat na vice facetech najednou
-
