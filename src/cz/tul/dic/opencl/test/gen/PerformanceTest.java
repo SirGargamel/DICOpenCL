@@ -2,6 +2,7 @@ package cz.tul.dic.opencl.test.gen;
 
 import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLPlatform;
+import cz.tul.dic.opencl.test.gen.scenario.Compute2DImageGpuDirect;
 import cz.tul.dic.opencl.test.gen.scenario.Compute2DIntGpuDirect;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
@@ -27,7 +28,6 @@ public class PerformanceTest {
     private static final int DEFORMATION_COUNT_MAX = 800;
     private static final int DEFORMATION_ABS_MAX = 5;
     private static final float EPS = 0.0001f;
-    private static final double MAX_ERROR_RATIO = 0.01;
 
     public static void computeImageFillTest() throws IOException {
         CLPlatform.initialize();
@@ -94,7 +94,7 @@ public class PerformanceTest {
                                         System.out.println("Wrong dynamic part of result for  " + sc.getDescription() + " " + (time / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
                                         break;
                                     case WRONG_RESULT_FIXED:
-                                        System.out.println("Wrong fixed pprt of result for  " + sc.getDescription() + " " + (time / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
+                                        System.out.println("Wrong fixed part of result for  " + sc.getDescription() + " " + (time / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
                                         break;
                                     case FAIL:
                                         System.out.println("Failed " + sc.getDescription() + " with params " + ps);
@@ -117,13 +117,14 @@ public class PerformanceTest {
             }
         }
 
-        DataStorage.exportData(new File("D:\\testData.csv"));
+        DataStorage.exportData(new File("D:\\openCL_DIC.csv"));
     }
 
     private static List<Scenario> prepareScenarios(final ContextHandler contextHandler) throws IOException {
         final List<Scenario> scenarios = new ArrayList<>(1);
 
         scenarios.add(new Compute2DIntGpuDirect(contextHandler));
+        scenarios.add(new Compute2DImageGpuDirect(contextHandler));
 
         return scenarios;
     }
@@ -217,10 +218,10 @@ public class PerformanceTest {
                 || !areEqual(coeffs[coeffs.length - 1], 1, EPS)) {
             result.markResultAsInvalidFixed();
         } else {
-            int oneCount = 0;            
-            for (int i = 0; i < coeffs.length; i++) {                
+            int oneCount = 0;
+            for (int i = 0; i < coeffs.length; i++) {
                 if (areEqual(coeffs[i], 1, EPS)) {
-                    oneCount++;                                        
+                    oneCount++;
                 }
             }
             if (oneCount != (facetCount * 2)) {
