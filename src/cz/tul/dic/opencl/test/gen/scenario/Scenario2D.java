@@ -76,20 +76,17 @@ public abstract class Scenario2D extends Scenario {
 
     @Override
     public int getVariantCount() {
-        int count = 0;
-        final int lws0 = getLWS0();
-        final int lws1 = getLWS1();
+        final int oldCurrentVariant = currentVariant;
+        currentVariant = 0;
         
-        int variant = 0;
-        int size;
-        while (variant < maxVariant) {            
-            size = lws0 * lws1;
-            if ((size <= maxWorkSize) || (size >= MIN_WORK)) {
-                count++;
-            }
-            variant++;
+        int count = -1;
+        while (hasNext()) {                        
+            count++;
+            prepareNextVariant();
         }
 
+        currentVariant = oldCurrentVariant;
+        
         return count;
     }
 
