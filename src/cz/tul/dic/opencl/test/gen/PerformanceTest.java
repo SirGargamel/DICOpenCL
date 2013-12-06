@@ -38,7 +38,7 @@ public class PerformanceTest {
             DataStorage.addVariantCount(sc.getVariantCount());
         }
 
-        int lineCount = scenarios.size();
+        int lineCount = 1;
         lineCount *= IMAGE_WIDTH_MAX / IMAGE_WIDTH_MIN;
         lineCount *= CustomMath.power2(FACET_SIZE_MAX / FACET_SIZE_MIN) + 1;
         lineCount *= CustomMath.power2(DEFORMATION_COUNT_MAX / DEFORMATION_COUNT_MIN) + 1;
