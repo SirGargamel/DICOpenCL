@@ -34,19 +34,17 @@ for graphX=1:graphCount
 end;
 % Plot graphs
 % line colors
-% colors = get(0,'DefaultAxesColorOrder');
 colors = [[0 0 0];[1 0 0 ];[0 1 0];[0 0 1];[1 1 0];[1 0 1];[0 1 1];[1 1 1]];
-
 % x-axis value labels
+x = 1 : lws1count;
 xlabels = cell(lws1count,1);
 for i=1:lws1count
     xlabels(i) = cellstr(int2str(2^(i-1)));
 end;
-
+% Main plot, create multiple windows
 splitCount = 3;
 dSplitCount = splitCount * splitCount;
 windowCount = graphCount / dSplitCount;
-
 for win=1:windowCount
     index = (win-1) * dSplitCount * scenarioCount + 1;
     name = ['Kernel running time, Resolution  ' int2str(data(index, 1)) 'x' int2str(data(index, 2))];
@@ -54,10 +52,8 @@ for win=1:windowCount
     
     for graphX=1:splitCount
         for graphY=1:splitCount
-            % plot subgraph
-            subplot(splitCount, splitCount, (graphX-1) * 3 + graphY);
-            x = 1 : lws1count;
-            plot(x)
+            % crate subfigure
+            subplot(splitCount, splitCount, (graphX-1) * 3 + graphY);                        
             xlabel('LWS1');
             ylabel('Time [ms]');
             % compute line index
@@ -65,17 +61,15 @@ for win=1:windowCount
             index = ((innerBase - 1) * scenarioCount) + 1;
             title(cellstr(['Facet size ' int2str(data(index, 3)) ', Deformation count ' int2str(data(index, 5))]));
             
-            hold on;
-            
-            % curve plots
+            % plot curves for all LWS0 into one subfigure
+            hold on;                        
             for lws0i=1:lws0count
-                plot(curves(:, lws0i, innerBase),'-o','Color',colors(lws0i, :), 'LineSmoothing','on')
+                plot(x, curves(:, lws0i, innerBase),'-o','Color',colors(lws0i, :), 'LineSmoothing','on')
                 set(gca, 'XTick', 1:lws1count, 'XTickLabel', xlabels);
                 h = legend('1', '2', '4', '8', '16', '32', '64');
                 v = get(h,'title');
                 set(v,'string','LWS0');
-            end;
-            
+            end;            
             hold off;
         end;
     end;
