@@ -42,6 +42,12 @@ public abstract class Scenario2D extends Scenario {
 
         return result;
     }
+    
+    abstract ScenarioResult computeScenario(
+            final int[] imageA, final float imageAavg,
+            final int[] imageB, final float imageBavg,
+            final int[] facets, final float[] deformations,
+            final ParameterSet params);
 
     private void prepareNextVariant() {
         boolean inc = true;

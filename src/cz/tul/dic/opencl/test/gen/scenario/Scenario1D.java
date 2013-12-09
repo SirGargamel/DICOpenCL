@@ -31,6 +31,12 @@ public abstract class Scenario1D extends Scenario {
         currentVariant++;
         return result;
     }
+    
+    abstract ScenarioResult computeScenario(
+            final int[] imageA, final float imageAavg,
+            final int[] imageB, final float imageBavg,
+            final int[] facets, final float[] deformations,
+            final ParameterSet params);
 
     protected int getLWS0() {
         return (int) Math.pow(2, currentVariant);

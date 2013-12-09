@@ -22,13 +22,7 @@ public abstract class Scenario {
             final int[] imageA, final float imageAavg,
             final int[] imageB, final float imageBavg,
             final int[] facets, final float[] deformations,
-            final ParameterSet params);
-
-    abstract ScenarioResult computeScenario(
-            final int[] imageA, final float imageAavg,
-            final int[] imageB, final float imageBavg,
-            final int[] facets, final float[] deformations,
-            final ParameterSet params);
+            final ParameterSet params);    
 
     public abstract boolean hasNext();
 
