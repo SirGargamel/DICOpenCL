@@ -27,7 +27,9 @@ public abstract class Scenario {
     public abstract boolean hasNext();
 
     public void reset() {
-        contextHandler.assignScenario(this);
+        if (contextHandler != null) {
+            contextHandler.assignScenario(this);
+        }
         
         resetInner();
     }
