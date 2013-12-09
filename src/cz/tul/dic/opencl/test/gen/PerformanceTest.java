@@ -4,12 +4,13 @@ import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLPlatform;
 import cz.tul.dic.opencl.test.gen.scenario.Compute2DImageGpuDirect;
 import cz.tul.dic.opencl.test.gen.scenario.Compute2DIntGpuDirect;
+import cz.tul.dic.opencl.test.gen.scenario.ComputeJavaThreads;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import java.io.File;
 import java.io.IOException;
 import static java.lang.System.nanoTime;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -27,7 +28,7 @@ public class PerformanceTest {
     private static final int DEFORMATION_COUNT_MIN = 200;
     private static final int DEFORMATION_COUNT_MAX = 800;
     private static final int DEFORMATION_ABS_MAX = 5;
-    private static final float EPS = 0.0001f;
+    private static final float EPS = 0.000001f;
 
     public static void computeImageFillTest() throws IOException {
         CLPlatform.initialize();
@@ -121,8 +122,9 @@ public class PerformanceTest {
     }
 
     private static List<Scenario> prepareScenarios(final ContextHandler contextHandler) throws IOException {
-        final List<Scenario> scenarios = new ArrayList<>(1);
+        final List<Scenario> scenarios = new LinkedList<>();
 
+        scenarios.add(new ComputeJavaThreads());
         scenarios.add(new Compute2DIntGpuDirect(contextHandler));
         scenarios.add(new Compute2DImageGpuDirect(contextHandler));
 
@@ -214,8 +216,8 @@ public class PerformanceTest {
         final float[] coeffs = result.getResultData();
 
         if (coeffs == null
-                || !areEqual(coeffs[0], 1, EPS)
-                || !areEqual(coeffs[coeffs.length - 1], 1, EPS)) {
+                || !areEqual(coeffs[0], 1.0f, EPS)
+                || !areEqual(coeffs[coeffs.length - 1], 1.0f, EPS)) {
             result.markResultAsInvalidFixed();
         } else {
             int oneCount = 0;
