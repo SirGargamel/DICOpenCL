@@ -10,6 +10,7 @@ public class ScenarioResult {
     private float[] resultData;
     private long totalTime;
     private State state;
+    private int resultGroup;
 
     public ScenarioResult(float[] resultData, long kernelExecutionTime) {
         this.resultData = resultData;
@@ -52,6 +53,14 @@ public class ScenarioResult {
     
     public void markResultAsInvalidFixed() {
         state = State.WRONG_RESULT_FIXED;
+    }
+
+    public int getResultGroup() {
+        return resultGroup;
+    }
+
+    public void setResultGroup(int resultGroup) {
+        this.resultGroup = resultGroup;
     }
 
     public static enum State {

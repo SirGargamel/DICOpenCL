@@ -28,7 +28,7 @@ public class PerformanceTest {
     private static final int DEFORMATION_COUNT_MIN = 200;
     private static final int DEFORMATION_COUNT_MAX = 800;
     private static final int DEFORMATION_ABS_MAX = 5;
-    private static final float EPS = 0.000001f;
+    private static final float EPS = 0.0001f;
 
     public static void computeImageFillTest() throws IOException {
         CLPlatform.initialize();
@@ -216,13 +216,13 @@ public class PerformanceTest {
         final float[] coeffs = result.getResultData();
 
         if (coeffs == null
-                || !areEqual(coeffs[0], 1.0f, EPS)
-                || !areEqual(coeffs[coeffs.length - 1], 1.0f, EPS)) {
+                || !CustomMath.areEqual(coeffs[0], 1.0f, EPS)
+                || !CustomMath.areEqual(coeffs[coeffs.length - 1], 1.0f, EPS)) {
             result.markResultAsInvalidFixed();
         } else {
             int oneCount = 0;
             for (int i = 0; i < coeffs.length; i++) {
-                if (areEqual(coeffs[i], 1, EPS)) {
+                if (CustomMath.areEqual(coeffs[i], 1, EPS)) {
                     oneCount++;
                 }
             }
@@ -232,9 +232,6 @@ public class PerformanceTest {
         }
     }
 
-    private static boolean areEqual(final float a, final float b, final float eps) {
-        final float dif = Math.abs(a - b);
-        return dif <= eps;
-    }
+    
 
 }

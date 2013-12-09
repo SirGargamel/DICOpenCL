@@ -22,7 +22,9 @@ public class DataStorage {
     private static final File runningOut = new File("D:\\runningExport.csv");
     private static final String DELIMITER_VALUE = ",";
     private static final String DELIMITER_LINE = "\n";
+    private static final float EPS = 0.0001f;
     private static final Map<ParameterSet, ScenarioResult> data;
+    private static final List<float[]> resultGroups;
     private static final List<Integer> variantCount;
     private static int lineCount;
     private static boolean runningInited;
@@ -30,6 +32,7 @@ public class DataStorage {
     static {
         data = new TreeMap<>();
         variantCount = new LinkedList<>();
+        resultGroups = new LinkedList<>();
 
         runningInited = false;
     }
@@ -41,6 +44,12 @@ public class DataStorage {
         } catch (IOException ex) {
             Logger.getLogger(DataStorage.class.getName()).log(Level.SEVERE, null, ex);
         }
+        final int resultGroup = validateResult(result);
+        result.setResultGroup(resultGroup);
+        if (resultGroup != 0) {
+            result.markResultAsInvalidDynamic();
+        }
+        
         result.markAsStored();
     }
 
@@ -107,6 +116,8 @@ public class DataStorage {
         bw.write("Kernel time [ms]");
         bw.write(DELIMITER_VALUE);
         bw.write("Status");
+        bw.write(DELIMITER_VALUE);
+        bw.write("Result Group");
 
         bw.write(DELIMITER_LINE);
     }
@@ -124,7 +135,40 @@ public class DataStorage {
         bw.write(Long.toString(result.getKernelExecutionTime() / 1000000));
         bw.write(DELIMITER_VALUE);
         bw.write(result.getState().toString());
+        bw.write(DELIMITER_VALUE);
+        bw.write(Integer.toString(result.getResultGroup()));
 
         bw.write(DELIMITER_LINE);
+    }
+    
+    private static int validateResult(final ScenarioResult result) {
+        final float[] coeffs = result.getResultData();
+        int resultIndex = -1;
+        
+        float[] res;
+        boolean same;
+        for (int i = 0; i < resultGroups.size(); i++) {
+            res = resultGroups.get(i);
+            same = true;
+            
+            for (int j = 0; j < coeffs.length; j++) {
+                if (!CustomMath.areEqual(coeffs[j], res[j], EPS)) {
+                    same = false;
+                    break;
+                }
+            }
+            
+            if (same) {
+                resultIndex = i;
+                break;
+            }
+        }
+        
+        if (resultIndex == -1) {
+            resultIndex = resultGroups.size();
+            resultGroups.add(coeffs);
+        }
+        
+        return resultIndex;
     }
 }
