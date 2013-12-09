@@ -1,16 +1,18 @@
 clear all;
 close all;
 clc;
-% 2D kernel int[] vs image2d comparison
+% testing m-file
 % Data format - VARIANT, IMAGE_WIDTH [px], IMAGE_HEIGHT [px], FACET_SIZE
-% [px], DEFORMATION_COUNT ,LWS0 ,LWS1 ,Total Time [ms], Kernel time [ms]
+% [px], DEFORMATION_COUNT ,LWS0 ,LWS1 ,Total Time [ms], Kernel time [ms],
+% Status
 
-graphCount = csvread('IntImageCompare.csv',0,0,[0,0,0,0]);
-variantCount = csvread('IntImageCompare.csv',0,1,[0,1,0,1]);
-scenarioCount = csvread('IntImageCompare.csv',0,2,[0,2,0,2]);
-fid = fopen('IntImageCompare.csv');
+graphCount = csvread('testing.csv',0,0,[0,0,0,0]);
+variantCount = csvread('testing.csv',0,1,[0,1,0,1]);
+scenarioCount = csvread('testing.csv',0,2,[0,2,0,2]);
+fid = fopen('testing.csv');
 allData = textscan(fid,'%f %f %f %f %f %f %f %f %f %f %f %s', 'headerlines', 2, 'Delimiter', ',');
 data = cell2mat(allData(:, 1:11));
+
 % Data preparation
 lws1count = 11;
 lws0count = 7;
@@ -25,7 +27,7 @@ for var=1:variantCount
             lws1 = data(index, 8);
                         
             % multiple variants
-            % one graph per data combination (w, h, fs, dc)
+            % one graph per data  combination (w, h, fs, dc)
             % one line for each LWS0
             allCurves(log2(lws1) + 1, log2(lws0) + 1, data(index, 1) + 1, graph) = data(index, 11);
         end;
@@ -76,7 +78,7 @@ for win=1:windowCount
     for graphX=1:splitCount
         for graphY=1:splitCount
             % create subplot
-            h = subplot(splitCount, splitCount, (graphX-1) * 3 + graphY);                     
+            subplot(splitCount, splitCount, (graphX-1) * 3 + graphY);                     
             xlabel('LWS1');
             ylabel('Time [ms]');
             % compute line index
@@ -88,11 +90,9 @@ for win=1:windowCount
             plot(x,bestCurves(:, 1 ,innerBase),'-o','Color',colors(1, :), 'LineSmoothing','on')
             plot(x,bestCurves(:, 2, innerBase),'-x','Color',colors(2, :), 'LineSmoothing','on')
             set(gca, 'XTick', 1:lws1count, 'XTickLabel', xlabels);
-            legend(h,['int[], LWS0 = ' int2str(bestCurvesParams(1,innerBase))], ['image2d, LWS0 = ' int2str(bestCurvesParams(2,innerBase))]);                    
+            h = legend(['int[], LWS0 ' int2str(bestCurvesParams(1,innerBase))], ['image2d, LWS0 ' int2str(bestCurvesParams(2,innerBase))]);                    
             % Finish plotting to subfigure
             hold off;
         end;
     end;
 end;
-
-

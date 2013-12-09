@@ -7,7 +7,9 @@ clc;
 
 graphCount = csvread('LWScompare.csv',0,0,[0,0,0,0]);
 scenarioCount = csvread('LWScompare.csv',0,2,[0,2,0,2]);
-data = csvread('LWScompare.csv',2,0);
+fid = fopen('LWScompare.csv');
+allData = textscan(fid,'%f %f %f %f %f %f %f %f %f %f %f %s', 'headerlines', 2, 'Delimiter', ',');
+data = cell2mat(allData(:, 1:11));
 % Data preparation
 lws1count = 11;
 lws0count = 7;
