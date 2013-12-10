@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,7 @@ public class DataStorage {
     private static final String DELIMITER_LINE = "\n";
     private static final float EPS = 0.0001f;
     private static final Map<ParameterSet, ScenarioResult> data;
-    private static final List<float[]> resultGroups;
+    private static final Map<ParameterSet, List<float[]>> resultGroups;
     private static final List<Integer> variantCount;
     private static int lineCount;
     private static boolean runningInited;
@@ -32,7 +33,7 @@ public class DataStorage {
     static {
         data = new TreeMap<>();
         variantCount = new LinkedList<>();
-        resultGroups = new LinkedList<>();
+        resultGroups = new HashMap<>();
 
         runningInited = false;
     }
@@ -44,7 +45,7 @@ public class DataStorage {
         } catch (IOException ex) {
             Logger.getLogger(DataStorage.class.getName()).log(Level.SEVERE, null, ex);
         }
-        final int resultGroup = validateResult(result);
+        final int resultGroup = validateResult(result, params);
         result.setResultGroup(resultGroup);
         if (resultGroup != 0) {
             result.markResultAsInvalidDynamic();
@@ -141,17 +142,33 @@ public class DataStorage {
         bw.write(DELIMITER_LINE);
     }
     
-    private static int validateResult(final ScenarioResult result) {
-        final float[] coeffs = result.getResultData();
-        int resultIndex = -1;
+    private static int validateResult(final ScenarioResult result, final ParameterSet rps) {
+        final float[] coeffs = result.getResultData();        
+        int resultIndex = -1;  
+        
+        List<float[]> results = null;        
+        for (ParameterSet ps : resultGroups.keySet()) {
+            if (ps.equals(rps, Parameter.IMAGE_WIDTH, Parameter.FACET_SIZE, Parameter.DEFORMATION_COUNT)) {
+                results = resultGroups.get(ps);
+            }
+        }
+        if (results == null) {
+            results = new LinkedList<>();
+            results.add(coeffs);
+            resultGroups.put(rps, results);
+        }
         
         float[] res;
         boolean same;
-        for (int i = 0; i < resultGroups.size(); i++) {
-            res = resultGroups.get(i);
+        for (int i = 0; i < results.size(); i++) {
+            res = results.get(i);
             same = true;
             
-            for (int j = 0; j < coeffs.length; j++) {
+            if (coeffs.length != res.length) {
+                continue;
+            }
+            
+            for (int j = 0; j < coeffs.length; j++) {                
                 if (!CustomMath.areEqual(coeffs[j], res[j], EPS)) {
                     same = false;
                     break;
@@ -166,7 +183,7 @@ public class DataStorage {
         
         if (resultIndex == -1) {
             resultIndex = resultGroups.size();
-            resultGroups.add(coeffs);
+            results.add(coeffs);
         }
         
         return resultIndex;
