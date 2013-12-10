@@ -39,16 +39,17 @@ public class DataStorage {
     }
 
     public static void storeData(final ParameterSet params, final ScenarioResult result) {
-        data.put(params, result);
-        try {
-            writeDataRunning(params, result);
-        } catch (IOException ex) {
-            Logger.getLogger(DataStorage.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        data.put(params, result);        
         final int resultGroup = validateResult(result, params);
         result.setResultGroup(resultGroup);
         if (resultGroup != 0) {
             result.markResultAsInvalidDynamic();
+        }
+        
+        try {
+            writeDataRunning(params, result);
+        } catch (IOException ex) {
+            Logger.getLogger(DataStorage.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         result.markAsStored();
@@ -148,7 +149,7 @@ public class DataStorage {
         
         List<float[]> results = null;        
         for (ParameterSet ps : resultGroups.keySet()) {
-            if (ps.equals(rps, Parameter.IMAGE_WIDTH, Parameter.FACET_SIZE, Parameter.DEFORMATION_COUNT)) {
+            if (ps.equals(rps, Parameter.IMAGE_WIDTH, Parameter.IMAGE_HEIGHT, Parameter.FACET_SIZE, Parameter.DEFORMATION_COUNT)) {
                 results = resultGroups.get(ps);
             }
         }
