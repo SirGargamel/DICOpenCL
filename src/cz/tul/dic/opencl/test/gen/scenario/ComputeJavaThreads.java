@@ -115,7 +115,7 @@ public class ComputeJavaThreads extends Scenario {
 
     @Override
     void resetInner() {
-        // nothing todo
+        currentVariant = 0;
     }
 
     @Override
