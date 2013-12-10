@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  */
 public class DataStorage {
 
-    private static final File runningOut = new File("D:\\runningExport.csv");
+    private static final File runningOut = new File("D:\\DIC_OpenCL_Data_running.csv");
     private static final String DELIMITER_VALUE = ",";
     private static final String DELIMITER_LINE = "\n";
     private static final float EPS = 0.0001f;

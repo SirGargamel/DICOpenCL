@@ -118,7 +118,7 @@ public class PerformanceTest {
             }
         }
 
-        DataStorage.exportData(new File("D:\\openCL_DIC.csv"));
+        DataStorage.exportData(new File("D:\\DIC_OpenCL_Data.csv"));
     }
 
     private static List<Scenario> prepareScenarios(final ContextHandler contextHandler) throws IOException {
