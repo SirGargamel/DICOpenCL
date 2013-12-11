@@ -4,52 +4,69 @@ clc;
 % 2D kernel LWS comparison
 % Data format - IMAGE_WIDTH [px], IMAGE_HEIGHT [px], FACET_SIZE
 % [px], DEFORMATION_COUNT ,LWS0 ,LWS1 ,Total Time [ms], Kernel time [ms]
+INDEX_DEFORMATION_COUNT = 5;
+INDEX_FACET_SIZE = 3;
+INDEX_LWS0 = 8;
+INDEX_LWS1 = 9;
+INDEX_RESX = 1;
+INDEX_RESY = 2;
+INDEX_TIME = 11;
+INDEX_VARIANT = 7;
+COUNT_LWS0 = log2(64) + 1;
+COUNT_LWS1 = log2(1024) + 1;
+INSPECTED_VARIANT = 3;
 
-graphCount = csvread('LWScompare.csv',0,0,[0,0,0,0]);
-scenarioCount = csvread('LWScompare.csv',0,2,[0,2,0,2]);
-fid = fopen('LWScompare.csv');
-allData = textscan(fid,'%f %f %f %f %f %f %f %f %f %f %f %s', 'headerlines', 2, 'Delimiter', ',');
+% Data reading
+graphCount = csvread('DIC_OpenCL_Data.csv',0,0,[0,0,0,0]);
+variantCount = csvread('DIC_OpenCL_Data.csv',0,1,[0,1,0,1]);
+pointCounts = csvread('DIC_OpenCL_Data.csv',0,2,[0,2,0,variantCount + 1]);
+pointCount = sum(pointCounts);
+fid = fopen('DIC_OpenCL_Data.csv');
+allData = textscan(fid,'%f %f %f %f %f %f %f %f %f %f %f %s %f', 'headerlines', 2, 'Delimiter', ',');
 data = cell2mat(allData(:, 1:11));
-% Data preparation
-lws1count = 11;
-lws0count = 7;
-curves = NaN(lws1count, lws0count, graphCount);
-
-currentLws0 = 0;
-currentLwsIndex = 0;
-pointIndex = 1;
-for graphX=1:graphCount
-    currentLws0 = 0;
-    currentLwsIndex = 0;
-    
-    for scenario=1:scenarioCount
-        index = ((graphX - 1) * scenarioCount) + scenario;
+% Lines extraction
+allCurves = NaN(COUNT_LWS1, COUNT_LWS0, variantCount, graphCount);
+for graph=1:graphCount
+    for point=1:pointCount
+        index = ((graph - 1) * pointCount) + point;
         
-        lws0 = data(index, 6);
-        lws1 = data(index, 7);
+        variant = data(index, INDEX_VARIANT) + 1;
+        lws0 = data(index, INDEX_LWS0);
+        lws1 = data(index, INDEX_LWS1);
         
-        % one variant
-        % one graph per data  combination (w, h, fs, dc)
+        if (variant == 1)        
+            if (lws0 == 1)
+                lws0 = 1;
+                lws1 = 8;
+            end;
+            if (lws0 == 7)
+                lws0 = 8;
+                lws1 = 1;
+            end;                              
+        end;
+        
+        % multiple variants
+        % one graph per data combination (w, h, fs, dc)
         % one line for each LWS0
-        curves(log2(lws1) + 1, log2(lws0) + 1, graphX) = data(index, 10);
+        allCurves(log2(lws1) + 1, log2(lws0) + 1, variant, graph) = data(index, INDEX_TIME);
     end;
 end;
 % Plot graphs
 % line colors
 colors = [[0 0 0];[1 0 0 ];[0 1 0];[0 0 1];[1 1 0];[1 0 1];[0 1 1];[1 1 1]];
 % x-axis value labels
-x = 1 : lws1count;
-xlabels = cell(lws1count,1);
-for i=1:lws1count
-    xlabels(i) = cellstr(int2str(2^(i-1)));
+x = 1 : COUNT_LWS1;
+xlabels = cell(COUNT_LWS1,1);
+for i=1:COUNT_LWS1
+     xlabels(i) = cellstr(int2str(2^(i-1)));    
 end;
 % Main plot, create multiple windows
 splitCount = 3;
 dSplitCount = splitCount * splitCount;
 windowCount = graphCount / dSplitCount;
 for win=1:windowCount
-    index = (win-1) * dSplitCount * scenarioCount + 1;
-    name = ['Kernel running time, Resolution  ' int2str(data(index, 1)) 'x' int2str(data(index, 2))];
+    index = (win-1) * dSplitCount * pointCount + 1;
+    name = ['Kernel running time, Resolution  ' int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY))];
     figure('units','normalized','outerposition',[0 0.05 1 0.95],'name',name)    
     
     for graphX=1:splitCount
@@ -60,14 +77,14 @@ for win=1:windowCount
             ylabel('Time [ms]');
             % compute line index
             innerBase = ((win-1) * dSplitCount) + ((graphX-1) * splitCount) + graphY;
-            index = ((innerBase - 1) * scenarioCount) + 1;
-            title(cellstr(['Facet size ' int2str(data(index, 3)) ', Deformation count ' int2str(data(index, 5))]));
+            index = ((innerBase - 1) * pointCount) + 1;
+            title(cellstr(['Facet size ' int2str(data(index, INDEX_FACET_SIZE)) ', Deformation count ' int2str(data(index, INDEX_DEFORMATION_COUNT))]));
             
             % plot curves for all LWS0 into one subfigure
             hold on;                        
-            for lws0i=1:lws0count
-                plot(x, curves(:, lws0i, innerBase),'-o','Color',colors(lws0i, :), 'LineSmoothing','on')
-                set(gca, 'XTick', 1:lws1count, 'XTickLabel', xlabels);
+            for lws0i=1:COUNT_LWS0
+                plot(x, allCurves(:, lws0i, INSPECTED_VARIANT, innerBase),'-o','Color',colors(lws0i, :), 'LineSmoothing','on')
+                set(gca, 'XTick', 1:COUNT_LWS1, 'XTickLabel', xlabels);
                 h = legend('1', '2', '4', '8', '16', '32', '64');
                 v = get(h,'title');
                 set(v,'string','LWS0');
