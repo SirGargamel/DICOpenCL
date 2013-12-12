@@ -1,6 +1,7 @@
 package cz.tul.dic.opencl.test.gen;
 
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
+import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult.State;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -42,7 +43,7 @@ public class DataStorage {
         data.put(params, result);
         final int resultGroup = validateResult(result, params);
         result.setResultGroup(resultGroup);
-        if (resultGroup != 0) {
+        if (result.getState().equals(State.SUCCESS) && resultGroup != 0) {
             result.markResultAsInvalidDynamic();
         }
 
