@@ -39,20 +39,67 @@ public class DataStorage {
     }
 
     public static void storeData(final ParameterSet params, final ScenarioResult result) {
-        data.put(params, result);        
+        data.put(params, result);
         final int resultGroup = validateResult(result, params);
         result.setResultGroup(resultGroup);
         if (resultGroup != 0) {
             result.markResultAsInvalidDynamic();
         }
-        
+
         try {
             writeDataRunning(params, result);
         } catch (IOException ex) {
             Logger.getLogger(DataStorage.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         result.markAsStored();
+    }
+
+    private static int validateResult(final ScenarioResult result, final ParameterSet rps) {
+        final float[] coeffs = result.getResultData();
+        int resultIndex = -1;
+
+        List<float[]> results = null;
+        for (ParameterSet ps : resultGroups.keySet()) {
+            if (ps.equals(rps, Parameter.IMAGE_WIDTH, Parameter.IMAGE_HEIGHT, Parameter.FACET_SIZE, Parameter.DEFORMATION_COUNT)) {
+                results = resultGroups.get(ps);
+            }
+        }
+        if (results == null) {
+            results = new LinkedList<>();
+            results.add(coeffs);
+            resultGroups.put(rps, results);
+        }
+
+        float[] res;
+        boolean same;
+        for (int i = 0; i < results.size(); i++) {
+            res = results.get(i);
+            same = true;
+
+            if (coeffs.length != res.length) {
+                continue;
+            }
+
+            for (int j = 0; j < coeffs.length; j++) {
+                if (!CustomMath.areEqual(coeffs[j], res[j], EPS)) {
+                    same = false;
+                    break;
+                }
+            }
+
+            if (same) {
+                resultIndex = i;
+                break;
+            }
+        }
+
+        if (resultIndex == -1) {
+            resultIndex = resultGroups.size();
+            results.add(coeffs);
+        }
+
+        return resultIndex;
     }
 
     public static void setLineCount(final int count) {
@@ -65,8 +112,8 @@ public class DataStorage {
 
     private static void initTarget(final File out) throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(out, false))) {
-            writeParameterLine(bw);
-            writeHeaderLine(bw);
+            writeDataParameterLine(bw);
+            writeDataHeaderLine(bw);
         }
     }
 
@@ -81,22 +128,22 @@ public class DataStorage {
         }
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(runningOut, true))) {
-            writeDataLine(ps, result, bw);
+            writeDataResultLine(ps, result, bw);
         }
     }
 
     public static void exportData(final File out) throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(out))) {
-            writeParameterLine(bw);
-            writeHeaderLine(bw);
+            writeDataParameterLine(bw);
+            writeDataHeaderLine(bw);
 
             for (Entry<ParameterSet, ScenarioResult> e : data.entrySet()) {
-                writeDataLine(e.getKey(), e.getValue(), bw);
+                writeDataResultLine(e.getKey(), e.getValue(), bw);
             }
         }
     }
 
-    private static void writeParameterLine(final BufferedWriter bw) throws IOException {
+    private static void writeDataParameterLine(final BufferedWriter bw) throws IOException {
         bw.write(Integer.toString(lineCount));
         bw.write(DELIMITER_VALUE);
         bw.write(Integer.toString(variantCount.size()));
@@ -107,7 +154,7 @@ public class DataStorage {
         bw.write(DELIMITER_LINE);
     }
 
-    private static void writeHeaderLine(final BufferedWriter bw) throws IOException {
+    private static void writeDataHeaderLine(final BufferedWriter bw) throws IOException {
         final Parameter[] params = Parameter.values();
         for (Parameter p : params) {
             bw.write(p.toString());
@@ -124,7 +171,7 @@ public class DataStorage {
         bw.write(DELIMITER_LINE);
     }
 
-    private static void writeDataLine(ParameterSet ps, ScenarioResult result, final BufferedWriter bw) throws IOException {
+    private static void writeDataResultLine(ParameterSet ps, ScenarioResult result, final BufferedWriter bw) throws IOException {
         final Parameter[] params = Parameter.values();
         for (Parameter p : params) {
             if (ps.contains(p)) {
@@ -142,51 +189,5 @@ public class DataStorage {
 
         bw.write(DELIMITER_LINE);
     }
-    
-    private static int validateResult(final ScenarioResult result, final ParameterSet rps) {
-        final float[] coeffs = result.getResultData();        
-        int resultIndex = -1;  
-        
-        List<float[]> results = null;        
-        for (ParameterSet ps : resultGroups.keySet()) {
-            if (ps.equals(rps, Parameter.IMAGE_WIDTH, Parameter.IMAGE_HEIGHT, Parameter.FACET_SIZE, Parameter.DEFORMATION_COUNT)) {
-                results = resultGroups.get(ps);
-            }
-        }
-        if (results == null) {
-            results = new LinkedList<>();
-            results.add(coeffs);
-            resultGroups.put(rps, results);
-        }
-        
-        float[] res;
-        boolean same;
-        for (int i = 0; i < results.size(); i++) {
-            res = results.get(i);
-            same = true;
-            
-            if (coeffs.length != res.length) {
-                continue;
-            }
-            
-            for (int j = 0; j < coeffs.length; j++) {                
-                if (!CustomMath.areEqual(coeffs[j], res[j], EPS)) {
-                    same = false;
-                    break;
-                }
-            }
-            
-            if (same) {
-                resultIndex = i;
-                break;
-            }
-        }
-        
-        if (resultIndex == -1) {
-            resultIndex = resultGroups.size();
-            results.add(coeffs);
-        }
-        
-        return resultIndex;
-    }
+
 }
