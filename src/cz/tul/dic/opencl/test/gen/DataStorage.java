@@ -190,4 +190,46 @@ public class DataStorage {
         bw.write(DELIMITER_LINE);
     }
 
+    public static void exportResultGroups(final File out) throws IOException {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(out))) {
+            writeResultHeaderLine(bw);
+            writeResultValues(bw);
+        }
+    }
+
+    private static void writeResultHeaderLine(final BufferedWriter bw) throws IOException {
+        for (Entry<ParameterSet, List<float[]>> e : resultGroups.entrySet()) {
+            bw.write("\"");
+            bw.write(e.getKey().toStringSmall());
+            bw.write("\"");
+            for (int i = 0; i < e.getValue().size(); i++) {
+                bw.write(DELIMITER_VALUE);
+            }
+        }
+        bw.write(DELIMITER_VALUE);
+    }
+    
+    private static void writeResultValues(final BufferedWriter bw) throws IOException {
+        final List<float[]> resultsData = new LinkedList<>();
+        
+        int allLineCount = 0;
+        for (Entry<ParameterSet, List<float[]>> e : resultGroups.entrySet()) {
+            for (float[] fa : e.getValue()) {
+                resultsData.add(fa);
+                if (fa.length > allLineCount) {
+                    allLineCount = fa.length;
+                }
+            }
+        }
+        
+        for (int i = 0; i < allLineCount; i++) {
+            for (float[] fa : resultsData) {
+                if (i < (fa.length-1)) {
+                    bw.write(Float.toString(fa[i]));
+                }
+                bw.write(DELIMITER_VALUE);
+            }
+            bw.write(DELIMITER_LINE);
+        }
+    }
 }

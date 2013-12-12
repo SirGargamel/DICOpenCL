@@ -3,7 +3,6 @@ package cz.tul.dic.opencl.test.gen;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 
 /**
  *
@@ -31,11 +30,23 @@ public class ParameterSet implements Comparable<ParameterSet> {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
 
         for (Entry<Parameter, Integer> e : parameters.entrySet()) {
             sb.append(e.getKey());
             sb.append(":");
+            sb.append(e.getValue());
+            sb.append(", ");
+        }
+        sb.setLength(sb.length() - 2);
+
+        return sb.toString();
+    }
+    
+    public String toStringSmall() {
+        final StringBuilder sb = new StringBuilder();
+
+        for (Entry<Parameter, Integer> e : parameters.entrySet()) {            
             sb.append(e.getValue());
             sb.append(", ");
         }

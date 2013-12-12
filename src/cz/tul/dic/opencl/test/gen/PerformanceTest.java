@@ -21,12 +21,12 @@ import java.util.Random;
 public class PerformanceTest {
 
     private static final int IMAGE_WIDTH_MIN = 128;
-    private static final int IMAGE_WIDTH_MAX = 1024;
+    private static final int IMAGE_WIDTH_MAX = 256;
     private static final int IMAGE_HEIGHT_MIN = IMAGE_WIDTH_MIN * 3 / 4;
     private static final int FACET_SIZE_MIN = 10;
-    private static final int FACET_SIZE_MAX = 40;
+    private static final int FACET_SIZE_MAX = 20;
     private static final int DEFORMATION_COUNT_MIN = 200;
-    private static final int DEFORMATION_COUNT_MAX = 800;
+    private static final int DEFORMATION_COUNT_MAX = 400;
     private static final int DEFORMATION_ABS_MAX = 5;
     private static final float EPS = 0.0001f;
 
@@ -119,6 +119,7 @@ public class PerformanceTest {
         }
 
         DataStorage.exportData(new File("D:\\DIC_OpenCL_Data.csv"));
+        DataStorage.exportResultGroups(new File("D:\\DIC_OpenCL_Results.csv"));
     }
 
     private static List<Scenario> prepareScenarios(final ContextHandler contextHandler) throws IOException {
