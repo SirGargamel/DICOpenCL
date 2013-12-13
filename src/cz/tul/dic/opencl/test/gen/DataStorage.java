@@ -6,7 +6,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +23,7 @@ public class DataStorage {
 
     private static final File runningOut = new File("D:\\DIC_OpenCL_Data_running.csv");
     private static final String DELIMITER_VALUE = ",";
-    private static final String DELIMITER_LINE = "\n";
-    private static final float EPS = 0.0001f;
+    private static final String DELIMITER_LINE = "\n";    
     private static final Map<ParameterSet, ScenarioResult> data;
     private static final Map<ParameterSet, List<float[]>> resultGroups;
     private static final List<Integer> variantCount;
@@ -34,7 +33,7 @@ public class DataStorage {
     static {
         data = new TreeMap<>();
         variantCount = new LinkedList<>();
-        resultGroups = new HashMap<>();
+        resultGroups = new LinkedHashMap<>();
 
         runningInited = false;
     }
@@ -58,40 +57,45 @@ public class DataStorage {
 
     private static int validateResult(final ScenarioResult result, final ParameterSet rps) {
         final float[] coeffs = result.getResultData();
+        if (coeffs == null) {
+            return -1;
+        }
+        
         int resultIndex = -1;
 
         List<float[]> results = null;
         for (ParameterSet ps : resultGroups.keySet()) {
             if (ps.equals(rps, Parameter.IMAGE_WIDTH, Parameter.IMAGE_HEIGHT, Parameter.FACET_SIZE, Parameter.DEFORMATION_COUNT)) {
                 results = resultGroups.get(ps);
+                break;
             }
         }
         if (results == null) {
             results = new LinkedList<>();
             results.add(coeffs);
             resultGroups.put(rps, results);
-        }
+        } else {
+            float[] res;
+            boolean same;
+            for (int i = 0; i < results.size(); i++) {
+                res = results.get(i);                
 
-        float[] res;
-        boolean same;
-        for (int i = 0; i < results.size(); i++) {
-            res = results.get(i);
-            same = true;
+                if (coeffs.length != res.length) {
+                    continue;
+                }
 
-            if (coeffs.length != res.length) {
-                continue;
-            }
+                same = true;
+                for (int j = 0; j < coeffs.length; j++) {
+                    if (!CustomMath.areEqual(coeffs[j], res[j], Utils.EPS_NORMAL)) {
+                        same = false;
+                        break;
+                    }
+                }
 
-            for (int j = 0; j < coeffs.length; j++) {
-                if (!CustomMath.areEqual(coeffs[j], res[j], EPS)) {
-                    same = false;
+                if (same) {
+                    resultIndex = i;
                     break;
                 }
-            }
-
-            if (same) {
-                resultIndex = i;
-                break;
             }
         }
 
@@ -193,44 +197,35 @@ public class DataStorage {
 
     public static void exportResultGroups(final File out) throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(out))) {
-            writeResultHeaderLine(bw);
-            writeResultValues(bw);
-        }
-    }
+            final List<float[]> resultsData = new LinkedList<>();
+            int allLineCount = 0;
 
-    private static void writeResultHeaderLine(final BufferedWriter bw) throws IOException {
-        for (Entry<ParameterSet, List<float[]>> e : resultGroups.entrySet()) {
-            bw.write("\"");
-            bw.write(e.getKey().toStringSmall());
-            bw.write("\"");
-            for (int i = 0; i < e.getValue().size(); i++) {
-                bw.write(DELIMITER_VALUE);
-            }
-        }
-        bw.write(DELIMITER_VALUE);
-    }
-    
-    private static void writeResultValues(final BufferedWriter bw) throws IOException {
-        final List<float[]> resultsData = new LinkedList<>();
-        
-        int allLineCount = 0;
-        for (Entry<ParameterSet, List<float[]>> e : resultGroups.entrySet()) {
-            for (float[] fa : e.getValue()) {
-                resultsData.add(fa);
-                if (fa.length > allLineCount) {
-                    allLineCount = fa.length;
+            for (Entry<ParameterSet, List<float[]>> e : resultGroups.entrySet()) {
+                bw.write("\"");
+                bw.write(e.getKey().toStringSmall());
+                bw.write("\"");
+                for (int i = 0; i < e.getValue().size(); i++) {
+                    bw.write(DELIMITER_VALUE);
                 }
-            }
-        }
-        
-        for (int i = 0; i < allLineCount; i++) {
-            for (float[] fa : resultsData) {
-                if (i < (fa.length-1)) {
-                    bw.write(Float.toString(fa[i]));
+
+                for (float[] fa : e.getValue()) {
+                    resultsData.add(fa);
+                    if (fa.length > allLineCount) {
+                        allLineCount = fa.length;
+                    }
                 }
-                bw.write(DELIMITER_VALUE);
             }
             bw.write(DELIMITER_LINE);
+
+            for (int i = 0; i < allLineCount; i++) {
+                for (float[] fa : resultsData) {
+                    if (i < fa.length) {
+                        bw.write(Float.toString(fa[i]));
+                    }
+                    bw.write(DELIMITER_VALUE);
+                }
+                bw.write(DELIMITER_LINE);
+            }
         }
     }
 }

@@ -25,9 +25,10 @@ public abstract class Scenario1D extends Scenario {
     public ScenarioResult compute(
             final int[] imageA, final float imageAavg,
             final int[] imageB, final float imageBavg,
-            final int[] facets, final float[] deformations,
+            final int[] facetData, final int[] facetCenters, 
+            final float[] deformations,
             final ParameterSet params) {
-        final ScenarioResult result = computeScenario(imageA, imageAavg, imageB, imageBavg, facets, deformations, params);
+        final ScenarioResult result = computeScenario(imageA, imageAavg, imageB, imageBavg, facetData, facetCenters, deformations, params);
         currentVariant++;
         return result;
     }
@@ -35,7 +36,8 @@ public abstract class Scenario1D extends Scenario {
     abstract ScenarioResult computeScenario(
             final int[] imageA, final float imageAavg,
             final int[] imageB, final float imageBavg,
-            final int[] facets, final float[] deformations,
+            final int[] facetData, final int[] facetCenters, 
+            final float[] deformations,
             final ParameterSet params);
 
     protected int getLWS0() {

@@ -21,7 +21,8 @@ public abstract class Scenario {
     public abstract ScenarioResult compute(
             final int[] imageA, final float imageAavg,
             final int[] imageB, final float imageBavg,
-            final int[] facets, final float[] deformations,
+            final int[] facetData, final int[] facetCenters, 
+            final float[] deformations,
             final ParameterSet params);    
 
     public abstract boolean hasNext();

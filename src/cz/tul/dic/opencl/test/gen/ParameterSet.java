@@ -44,13 +44,15 @@ public class ParameterSet implements Comparable<ParameterSet> {
     }
     
     public String toStringSmall() {
-        final StringBuilder sb = new StringBuilder();
-
-        for (Entry<Parameter, Integer> e : parameters.entrySet()) {            
-            sb.append(e.getValue());
-            sb.append(", ");
-        }
-        sb.setLength(sb.length() - 2);
+        final StringBuilder sb = new StringBuilder();        
+        
+        sb.append(parameters.get(Parameter.IMAGE_WIDTH));
+        sb.append(",");
+        sb.append(parameters.get(Parameter.IMAGE_HEIGHT));
+        sb.append(",");
+        sb.append(parameters.get(Parameter.FACET_SIZE));
+        sb.append(",");
+        sb.append(parameters.get(Parameter.DEFORMATION_COUNT));
 
         return sb.toString();
     }

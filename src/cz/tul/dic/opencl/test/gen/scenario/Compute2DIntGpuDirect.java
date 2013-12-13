@@ -33,7 +33,8 @@ public class Compute2DIntGpuDirect extends Scenario2D {
     public ScenarioResult computeScenario(
             final int[] imageA, final float imageAavg,
             final int[] imageB, final float imageBavg,
-            final int[] facets, final float[] deformations,
+            final int[] facetData, final int[] facetCenters, 
+            final float[] deformations,
             final ParameterSet params) {
         float[] result = null;
         final int facetSize = params.getValue(Parameter.FACET_SIZE);
@@ -42,19 +43,21 @@ public class Compute2DIntGpuDirect extends Scenario2D {
         final CLContext context = contextHandler.getContext();
         final CLBuffer<IntBuffer> bufferImageA = context.createIntBuffer(imageA.length, READ_ONLY);
         final CLBuffer<IntBuffer> bufferImageB = context.createIntBuffer(imageB.length, READ_ONLY);
-        final CLBuffer<IntBuffer> bufferFacets = context.createIntBuffer(facets.length, READ_ONLY);
+        final CLBuffer<IntBuffer> bufferFacetData = context.createIntBuffer(facetData.length, READ_ONLY);
+        final CLBuffer<IntBuffer> bufferFacetCenters = context.createIntBuffer(facetCenters.length, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferDeformations = context.createFloatBuffer(deformations.length, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferResult = context.createFloatBuffer(facetCount * params.getValue(Parameter.DEFORMATION_COUNT), WRITE_ONLY);
-        long clSize = bufferImageA.getCLSize() + bufferImageB.getCLSize() + bufferFacets.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
+        long clSize = bufferImageA.getCLSize() + bufferImageB.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
         params.addParameter(Parameter.DATASIZE, (int) (clSize / 1000));
         // fill buffers
         fillBuffer(bufferImageA.getBuffer(), imageA);
         fillBuffer(bufferImageB.getBuffer(), imageB);
-        fillBuffer(bufferFacets.getBuffer(), facets);
+        fillBuffer(bufferFacetData.getBuffer(), facetData);
+        fillBuffer(bufferFacetCenters.getBuffer(), facetCenters);
         fillBuffer(bufferDeformations.getBuffer(), deformations);
         // prepare kernel arguments
         final CLKernel kernel = contextHandler.getKernel();
-        kernel.putArgs(bufferImageA, bufferImageB, bufferFacets, bufferDeformations, bufferResult)
+        kernel.putArgs(bufferImageA, bufferImageB, bufferFacetData, bufferFacetCenters, bufferDeformations, bufferResult)
                 .putArg(imageAavg)
                 .putArg(imageBavg)
                 .putArg(params.getValue(Parameter.IMAGE_WIDTH))
@@ -78,7 +81,8 @@ public class Compute2DIntGpuDirect extends Scenario2D {
 
             queue.putWriteBuffer(bufferImageA, false);
             queue.putWriteBuffer(bufferImageB, false);
-            queue.putWriteBuffer(bufferFacets, false);
+            queue.putWriteBuffer(bufferFacetData, false);
+            queue.putWriteBuffer(bufferFacetCenters, false);
             queue.putWriteBuffer(bufferDeformations, false);            
             queue.put2DRangeKernel(kernel, 0, 0, facetGlobalWorkSize, deformationsGlobalWorkSize, lws0, lws1, eventList);
             queue.putReadBuffer(bufferResult, true);
@@ -91,7 +95,8 @@ public class Compute2DIntGpuDirect extends Scenario2D {
             // data cleanup
             bufferImageA.release();
             bufferImageB.release();
-            bufferFacets.release();
+            bufferFacetData.release();
+            bufferFacetCenters.release();
             bufferDeformations.release();
             bufferResult.release();
             eventList.release();            
