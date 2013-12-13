@@ -42,9 +42,9 @@ kernel void Compute2DIntGpuDirect(
     const int baseIndexFacet = facetId * facetCoordCount;         
     const int baseIndexDeformation = deformationId * 6;
     // deform facet
-    float deformedFacet[100*100*2];    
+    float deformedFacet[50*50*2];    
     int indexFacet, i2;    
-    int x, y, dx, dy, val;
+    int x, y, dx, dy;   
     for (int i = 0; i < facetSize2; i++) {
         i2 = i*2;
         indexFacet = baseIndexFacet + i2;        
@@ -54,31 +54,27 @@ kernel void Compute2DIntGpuDirect(
 
         dx = x - facetCenters[facetId * 2];
         dy = y - facetCenters[facetId * 2 + 1];
-
-        val = x + deformations[baseIndexDeformation] + deformations[baseIndexDeformation + 2] * dx + deformations[baseIndexDeformation + 4] * dy;        
-        deformedFacet[i2] = val;
-            
-        val = y + deformations[baseIndexDeformation + 1] + deformations[baseIndexDeformation + 3] * dx + deformations[baseIndexDeformation + 5] * dy;            
-        deformedFacet[i2 + 1] = val;    
+        
+        deformedFacet[i2] = x + deformations[baseIndexDeformation] + deformations[baseIndexDeformation + 2] * dx + deformations[baseIndexDeformation + 4] * dy;                    
+        deformedFacet[i2 + 1] = y + deformations[baseIndexDeformation + 1] + deformations[baseIndexDeformation + 3] * dx + deformations[baseIndexDeformation + 5] * dy;    
     }
     // compute correlation using ZNCC
-    int deformedI[100*100];
-    int facetI[100*100];
+    float deformedI[50*50];
+    float facetI[50*50];
     float deltaF = 0;
-    float deltaG = 0;  
-    float value;
+    float deltaG = 0;     
     for (int i = 0; i < facetSize2; i++) {
         i2 = i*2;
         indexFacet = baseIndexFacet + i2;
                 
         // facet is just array of int coords        
         facetI[i] = imageA[computeIndex(facets[indexFacet], facets[indexFacet + 1], imageWidth)];
-        value = facetI[i] - imageAavg;
-        deltaF += value * value;
+        facetI[i] -= imageAavg;
+        deltaF += facetI[i] * facetI[i];
         
         deformedI[i] = interpolate(deformedFacet[i2], deformedFacet[i2 + 1], imageB, imageWidth);                
-        value = deformedI[i] - imageBavg;
-        deltaG += value * value;
+        deformedI[i] -= imageBavg;
+        deltaG += deformedI[i] * deformedI[i];
     }    
     const float deltaFs = sqrt(deltaF);
     const float deltaGs = sqrt(deltaG);
@@ -89,8 +85,7 @@ kernel void Compute2DIntGpuDirect(
         i2 = i*2;        
         indexFacet = baseIndexFacet + i2;
         
-        resultVal += (facetI[i] - imageAavg)
-         * (deformedI[i] - imageBavg);                    
+        resultVal += facetI[i] * deformedI[i];
     }
     resultVal /= delta;    
     
