@@ -23,7 +23,7 @@ public class DataStorage {
 
     private static final File runningOut = new File("D:\\DIC_OpenCL_Data_running.csv");
     private static final String DELIMITER_VALUE = ",";
-    private static final String DELIMITER_LINE = "\n";    
+    private static final String DELIMITER_LINE = "\n";
     private static final Map<ParameterSet, ScenarioResult> data;
     private static final Map<ParameterSet, List<float[]>> resultGroups;
     private static final List<Integer> variantCount;
@@ -60,7 +60,7 @@ public class DataStorage {
         if (coeffs == null) {
             return -1;
         }
-        
+
         int resultIndex = -1;
 
         List<float[]> results = null;
@@ -74,11 +74,12 @@ public class DataStorage {
             results = new LinkedList<>();
             results.add(coeffs);
             resultGroups.put(rps, results);
+            resultIndex = 0;
         } else {
             float[] res;
             boolean same;
             for (int i = 0; i < results.size(); i++) {
-                res = results.get(i);                
+                res = results.get(i);
 
                 if (coeffs.length != res.length) {
                     continue;
@@ -97,11 +98,11 @@ public class DataStorage {
                     break;
                 }
             }
-        }
 
-        if (resultIndex == -1) {
-            resultIndex = resultGroups.size();
-            results.add(coeffs);
+            if (resultIndex == -1) {
+                resultIndex = resultGroups.size();
+                results.add(coeffs);
+            }
         }
 
         return resultIndex;
