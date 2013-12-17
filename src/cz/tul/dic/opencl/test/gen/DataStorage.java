@@ -6,6 +6,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,6 +26,7 @@ public class DataStorage {
     private static final File runningOut = new File("D:\\DIC_OpenCL_Data_running.csv");
     private static final String DELIMITER_VALUE = ",";
     private static final String DELIMITER_LINE = "\n";
+    private static final DecimalFormat df;
     private static final Map<ParameterSet, ScenarioResult> data;
     private static final Map<ParameterSet, List<float[]>> resultGroups;
     private static final List<Integer> variantCount;
@@ -34,6 +37,11 @@ public class DataStorage {
         data = new TreeMap<>();
         variantCount = new LinkedList<>();
         resultGroups = new LinkedHashMap<>();
+        
+        df = new DecimalFormat("#.###");
+        final DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+        dfs.setDecimalSeparator('.');
+        df.setDecimalFormatSymbols(dfs);
 
         runningInited = false;
     }
@@ -221,7 +229,7 @@ public class DataStorage {
             for (int i = 0; i < allLineCount; i++) {
                 for (float[] fa : resultsData) {
                     if (i < fa.length) {
-                        bw.write(Float.toString(fa[i]));
+                        bw.write(df.format(fa[i]));
                     }
                     bw.write(DELIMITER_VALUE);
                 }
