@@ -40,6 +40,7 @@ kernel void Compute2DIntGpuDirect(
     const int facetSize2 = facetSize * facetSize;
     const int facetCoordCount = facetSize2 * 2;
     const int baseIndexFacet = facetId * facetCoordCount;         
+    const int baseIndexFacetCenter = facetId * 2;
     const int baseIndexDeformation = deformationId * 6;
     // deform facet
     float deformedFacet[50*50*2];    
@@ -52,8 +53,8 @@ kernel void Compute2DIntGpuDirect(
         x = facets[indexFacet];
         y = facets[indexFacet+1];
 
-        dx = x - facetCenters[facetId * 2];
-        dy = y - facetCenters[facetId * 2 + 1];
+        dx = x - facetCenters[baseIndexFacetCenter];
+        dy = y - facetCenters[baseIndexFacetCenter + 1];
         
         deformedFacet[i2] = x + deformations[baseIndexDeformation] + deformations[baseIndexDeformation + 2] * dx + deformations[baseIndexDeformation + 4] * dy;                    
         deformedFacet[i2 + 1] = y + deformations[baseIndexDeformation + 1] + deformations[baseIndexDeformation + 3] * dx + deformations[baseIndexDeformation + 5] * dy;    
