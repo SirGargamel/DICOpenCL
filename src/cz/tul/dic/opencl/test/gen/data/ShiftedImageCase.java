@@ -9,9 +9,6 @@ import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
  */
 public class ShiftedImageCase extends TestCase {
 
-    private static final int ITEM_WIDTH = 10;
-    private static final int ITEM_HEIGHT = 10;
-    private static final int ITEM_INTENSITY = 255;
     private final int shiftX, shiftY;
 
     public ShiftedImageCase(int shiftX, int shiftY) {
@@ -27,23 +24,25 @@ public class ShiftedImageCase extends TestCase {
         final int length = width * height;
         final int[] imageA = result[0];
         final int[] imageB = result[1];
-        final int centerX = (width / 2) - (ITEM_WIDTH / 2);
-        final int centerY = (height / 2) - (ITEM_HEIGHT / 2);
-        int index;
-        for (int x = 0; x < ITEM_WIDTH; x++) {
-            for (int y = 0; y < ITEM_HEIGHT; y++) {
-                index = Utils.compute1DIndex(centerX + x, centerY + y, width);
-                if (index >= 0 && index < imageA.length) {
-                    imageA[index] = ITEM_INTENSITY;
-                }
-                index = Utils.compute1DIndex(centerX + x + shiftX, centerY + y + shiftY, width);
-                if (index >= 0 && index < imageB.length) {
-                    imageB[index] = ITEM_INTENSITY;
+        int indexA, indexB;
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                indexA = Utils.compute1DIndex(x - shiftX, y - shiftY, width);
+                indexB = Utils.compute1DIndex(x, y, width);
+
+                if (isValidIndex(indexA, length)) {
+                    imageB[indexB] = imageA[indexA];
+                } else {
+                    imageB[indexB] = -1;
                 }
             }
         }
 
         return result;
+    }
+
+    private static boolean isValidIndex(final int index, final int length) {
+        return index >= 0 && index < length;
     }
 
     @Override
@@ -52,7 +51,7 @@ public class ShiftedImageCase extends TestCase {
 
         // write shifts
         writeKnownDeformations(result, shiftX, shiftY, 0, 0, 0, 0);
-        
+
         return result;
     }
 
