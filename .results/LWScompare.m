@@ -2,55 +2,11 @@ clear all;
 close all;
 clc;
 % 2D kernel LWS comparison
-% Data format - IMAGE_WIDTH [px], IMAGE_HEIGHT [px], FACET_SIZE
-% [px], DEFORMATION_COUNT ,LWS0 ,LWS1 ,Total Time [ms], Kernel time [ms]
-INDEX_DEFORMATION_COUNT = 5;
-INDEX_FACET_SIZE = 3;
-INDEX_LWS0 = 8;
-INDEX_LWS1 = 9;
-INDEX_RESX = 1;
-INDEX_RESY = 2;
-INDEX_TIME = 11;
-INDEX_VARIANT = 7;
-COUNT_LWS0 = log2(64) + 1;
-COUNT_LWS1 = log2(1024) + 1;
-INSPECTED_VARIANT = 3;
-
-% Data reading
-graphCount = csvread('DIC_OpenCL_Data.csv',0,0,[0,0,0,0]);
-variantCount = csvread('DIC_OpenCL_Data.csv',0,1,[0,1,0,1]);
-pointCounts = csvread('DIC_OpenCL_Data.csv',0,2,[0,2,0,variantCount + 1]);
-pointCount = sum(pointCounts);
-fid = fopen('DIC_OpenCL_Data.csv');
-allData = textscan(fid,'%f %f %f %f %f %f %f %f %f %f %f %s %f', 'headerlines', 2, 'Delimiter', ',');
-data = cell2mat(allData(:, 1:11));
-% Lines extraction
-allCurves = NaN(COUNT_LWS1, COUNT_LWS0, variantCount, graphCount);
-for graph=1:graphCount
-    for point=1:pointCount
-        index = ((graph - 1) * pointCount) + point;
-        
-        variant = data(index, INDEX_VARIANT) + 1;
-        lws0 = data(index, INDEX_LWS0);
-        lws1 = data(index, INDEX_LWS1);
-        
-        if (variant == 1)        
-            if (lws0 == 1)
-                lws0 = 1;
-                lws1 = 8;
-            end;
-            if (lws0 == 7)
-                lws0 = 8;
-                lws1 = 1;
-            end;                              
-        end;
-        
-        % multiple variants
-        % one graph per data combination (w, h, fs, dc)
-        % one line for each LWS0
-        allCurves(log2(lws1) + 1, log2(lws0) + 1, variant, graph) = data(index, INDEX_TIME);
-    end;
-end;
+% Data format specification can be found in Constants.m
+Constants;
+LoadData;
+INSPECTED_VARIANT = 2;
+INSPECTED_TEST_CASE = 2;
 % Plot graphs
 % line colors
 colors = [[0 0 0];[1 0 0 ];[0 1 0];[0 0 1];[1 1 0];[1 0 1];[0 1 1];[1 1 1]];
@@ -63,32 +19,35 @@ end;
 % Main plot, create multiple windows
 splitCount = 3;
 dSplitCount = splitCount * splitCount;
-windowCount = graphCount / dSplitCount;
+windowCount = ceil(graphCount / dSplitCount);
 for win=1:windowCount
     index = (win-1) * dSplitCount * pointCount + 1;
     name = ['Kernel running time, Resolution  ' int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY))];
     figure('units','normalized','outerposition',[0 0.05 1 0.95],'name',name)    
     
     for graphX=1:splitCount
-        for graphY=1:splitCount
-            % crate subfigure
-            subplot(splitCount, splitCount, (graphX-1) * 3 + graphY);                        
-            xlabel('LWS1');
-            ylabel('Time [ms]');
+        for graphY=1:splitCount 
             % compute line index
             innerBase = ((win-1) * dSplitCount) + ((graphX-1) * splitCount) + graphY;
+            if (innerBase > graphCount)
+                break;
+            end;            
             index = ((innerBase - 1) * pointCount) + 1;
+            % create subfigure
+            subplot(splitCount, splitCount, (graphX-1) * 3 + graphY);                        
+            xlabel('LWS1');
+            ylabel('Time [ms]');            
             title(cellstr(['Facet size ' int2str(data(index, INDEX_FACET_SIZE)) ', Deformation count ' int2str(data(index, INDEX_DEFORMATION_COUNT))]));
             
             % plot curves for all LWS0 into one subfigure
-            hold on;                        
+            hold on;                                    
             for lws0i=1:COUNT_LWS0
-                plot(x, allCurves(:, lws0i, INSPECTED_VARIANT, innerBase),'-o','Color',colors(lws0i, :), 'LineSmoothing','on')
-                set(gca, 'XTick', 1:COUNT_LWS1, 'XTickLabel', xlabels);
-                h = legend('1', '2', '4', '8', '16', '32', '64');
-                v = get(h,'title');
-                set(v,'string','LWS0');
+                plot(x, allCurves(:, lws0i, INSPECTED_VARIANT, INSPECTED_TEST_CASE, innerBase),'-o','Color',colors(lws0i, :), 'LineSmoothing','on')                
             end;            
+            set(gca, 'XTick', 1:COUNT_LWS1, 'XTickLabel', xlabels);
+            h = legend('1', '2', '4', '8', '16', '32', '64');
+            v = get(h,'title');
+            set(v,'string','LWS0');
             hold off;
         end;
     end;

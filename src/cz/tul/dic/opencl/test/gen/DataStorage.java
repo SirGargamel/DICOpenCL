@@ -30,14 +30,14 @@ public class DataStorage {
     private static final Map<ParameterSet, ScenarioResult> data;
     private static final Map<ParameterSet, List<float[]>> resultGroups;
     private static final List<Integer> variantCount;
-    private static int lineCount;
+    private static int lineCount, testCaseCount;
     private static boolean runningInited;
 
     static {
         data = new TreeMap<>();
         variantCount = new LinkedList<>();
         resultGroups = new LinkedHashMap<>();
-        
+
         df = new DecimalFormat("#.###");
         final DecimalFormatSymbols dfs = new DecimalFormatSymbols();
         dfs.setDecimalSeparator('.');
@@ -116,8 +116,9 @@ public class DataStorage {
         return resultIndex;
     }
 
-    public static void setLineCount(final int count) {
-        lineCount = count;
+    public static void setCounts(final int lineCount, final int testCaseCount) {
+        DataStorage.lineCount = lineCount;
+        DataStorage.testCaseCount = testCaseCount;
     }
 
     public static void addVariantCount(final int count) {
@@ -159,6 +160,8 @@ public class DataStorage {
 
     private static void writeDataParameterLine(final BufferedWriter bw) throws IOException {
         bw.write(Integer.toString(lineCount));
+        bw.write(DELIMITER_VALUE);
+        bw.write(Integer.toString(testCaseCount));
         bw.write(DELIMITER_VALUE);
         bw.write(Integer.toString(variantCount.size()));
         for (Integer i : variantCount) {

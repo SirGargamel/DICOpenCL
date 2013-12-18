@@ -19,5 +19,9 @@ public abstract class Utils {
     public static int calculateFacetArea(final int facetSize) {
         return facetSize * facetSize;
     }
+    
+    public static int compute1DIndex(final int x, final int y, final int width) {
+        return (y * width) + x;
+    }
 
 }

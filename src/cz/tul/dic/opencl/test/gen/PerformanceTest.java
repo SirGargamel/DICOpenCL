@@ -2,7 +2,7 @@ package cz.tul.dic.opencl.test.gen;
 
 import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLPlatform;
-import cz.tul.dic.opencl.test.gen.data.RandomCase;
+import cz.tul.dic.opencl.test.gen.data.ShiftedImageCase;
 import cz.tul.dic.opencl.test.gen.data.TestCase;
 import cz.tul.dic.opencl.test.gen.scenario.Compute2DImageGpuDirect;
 import cz.tul.dic.opencl.test.gen.scenario.Compute2DIntGpuDirect;
@@ -12,6 +12,7 @@ import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import java.io.File;
 import java.io.IOException;
 import static java.lang.System.nanoTime;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -37,13 +38,13 @@ public class PerformanceTest {
             DataStorage.addVariantCount(sc.getVariantCount());
         }
 
+        final List<TestCase> testCases = prepareTestCases();
+
         int lineCount = 1;
         lineCount *= IMAGE_WIDTH_MAX / IMAGE_WIDTH_MIN;
         lineCount *= FACET_SIZES.length;
         lineCount *= CustomMath.power2(DEFORMATION_COUNT_MAX / DEFORMATION_COUNT_MIN) + 1;
-        DataStorage.setLineCount(lineCount);
-
-        final TestCase tc = new RandomCase();
+        DataStorage.setCounts(lineCount, testCases.size());
 
         int[][] images;
         float average;
@@ -53,60 +54,65 @@ public class PerformanceTest {
         ParameterSet ps;
         ScenarioResult result;
         Scenario sc;
-        int s;
+        TestCase tc;
+        int s, w, h;
         try {
             // execute scenarios
-            int w, h;
-            for (int dim = 1; dim <= IMAGE_WIDTH_MAX / IMAGE_WIDTH_MIN; dim++) {
-                w = dim * IMAGE_WIDTH_MIN;
-                h = dim * IMAGE_HEIGHT_MIN;
-                images = tc.generateImages(w, h);
-                average = calculateAverage(images[0]);
+            for (int tci = 0; tci < testCases.size(); tci++) {
+                tc = testCases.get(tci);
+                
+                for (int dim = 1; dim <= IMAGE_WIDTH_MAX / IMAGE_WIDTH_MIN; dim++) {
+                    w = dim * IMAGE_WIDTH_MIN;
+                    h = dim * IMAGE_HEIGHT_MIN;
+                    images = tc.generateImages(w, h);
+                    average = calculateAverage(images[0]);
 
-                for (int sz = 0; sz < FACET_SIZES.length; sz++) {
-                    s = FACET_SIZES[sz];
+                    for (int sz = 0; sz < FACET_SIZES.length; sz++) {
+                        s = FACET_SIZES[sz];
 
-                    facetCenters = tc.generateFacetCenters(w, h, s);
-                    facetData = tc.generateFacetData(facetCenters, s);
+                        facetCenters = tc.generateFacetCenters(w, h, s);
+                        facetData = tc.generateFacetData(facetCenters, s);
 
-                    for (int d = DEFORMATION_COUNT_MIN; d <= DEFORMATION_COUNT_MAX; d *= 2) {
-                        deformations = tc.generateDeformations(d);
+                        for (int d = DEFORMATION_COUNT_MIN; d <= DEFORMATION_COUNT_MAX; d *= 2) {
+                            deformations = tc.generateDeformations(d);
 
-                        for (int i = 0; i < scenarios.size(); i++) {
-                            sc = scenarios.get(i);
-                            sc.reset();
-                            while (sc.hasNext()) {
-                                ps = new ParameterSet();
-                                ps.addParameter(Parameter.IMAGE_WIDTH, w);
-                                ps.addParameter(Parameter.IMAGE_HEIGHT, h);
-                                ps.addParameter(Parameter.FACET_SIZE, s);
-                                ps.addParameter(Parameter.FACET_COUNT, facetData.length / Utils.calculateFacetArraySize(s));
-                                ps.addParameter(Parameter.DEFORMATION_COUNT, d);
-                                ps.addParameter(Parameter.VARIANT, i);
+                            for (int sci = 0; sci < scenarios.size(); sci++) {
+                                sc = scenarios.get(sci);
+                                sc.reset();
+                                while (sc.hasNext()) {
+                                    ps = new ParameterSet();
+                                    ps.addParameter(Parameter.IMAGE_WIDTH, w);
+                                    ps.addParameter(Parameter.IMAGE_HEIGHT, h);
+                                    ps.addParameter(Parameter.FACET_SIZE, s);
+                                    ps.addParameter(Parameter.FACET_COUNT, facetData.length / Utils.calculateFacetArraySize(s));
+                                    ps.addParameter(Parameter.DEFORMATION_COUNT, d);
+                                    ps.addParameter(Parameter.VARIANT, sci);
+                                    ps.addParameter(Parameter.TEST_CASE, tci);
 
-                                time = nanoTime();
-                                result = sc.compute(images[0], average, images[0], average, facetData, facetCenters, deformations, ps);
-                                time = nanoTime() - time;
-                                result.setTotalTime(time);
+                                    time = nanoTime();
+                                    result = sc.compute(images[0], average, images[0], average, facetData, facetCenters, deformations, ps);
+                                    time = nanoTime() - time;
+                                    result.setTotalTime(time);
 
-                                tc.checkResult(result, ps.getValue(Parameter.FACET_COUNT));
+                                    tc.checkResult(result, ps.getValue(Parameter.FACET_COUNT));
 
-                                switch (result.getState()) {
-                                    case SUCCESS:
-                                        System.out.println("Finished " + sc.getDescription() + " " + (time / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
-                                        break;
-                                    case WRONG_RESULT_DYNAMIC:
-                                        System.out.println("Wrong dynamic part of result for  " + sc.getDescription() + " " + (time / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
-                                        break;
-                                    case WRONG_RESULT_FIXED:
-                                        System.out.println("Wrong fixed part of result for  " + sc.getDescription() + " " + (time / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
-                                        break;
-                                    case FAIL:
-                                        System.out.println("Failed " + sc.getDescription() + " with params " + ps);
-                                        ch.reset();
+                                    switch (result.getState()) {
+                                        case SUCCESS:
+                                            System.out.println("Finished " + sc.getDescription() + " " + (time / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
+                                            break;
+                                        case WRONG_RESULT_DYNAMIC:
+                                            System.out.println("Wrong dynamic part of result for  " + sc.getDescription() + " " + (time / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
+                                            break;
+                                        case WRONG_RESULT_FIXED:
+                                            System.out.println("Wrong fixed part of result for  " + sc.getDescription() + " " + (time / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
+                                            break;
+                                        case FAIL:
+                                            System.out.println("Failed " + sc.getDescription() + " with params " + ps);
+                                            ch.reset();
+                                    }
+
+                                    DataStorage.storeData(ps, result);
                                 }
-
-                                DataStorage.storeData(ps, result);
                             }
                         }
                     }
@@ -124,6 +130,15 @@ public class PerformanceTest {
 
         DataStorage.exportData(new File("D:\\DIC_OpenCL_Data.csv"));
         DataStorage.exportResultGroups(new File("D:\\DIC_OpenCL_Results.csv"));
+    }
+
+    private static List<TestCase> prepareTestCases() {
+        List<TestCase> result = new ArrayList<>(2);
+
+        result.add(new TestCase());
+        result.add(new ShiftedImageCase(0, 0));
+
+        return result;
     }
 
     private static List<Scenario> prepareScenarios(final ContextHandler contextHandler) throws IOException {
