@@ -306,18 +306,18 @@ public class ComputeJavaThreads extends Scenario {
             throw new IllegalArgumentException("Array size mismatch.");
         }
 
-        final float aAvg = mean(a);
-        final float bAvg = mean(b);
+        final float meanA = mean(a);
+        final float meanB = mean(b);
 
-        final float deltaA = delta(a, aAvg);
-        final float deltaB = delta(b, bAvg);
+        final float deltaA = delta(a, meanA);
+        final float deltaB = delta(b, meanB);
+        final float lower = deltaA * deltaB;
 
         float result = 0;
 
-        double upper, lower;
+        float upper;
         for (int i = 0; i < a.length; i++) {
-            upper = (a[i] - aAvg) * (b[i] - bAvg);
-            lower = deltaA * deltaB;
+            upper = (a[i] - meanA) * (b[i] - meanB);            
             result += upper / lower;
         }
 
@@ -328,12 +328,9 @@ public class ComputeJavaThreads extends Scenario {
         float result = 0;
         for (int i : l) {
             result += i;
-        }
+        }                
 
-        final int s = l.length;
-        result *= 1 / (s * s);
-
-        return result;
+        return result / l.length;
     }
 
     private static float delta(int[] l, final float mean) {
