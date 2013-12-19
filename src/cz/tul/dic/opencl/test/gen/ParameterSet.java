@@ -53,6 +53,8 @@ public class ParameterSet implements Comparable<ParameterSet> {
         sb.append(parameters.get(Parameter.FACET_SIZE));
         sb.append(",");
         sb.append(parameters.get(Parameter.DEFORMATION_COUNT));
+        sb.append(",");
+        sb.append(parameters.get(Parameter.TEST_CASE));
 
         return sb.toString();
     }

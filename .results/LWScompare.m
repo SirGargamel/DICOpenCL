@@ -5,8 +5,8 @@ clc;
 % Data format specification can be found in Constants.m
 Constants;
 LoadData;
-INSPECTED_VARIANT = 2;
 INSPECTED_TEST_CASE = 2;
+INSPECTED_VARIANT = 2;
 % Plot graphs
 % line colors
 colors = [[0 0 0];[1 0 0 ];[0 1 0];[0 0 1];[1 1 0];[1 0 1];[0 1 1];[1 1 1]];

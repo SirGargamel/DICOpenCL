@@ -4,8 +4,8 @@ clc;
 % 2D kernel int[] vs image2d comparison
 % Data format specification can be found in Constants.m
 Constants;
-INSPECTED_TEST_CASE = 2;
 LoadData;
+INSPECTED_TEST_CASE = 2;
 % Find best curves (fastest) for each variant
 bestCurves = NaN(COUNT_LWS1, variantCount, graphCount);
 bestCurvesParams = NaN(variantCount, graphCount);

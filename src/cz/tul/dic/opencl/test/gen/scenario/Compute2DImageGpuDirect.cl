@@ -75,15 +75,13 @@ kernel void Compute2DImageGpuDirect(
         deformedI[i] = interpolate(deformedFacet[i2], deformedFacet[i2+1], imageB);                        
         meanG += deformedI[i];
     } 
-    meanF /= facetSize2;
-    meanG /= facetSize2;
-    
+    meanF /= (float) facetSize2;
+    meanG /= (float) facetSize2;    
     
     float deltaF = 0;
-    float deltaG = 0;
-    int intensity;
+    float deltaG = 0;   
     for (int i = 0; i < facetSize2; i++) {
-        i2 = i * 2;
+        i2 = i*2;
         indexFacet = baseIndexFacet + i2;
                              
         facetI[i] -= meanF;
@@ -92,19 +90,15 @@ kernel void Compute2DImageGpuDirect(
         deformedI[i] -= meanG;
         deltaG += deformedI[i] * deformedI[i];
     }    
-    float deltaFs = sqrt((float) deltaF);
-    float deltaGs = sqrt((float) deltaG);
-    float delta = deltaFs * deltaGs;
+    const float deltaFs = sqrt(deltaF);
+    const float deltaGs = sqrt(deltaG);    
     
-    float resultVal = 0;
-    if (delta != 0) {                
-        for (int i = 0; i < facetSize2; i++) {
-            indexFacet = baseIndexFacet + (i * 2);
-        
-            resultVal += facetI[i] * deformedI[i];
-        }
-        resultVal /= delta;
+    float resultVal = 0;           
+    for (int i = 0; i < facetSize2; i++) {
+        indexFacet = baseIndexFacet + i*2;        
+        resultVal += facetI[i] * deformedI[i];
     }
+    resultVal /= deltaFs * deltaGs;    
     
     //store result
     indexFacet = facetId * deformationCount + deformationId;

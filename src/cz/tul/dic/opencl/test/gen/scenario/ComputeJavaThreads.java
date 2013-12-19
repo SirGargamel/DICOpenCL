@@ -233,13 +233,12 @@ public class ComputeJavaThreads extends Scenario {
 
             val = x + deformations[di] + deformations[di + 2] * dx + deformations[di + 4] * dy;
             if (val < 0) {
-//                System.err.println(val);
                 val = 0;
             }
             deformedFacet[i * 2] = val;
+
             val = y + deformations[di + 1] + deformations[di + 3] * dx + deformations[di + 5] * dy;
             if (val < 0) {
-//                System.err.println(val);
                 val = 0;
             }
             deformedFacet[i * 2 + 1] = val;
@@ -247,24 +246,24 @@ public class ComputeJavaThreads extends Scenario {
     }
 
     private static void interpolate(final float[] deformedFacet, final int[] intensities, final int[] image, final int imageWidth) {
-        int x, y, intensity, base;
+        int x, y, intensity, i2;
         double dx, dy, val;
         for (int i = 0; i < intensities.length; i++) {
-            base = i * 2;
+            i2 = i * 2;
 
-            val = deformedFacet[base];
+            val = deformedFacet[i2];
             x = (int) Math.floor(val);
             dx = val - x;
 
-            val = deformedFacet[base + 1];
+            val = deformedFacet[i2 + 1];
             y = (int) Math.floor(val);
             dy = val - y;
 
             intensity = 0;
-            intensity += image[y * imageWidth + x] * (1 - dx) * (1 - dy);
-            intensity += image[y * imageWidth + x + 1] * dx * (1 - dy);
-            intensity += image[(y + 1) * imageWidth + x] * (1 - dx) * dy;
-            intensity += image[(y + 1) * imageWidth + x + 1] * dx * dy;
+            intensity += image[Utils.compute1DIndex(x, y, imageWidth)] * (1 - dx) * (1 - dy);
+            intensity += image[Utils.compute1DIndex(x + 1, y, imageWidth)] * dx * (1 - dy);
+            intensity += image[Utils.compute1DIndex(x, y + 1, imageWidth)] * (1 - dx) * dy;
+            intensity += image[Utils.compute1DIndex(x + 1, y + 1, imageWidth)] * dx * dy;
 
             intensities[i] = intensity;
         }
@@ -273,24 +272,24 @@ public class ComputeJavaThreads extends Scenario {
     private static void interpolate(final int[] facets, final int facetIndex, final int[] intensities, final int[] image, final int imageWidth) {
         final int facetBase = facetIndex * 2 * intensities.length;
 
-        int x, y, intensity, base;
+        int x, y, intensity, i2;
         double dx, dy, val;
         for (int i = 0; i < intensities.length; i++) {
-            base = i * 2;
+            i2 = i * 2;
 
-            val = facets[facetBase + base];
+            val = facets[facetBase + i2];
             x = (int) Math.floor(val);
             dx = val - x;
 
-            val = facets[facetBase + base + 1];
+            val = facets[facetBase + i2 + 1];
             y = (int) Math.floor(val);
             dy = val - y;
 
             intensity = 0;
-            intensity += image[y * imageWidth + x] * (1 - dx) * (1 - dy);
-            intensity += image[y * imageWidth + x + 1] * dx * (1 - dy);
-            intensity += image[(y + 1) * imageWidth + x] * (1 - dx) * dy;
-            intensity += image[(y + 1) * imageWidth + x + 1] * dx * dy;
+            intensity += image[Utils.compute1DIndex(x, y, imageWidth)] * (1 - dx) * (1 - dy);
+            intensity += image[Utils.compute1DIndex(x + 1, y, imageWidth)] * dx * (1 - dy);
+            intensity += image[Utils.compute1DIndex(x, y + 1, imageWidth)] * (1 - dx) * dy;
+            intensity += image[Utils.compute1DIndex(x + 1, y + 1, imageWidth)] * dx * dy;
 
             intensities[i] = intensity;
         }
@@ -302,19 +301,16 @@ public class ComputeJavaThreads extends Scenario {
         }
 
         final float meanA = mean(a);
-        final float meanB = mean(b);
-
         final float deltaA = delta(a, meanA);
-        final float deltaB = delta(b, meanB);
-        final float lower = deltaA * deltaB;
 
-        float result = 0;
+        final float meanB = mean(b);
+        final float deltaB = delta(b, meanB);        
 
-        float upper;
-        for (int i = 0; i < a.length; i++) {
-            upper = (a[i] - meanA) * (b[i] - meanB);
-            result += upper / lower;
+        float result = 0;        
+        for (int i = 0; i < a.length; i++) {            
+            result += (a[i] - meanA) * (b[i] - meanB);
         }
+        result /=  deltaA * deltaB;
 
         return result;
     }
@@ -325,13 +321,13 @@ public class ComputeJavaThreads extends Scenario {
             result += i;
         }
 
-        return result / l.length;
+        return result / (float) l.length;
     }
 
     private static float delta(int[] l, final float mean) {
         float result = 0;
 
-        double tmp;
+        float tmp;
         for (int i : l) {
             tmp = i - mean;
             result += tmp * tmp;
