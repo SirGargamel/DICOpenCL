@@ -23,6 +23,7 @@ import java.util.logging.Logger;
  */
 public class DataStorage {
 
+    private static final int ILLEGAL_RESULT = 0;
     private static final File runningOut = new File("D:\\DIC_OpenCL_Data_running.csv");
     private static final String DELIMITER_VALUE = ",";
     private static final String DELIMITER_LINE = "\n";
@@ -50,7 +51,7 @@ public class DataStorage {
         data.put(params, result);
         final int resultGroup = validateResult(result, params);
         result.setResultGroup(resultGroup);
-        if (result.getState().equals(State.SUCCESS) && resultGroup != 0) {
+        if (result.getState().equals(State.SUCCESS) && resultGroup == ILLEGAL_RESULT) {
             result.markResultAsInvalidDynamic();
         }
 
@@ -66,10 +67,10 @@ public class DataStorage {
     private static int validateResult(final ScenarioResult result, final ParameterSet rps) {
         final float[] coeffs = result.getResultData();
         if (coeffs == null) {
-            return -1;
+            return ILLEGAL_RESULT;
         }
 
-        int resultIndex = -1;
+        int resultIndex = ILLEGAL_RESULT;
 
         List<float[]> results = null;
         for (ParameterSet ps : resultGroups.keySet()) {
@@ -82,7 +83,7 @@ public class DataStorage {
             results = new LinkedList<>();
             results.add(coeffs);
             resultGroups.put(rps, results);
-            resultIndex = 0;
+            resultIndex = 1;
         } else {
             float[] res;
             boolean same;
@@ -102,13 +103,14 @@ public class DataStorage {
                 }
 
                 if (same) {
-                    resultIndex = i;
+                    resultIndex = -(i + 1);
                     break;
                 }
             }
 
-            if (resultIndex == -1) {                
+            if (resultIndex == ILLEGAL_RESULT) {
                 results.add(coeffs);
+                resultIndex = results.size();
             }
         }
 
@@ -207,6 +209,9 @@ public class DataStorage {
     }
 
     public static void exportResultGroups(final File out) throws IOException {
+        // check result groups
+
+        // export data
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(out))) {
             final List<float[]> resultsData = new LinkedList<>();
             int allLineCount = 0;
@@ -228,10 +233,16 @@ public class DataStorage {
             }
             bw.write(DELIMITER_LINE);
 
+            float val;
             for (int i = 0; i < allLineCount; i++) {
                 for (float[] fa : resultsData) {
                     if (i < fa.length) {
-                        bw.write(df.format(fa[i]));
+                        val = fa[i];
+                        if (Float.isNaN(val)) {
+                            bw.write("NaN");
+                        } else {
+                            bw.write(df.format(val));
+                        }
                     }
                     bw.write(DELIMITER_VALUE);
                 }
