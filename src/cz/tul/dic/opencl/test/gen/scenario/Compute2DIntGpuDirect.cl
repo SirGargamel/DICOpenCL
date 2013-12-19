@@ -1,5 +1,5 @@
-int computeIndex(const int x, const int y, const int width) {
-    return (y * width) + x;    
+int computeIndex(const float x, const float y, const int width) {
+    return (int)((y * width) + x);
 }
 
 int interpolate(const float x, const float y, global read_only int * image, const int imageWidth) {

@@ -1,5 +1,5 @@
-int computeIndex(const int x, const int y, const int width) {
-    return (y * width) + x;    
+int computeIndex(const float x, const float y, const int width) {
+    return (int)((y * width) + x);
 }
 
 constant sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_LINEAR;
