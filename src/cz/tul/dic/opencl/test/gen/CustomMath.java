@@ -10,7 +10,11 @@ public class CustomMath {
         return 32 - Integer.numberOfLeadingZeros(a - 1);
     }
     
-    public static boolean areEqual(final float a, final float b, final float eps) {
+    public static boolean areEqual(final float a, final float b, final float eps) {                
+        if (Float.isNaN(a)) {
+            return Float.isNaN(b);
+        }
+        
         final float dif = Math.abs(a - b);
         return dif <= eps;
     }
