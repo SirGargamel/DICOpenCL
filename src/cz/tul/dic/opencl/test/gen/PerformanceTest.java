@@ -25,7 +25,7 @@ public class PerformanceTest {
 
     private static final int IMAGE_WIDTH_MIN = 128;
     private static final int IMAGE_WIDTH_MAX = 512;
-    private static final double IMAGE_RATIO = 3 / 4;
+    private static final double IMAGE_RATIO = 3 / (double) 4;
     private static final int[] FACET_SIZES = new int[]{9, 17};
     private static final int DEFORMATION_COUNT_MIN = 200;
     private static final int DEFORMATION_COUNT_MAX = 400;
