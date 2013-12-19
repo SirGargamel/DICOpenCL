@@ -10,10 +10,10 @@ int interpolate(const float x, const float y, global read_only int * image, cons
     const float dy = y - iy;
 
     float intensity = 0;    
-    intensity += image[computeIndex(x, y, imageWidth)] * (1 - dx) * (1 - dy);
-    intensity += image[computeIndex(x+1, y, imageWidth)] * dx * (1 - dy);
-    intensity += image[computeIndex(x, y+1, imageWidth)] * (1 - dx) * dy;
-    intensity += image[computeIndex(x+1, y+1, imageWidth)] * dx * dy;
+    intensity += image[computeIndex(ix, iy, imageWidth)] * (1 - dx) * (1 - dy);
+    intensity += image[computeIndex(ix+1, iy, imageWidth)] * dx * (1 - dy);
+    intensity += image[computeIndex(ix, iy+1, imageWidth)] * (1 - dx) * dy;
+    intensity += image[computeIndex(ix+1, iy+1, imageWidth)] * dx * dy;
 
     return intensity;    
 }
