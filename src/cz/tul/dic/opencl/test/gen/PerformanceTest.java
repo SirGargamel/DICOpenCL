@@ -6,6 +6,7 @@ import cz.tul.dic.opencl.test.gen.data.ShiftedImageCase;
 import cz.tul.dic.opencl.test.gen.data.TestCase;
 import cz.tul.dic.opencl.test.gen.scenario.Compute2DImageGpuDirect;
 import cz.tul.dic.opencl.test.gen.scenario.Compute2DIntGpuDirect;
+import cz.tul.dic.opencl.test.gen.scenario.Compute2DNaive;
 import cz.tul.dic.opencl.test.gen.scenario.ComputeJavaThreads;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
@@ -24,7 +25,7 @@ public class PerformanceTest {
 
     private static final int IMAGE_WIDTH_MIN = 128;
     private static final int IMAGE_WIDTH_MAX = 512;
-    private static final int IMAGE_HEIGHT_MIN = IMAGE_WIDTH_MIN * 3 / 4;
+    private static final double IMAGE_RATIO = 3 / 4;
     private static final int[] FACET_SIZES = new int[]{9, 17};
     private static final int DEFORMATION_COUNT_MIN = 200;
     private static final int DEFORMATION_COUNT_MAX = 400;
@@ -47,7 +48,6 @@ public class PerformanceTest {
         DataStorage.setCounts(lineCount, testCases.size());
 
         int[][] images;
-        float average;
         int[] facetData, facetCenters;
         float[] deformations;
         long time;
@@ -55,17 +55,15 @@ public class PerformanceTest {
         ScenarioResult result;
         Scenario sc;
         TestCase tc;
-        int s, w, h;
+        int s, h;
         try {
             // execute scenarios
             for (int tci = 0; tci < testCases.size(); tci++) {
                 tc = testCases.get(tci);
-                
-                for (int dim = 1; dim <= IMAGE_WIDTH_MAX / IMAGE_WIDTH_MIN; dim++) {
-                    w = dim * IMAGE_WIDTH_MIN;
-                    h = dim * IMAGE_HEIGHT_MIN;
+
+                for (int w = IMAGE_WIDTH_MIN; w <= IMAGE_WIDTH_MAX; w *= 2) {
+                    h = (int) Math.round(w * IMAGE_RATIO);
                     images = tc.generateImages(w, h);
-                    average = calculateAverage(images[0]);
 
                     for (int sz = 0; sz < FACET_SIZES.length; sz++) {
                         s = FACET_SIZES[sz];
@@ -145,21 +143,11 @@ public class PerformanceTest {
         final List<Scenario> scenarios = new LinkedList<>();
 
         scenarios.add(new ComputeJavaThreads());
+        scenarios.add(new Compute2DNaive(contextHandler));
         scenarios.add(new Compute2DIntGpuDirect(contextHandler));
         scenarios.add(new Compute2DImageGpuDirect(contextHandler));
 
         return scenarios;
-    }
-
-    private static float calculateAverage(final int[] image) {
-        float sum = 0;
-
-        for (int i = 0; i < image.length; i++) {
-            sum += image[i];
-        }
-        sum /= (float) image.length;
-
-        return sum;
     }
 
 }
