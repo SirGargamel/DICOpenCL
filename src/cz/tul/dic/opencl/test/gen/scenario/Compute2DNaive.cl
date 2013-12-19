@@ -91,14 +91,14 @@ kernel void Compute2DIntGpuDirect(
     }    
     const float deltaFs = sqrt(deltaF);
     const float deltaGs = sqrt(deltaG);
-    const float delta = deltaFs = deltaGs;
+    const float delta = deltaFs * deltaGs;
     
     float resultVal = 0;                  
     for (int i = 0; i < facetSize2; i++) {        
         indexFacet = baseIndexFacet + i*2;
         
         val = (facetI[i] - meanF) * (deformedI[i] - meanG);
-        val /= delta
+        val /= delta;
         resultVal += val;
     }   
     
