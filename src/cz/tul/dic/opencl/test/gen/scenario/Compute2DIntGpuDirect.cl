@@ -62,16 +62,19 @@ kernel void Compute2DIntGpuDirect(
     float facetI[50*50];
     float meanF = 0;
     float meanG = 0; 
+    float val;
     for (int i = 0; i < facetSize2; i++) {
         i2 = i*2;
         indexFacet = baseIndexFacet + i2;
                 
         // facet is just array of int coords        
-        facetI[i] = imageA[computeIndex(facets[indexFacet], facets[indexFacet + 1], imageWidth)];        
-        meanF += facetI[i];
+        val = imageA[computeIndex(facets[indexFacet], facets[indexFacet + 1], imageWidth)];        
+        facetI[i] = val;
+        meanF += val;
         
-        deformedI[i] = interpolate(deformedFacet[i2], deformedFacet[i2 + 1], imageB, imageWidth);                        
-        meanG += deformedI[i];
+        val = interpolate(deformedFacet[i2], deformedFacet[i2 + 1], imageB, imageWidth);                        
+        deformedI[i] = val;
+        meanG += val;
     } 
     meanF /= (float) facetSize2;
     meanG /= (float) facetSize2;
@@ -82,11 +85,13 @@ kernel void Compute2DIntGpuDirect(
         i2 = i*2;
         indexFacet = baseIndexFacet + i2;
                                      
-        facetI[i] -= meanF;
-        deltaF += facetI[i] * facetI[i];
+        val = facetI[i] - meanF;
+        facetI[i] = val;
+        deltaF += val * val;
                 
-        deformedI[i] -= meanG;
-        deltaG += deformedI[i] * deformedI[i];
+        val = deformedI[i] - meanG;
+        deformedI[i] = val;
+        deltaG += val * val;
     }    
     const float deltaFs = sqrt(deltaF);
     const float deltaGs = sqrt(deltaG);    
