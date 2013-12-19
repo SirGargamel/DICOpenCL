@@ -107,8 +107,7 @@ public class DataStorage {
                 }
             }
 
-            if (resultIndex == -1) {
-                resultIndex = results.size();
+            if (resultIndex == -1) {                
                 results.add(coeffs);
             }
         }
