@@ -2,10 +2,10 @@ clear all;
 close all;
 clc;
 % 2D kernel int[] vs image2d comparison
-% Data format specification can be found in Constants.m
+% Data format specification can be found in Constants.m and LoadData.m
 Constants;
 LoadData;
-INSPECTED_TEST_CASE = 2;
+INSPECTED_TEST_CASE = TEST_CASE_SHIFT;
 % Find best curves (fastest) for each variant
 bestCurves = NaN(COUNT_LWS1, variantCount, graphCount);
 bestCurvesParams = NaN(variantCount, graphCount);
@@ -60,10 +60,11 @@ for win=1:windowCount
             title(cellstr([int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY)) ', fs=' int2str(data(index, INDEX_FACET_SIZE)) ', dc=' int2str(data(index, INDEX_DEFORMATION_COUNT))]));            
             % plot both curves to one subfigure       
             hold on;                                    
-            plot(x,bestCurves(:, 2, innerBase),'-x','Color',colors(2, :), 'LineSmoothing','on')
-            plot(x,bestCurves(:, 3, innerBase),'-o','Color',colors(3, :), 'LineSmoothing','on')            
+            plot(x,bestCurves(:, VARIANT_NAIVE, innerBase),'-+','Color',colors(1, :), 'LineSmoothing','on')
+            plot(x,bestCurves(:, VARIANT_INT, innerBase),'-x','Color',colors(2, :), 'LineSmoothing','on')
+            plot(x,bestCurves(:, VARIANT_IMAGE, innerBase),'-o','Color',colors(3, :), 'LineSmoothing','on')            
 
-            legend(h,['int[], LWS0 = ' int2str(bestCurvesParams(2,innerBase))], ['image2d, LWS0 = ' int2str(bestCurvesParams(3,innerBase))]);
+            legend(h,['naive, LWS0 = ' int2str(bestCurvesParams(VARIANT_NAIVE,innerBase))], ['int[], LWS0 = ' int2str(bestCurvesParams(VARIANT_INT,innerBase))], ['image2d, LWS0 = ' int2str(bestCurvesParams(VARIANT_IMAGE,innerBase))]);
             % Finish plotting to subfigure
             hold off;
         end;

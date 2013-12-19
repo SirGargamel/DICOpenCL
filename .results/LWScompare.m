@@ -2,11 +2,11 @@ clear all;
 close all;
 clc;
 % 2D kernel LWS comparison
-% Data format specification can be found in Constants.m
+% Data format specification can be found in Constants.m and LoadData.m
 Constants;
 LoadData;
-INSPECTED_TEST_CASE = 2;
-INSPECTED_VARIANT = 2;
+INSPECTED_TEST_CASE = TEST_CASE_SHIFT;
+INSPECTED_VARIANT = VARIANT_IMAGE;
 % Plot graphs
 % line colors
 colors = [[0 0 0];[1 0 0 ];[0 1 0];[0 0 1];[1 1 0];[1 0 1];[0 1 1];[1 1 1]];
