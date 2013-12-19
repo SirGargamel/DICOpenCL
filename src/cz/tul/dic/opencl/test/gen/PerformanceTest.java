@@ -90,7 +90,7 @@ public class PerformanceTest {
                                     ps.addParameter(Parameter.TEST_CASE, tci);
 
                                     time = nanoTime();
-                                    result = sc.compute(images[0], average, images[0], average, facetData, facetCenters, deformations, ps);
+                                    result = sc.compute(images[0], images[1], facetData, facetCenters, deformations, ps);
                                     time = nanoTime() - time;
                                     result.setTotalTime(time);
 
@@ -136,7 +136,7 @@ public class PerformanceTest {
         List<TestCase> result = new ArrayList<>(2);
 
         result.add(new TestCase());
-        result.add(new ShiftedImageCase(0, 0));
+        result.add(new ShiftedImageCase(5, 2));
 
         return result;
     }

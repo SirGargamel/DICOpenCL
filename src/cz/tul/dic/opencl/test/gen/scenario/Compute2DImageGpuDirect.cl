@@ -24,8 +24,7 @@ kernel void Compute2DImageGpuDirect(
     global read_only image2d_t imageA, global read_only image2d_t imageB, 
     global read_only int * facets, global read_only int * facetCenters,
     global read_only float * deformations,
-    global write_only float * result,
-    const float imageAavg, const float imageBavg,
+    global write_only float * result,    
     const int imageWidth, const int deformationCount,
     const int facetSize, const int facetCount) 
 {    
@@ -63,20 +62,34 @@ kernel void Compute2DImageGpuDirect(
     // compute correlation using ZNCC
     float deformedI[50*50];
     float facetI[50*50];
+    float meanF = 0;
+    float meanG = 0; 
+    for (int i = 0; i < facetSize2; i++) {
+        i2 = i*2;
+        indexFacet = baseIndexFacet + i2;
+                
+        // facet is just array of int coords        
+        facetI[i] = read_imagei(imageA, sampler, (int2)(facets[indexFacet], facets[indexFacet + 1])).x;        
+        meanF += facetI[i];
+        
+        deformedI[i] = interpolate(deformedFacet[i2], deformedFacet[i2+1], imageB);                        
+        meanG += deformedI[i];
+    } 
+    meanF /= facetSize2;
+    meanG /= facetSize2;
+    
+    
     float deltaF = 0;
     float deltaG = 0;
     int intensity;
-    int index;
     for (int i = 0; i < facetSize2; i++) {
         i2 = i * 2;
         indexFacet = baseIndexFacet + i2;
-                
-        facetI[i] = read_imagei(imageA, sampler, (int2)(facets[indexFacet], facets[indexFacet + 1])).x;        
-        facetI[i] -= imageAavg;
+                             
+        facetI[i] -= meanF;
         deltaF += facetI[i] * facetI[i];
-                
-        deformedI[i] = interpolate(deformedFacet[i2], deformedFacet[i2+1], imageB);
-        deformedI[i] -= imageBavg;
+                        
+        deformedI[i] -= meanG;
         deltaG += deformedI[i] * deformedI[i];
     }    
     float deltaFs = sqrt((float) deltaF);

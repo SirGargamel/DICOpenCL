@@ -23,20 +23,18 @@ public abstract class Scenario1D extends Scenario {
 
     @Override
     public ScenarioResult compute(
-            final int[] imageA, final float imageAavg,
-            final int[] imageB, final float imageBavg,
-            final int[] facetData, final int[] facetCenters, 
+            final int[] imageA, final int[] imageB,
+            final int[] facetData, final int[] facetCenters,
             final float[] deformations,
             final ParameterSet params) {
-        final ScenarioResult result = computeScenario(imageA, imageAavg, imageB, imageBavg, facetData, facetCenters, deformations, params);
+        final ScenarioResult result = computeScenario(imageA, imageB, facetData, facetCenters, deformations, params);
         currentVariant++;
         return result;
     }
-    
+
     abstract ScenarioResult computeScenario(
-            final int[] imageA, final float imageAavg,
-            final int[] imageB, final float imageBavg,
-            final int[] facetData, final int[] facetCenters, 
+            final int[] imageA, final int[] imageB,
+            final int[] facetData, final int[] facetCenters,
             final float[] deformations,
             final ParameterSet params);
 
@@ -50,7 +48,7 @@ public abstract class Scenario1D extends Scenario {
     }
 
     @Override
-    public void resetInner() {        
+    public void resetInner() {
         currentVariant = 0;
     }
 

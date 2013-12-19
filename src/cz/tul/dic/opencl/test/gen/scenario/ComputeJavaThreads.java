@@ -31,7 +31,7 @@ public class ComputeJavaThreads extends Scenario {
     }
 
     @Override
-    public ScenarioResult compute(int[] imageA, float imageAavg, int[] imageB, float imageBavg, int[] facetData, int[] facetCenters, float[] deformations, ParameterSet params) {
+    public ScenarioResult compute(int[] imageA, int[] imageB, int[] facetData, int[] facetCenters, float[] deformations, ParameterSet params) {
         // preparation
         exec = Executors.newFixedThreadPool(COUNT_THREADS);
         final int facetCount = params.getValue(Parameter.FACET_COUNT);
@@ -51,9 +51,8 @@ public class ComputeJavaThreads extends Scenario {
                     workers.add(new WorkerPerFacet(
                             counts[i], counts[i + 1],
                             imageA, imageB,
-                            imageAavg, imageBavg,
                             params.getValue(Parameter.IMAGE_WIDTH),
-                            facetData, facetCenters, 
+                            facetData, facetCenters,
                             deformations,
                             params.getValue(Parameter.FACET_SIZE),
                             results));
@@ -69,9 +68,8 @@ public class ComputeJavaThreads extends Scenario {
                     workers.add(new WorkerPerDeformation(
                             counts[i], counts[i + 1],
                             imageA, imageB,
-                            imageAavg, imageBavg,
                             params.getValue(Parameter.IMAGE_WIDTH),
-                            facetData, facetCenters, 
+                            facetData, facetCenters,
                             deformations,
                             params.getValue(Parameter.FACET_SIZE),
                             results));
@@ -130,20 +128,17 @@ public class ComputeJavaThreads extends Scenario {
 
         protected final int startIndex, endIndex;
         protected final int[] imageA, imageB;
-        protected final float imageAavg, imageBavg;
         protected final int imageWidth;
         protected final int[] facetData, facetCenters;
         protected final float[] deformations;
         protected final int facetSize;
         protected final float[] results;
 
-        public Worker(int startIndex, int endIndex, int[] imageA, int[] imageB, float imageAavg, float imageBavg, int imageWidth, int[] facetData, int[] facetCenters, float[] deformations, int facetSize, float[] results) {
+        public Worker(int startIndex, int endIndex, int[] imageA, int[] imageB, int imageWidth, int[] facetData, int[] facetCenters, float[] deformations, int facetSize, float[] results) {
             this.startIndex = startIndex;
             this.endIndex = endIndex;
             this.imageA = imageA;
             this.imageB = imageB;
-            this.imageAavg = imageAavg;
-            this.imageBavg = imageBavg;
             this.imageWidth = imageWidth;
             this.facetData = facetData;
             this.facetCenters = facetCenters;
@@ -156,8 +151,8 @@ public class ComputeJavaThreads extends Scenario {
 
     private static class WorkerPerFacet extends Worker {
 
-        public WorkerPerFacet(int startIndex, int endIndex, int[] imageA, int[] imageB, float imageAavg, float imageBavg, int imageWidth, int[] facetData, int[] facetCenters, float[] deformations, int facetSize, float[] results) {
-            super(startIndex, endIndex, imageA, imageB, imageAavg, imageBavg, imageWidth, facetData, facetCenters, deformations, facetSize, results);
+        public WorkerPerFacet(int startIndex, int endIndex, int[] imageA, int[] imageB, int imageWidth, int[] facetData, int[] facetCenters, float[] deformations, int facetSize, float[] results) {
+            super(startIndex, endIndex, imageA, imageB, imageWidth, facetData, facetCenters, deformations, facetSize, results);
         }
 
         @Override
@@ -185,8 +180,8 @@ public class ComputeJavaThreads extends Scenario {
 
     private static class WorkerPerDeformation extends Worker {
 
-        public WorkerPerDeformation(int startIndex, int endIndex, int[] imageA, int[] imageB, float imageAavg, float imageBavg, int imageWidth, int[] facetData, int[] facetCenters, float[] deformations, int facetSize, float[] results) {
-            super(startIndex, endIndex, imageA, imageB, imageAavg, imageBavg, imageWidth, facetData, facetCenters, deformations, facetSize, results);
+        public WorkerPerDeformation(int startIndex, int endIndex, int[] imageA, int[] imageB, int imageWidth, int[] facetData, int[] facetCenters, float[] deformations, int facetSize, float[] results) {
+            super(startIndex, endIndex, imageA, imageB, imageWidth, facetData, facetCenters, deformations, facetSize, results);
         }
 
         @Override
@@ -317,7 +312,7 @@ public class ComputeJavaThreads extends Scenario {
 
         float upper;
         for (int i = 0; i < a.length; i++) {
-            upper = (a[i] - meanA) * (b[i] - meanB);            
+            upper = (a[i] - meanA) * (b[i] - meanB);
             result += upper / lower;
         }
 
@@ -328,7 +323,7 @@ public class ComputeJavaThreads extends Scenario {
         float result = 0;
         for (int i : l) {
             result += i;
-        }                
+        }
 
         return result / l.length;
     }

@@ -31,8 +31,7 @@ public class Compute2DIntGpuDirect extends Scenario2D {
 
     @Override
     public ScenarioResult computeScenario(
-            final int[] imageA, final float imageAavg,
-            final int[] imageB, final float imageBavg,
+            final int[] imageA, final int[] imageB,
             final int[] facetData, final int[] facetCenters, 
             final float[] deformations,
             final ParameterSet params) {
@@ -58,8 +57,6 @@ public class Compute2DIntGpuDirect extends Scenario2D {
         // prepare kernel arguments
         final CLKernel kernel = contextHandler.getKernel();
         kernel.putArgs(bufferImageA, bufferImageB, bufferFacetData, bufferFacetCenters, bufferDeformations, bufferResult)
-                .putArg(imageAavg)
-                .putArg(imageBavg)
                 .putArg(params.getValue(Parameter.IMAGE_WIDTH))
                 .putArg(params.getValue(Parameter.DEFORMATION_COUNT))
                 .putArg(facetSize)

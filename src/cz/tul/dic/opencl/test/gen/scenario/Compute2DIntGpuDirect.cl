@@ -22,8 +22,7 @@ kernel void Compute2DIntGpuDirect(
     global read_only int * imageA, global read_only int * imageB, 
     global read_only int * facets, global read_only int * facetCenters,
     global read_only float * deformations,
-    global write_only float * result,
-    const float imageAavg, const float imageBavg,
+    global write_only float * result,    
     const int imageWidth, const int deformationCount,
     const int facetSize, const int facetCount) 
 {        
@@ -62,19 +61,33 @@ kernel void Compute2DIntGpuDirect(
     // compute correlation using ZNCC
     float deformedI[50*50];
     float facetI[50*50];
-    float deltaF = 0;
-    float deltaG = 0;     
+    float meanF = 0;
+    float meanG = 0; 
     for (int i = 0; i < facetSize2; i++) {
         i2 = i*2;
         indexFacet = baseIndexFacet + i2;
                 
         // facet is just array of int coords        
-        facetI[i] = imageA[computeIndex(facets[indexFacet], facets[indexFacet + 1], imageWidth)];
-        facetI[i] -= imageAavg;
-        deltaF += facetI[i] * facetI[i];
+        facetI[i] = imageA[computeIndex(facets[indexFacet], facets[indexFacet + 1], imageWidth)];        
+        meanF += facetI[i];
         
-        deformedI[i] = interpolate(deformedFacet[i2], deformedFacet[i2 + 1], imageB, imageWidth);                
-        deformedI[i] -= imageBavg;
+        deformedI[i] = interpolate(deformedFacet[i2], deformedFacet[i2 + 1], imageB, imageWidth);                        
+        meanG += deformedI[i];
+    } 
+    meanF /= facetSize2;
+    meanG /= facetSize2;
+    
+    float deltaF = 0;
+    float deltaG = 0;    
+    for (int i = 0; i < facetSize2; i++) {
+        i2 = i*2;
+        indexFacet = baseIndexFacet + i2;
+                
+        // facet is just array of int coords                
+        facetI[i] -= meanF;
+        deltaF += facetI[i] * facetI[i];
+                
+        deformedI[i] -= meanG;
         deltaG += deformedI[i] * deformedI[i];
     }    
     const float deltaFs = sqrt(deltaF);

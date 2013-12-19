@@ -34,9 +34,8 @@ public class Compute2DImageGpuDirect extends Scenario2D {
 
     @Override
     public ScenarioResult computeScenario(
-            final int[] imageA, final float imageAavg,
-            final int[] imageB, final float imageBavg,
-            final int[] facetData, final int[] facetCenters, 
+            final int[] imageA, final int[] imageB,
+            final int[] facetData, final int[] facetCenters,
             final float[] deformations,
             final ParameterSet params) {
         float[] result = null;
@@ -47,7 +46,7 @@ public class Compute2DImageGpuDirect extends Scenario2D {
 
         CLImageFormat format = new CLImageFormat(CLImageFormat.ChannelOrder.INTENSITY, CLImageFormat.ChannelType.UNORM_INT8);
 
-        final IntBuffer imageAbuffer = Buffers.newDirectIntBuffer(imageA);        
+        final IntBuffer imageAbuffer = Buffers.newDirectIntBuffer(imageA);
         final CLImage2d<IntBuffer> imageAcl = context.createImage2d(imageAbuffer, params.getValue(Parameter.IMAGE_WIDTH), params.getValue(Parameter.IMAGE_HEIGHT), format, READ_ONLY);
 
         final IntBuffer imageBbuffer = Buffers.newDirectIntBuffer(imageB);
@@ -65,9 +64,7 @@ public class Compute2DImageGpuDirect extends Scenario2D {
         fillBuffer(bufferDeformations.getBuffer(), deformations);
         // prepare kernel arguments
         final CLKernel kernel = contextHandler.getKernel();
-        kernel.putArgs(imageAcl, imageBcl, bufferFacetData, bufferFacetCenters, bufferDeformations, bufferResult)
-                .putArg(imageAavg)
-                .putArg(imageBavg)
+        kernel.putArgs(imageAcl, imageBcl, bufferFacetData, bufferFacetCenters, bufferDeformations, bufferResult)                
                 .putArg(params.getValue(Parameter.IMAGE_WIDTH))
                 .putArg(params.getValue(Parameter.DEFORMATION_COUNT))
                 .putArg(facetSize)
