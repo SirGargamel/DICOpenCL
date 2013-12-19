@@ -42,7 +42,7 @@ public class PerformanceTest {
         final List<TestCase> testCases = prepareTestCases();
 
         int lineCount = 1;
-        lineCount *= IMAGE_WIDTH_MAX / IMAGE_WIDTH_MIN;
+        lineCount *= CustomMath.power2(IMAGE_WIDTH_MAX / IMAGE_WIDTH_MIN) + 1;
         lineCount *= FACET_SIZES.length;
         lineCount *= CustomMath.power2(DEFORMATION_COUNT_MAX / DEFORMATION_COUNT_MIN) + 1;
         DataStorage.setCounts(lineCount, testCases.size());
