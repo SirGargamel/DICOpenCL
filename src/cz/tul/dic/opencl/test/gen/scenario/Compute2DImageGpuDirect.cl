@@ -15,8 +15,7 @@ int interpolate(const float x, const float y, global read_only image2d_t image) 
     intensity += read_imageui(image, sampler, (float2)(ix, iy)).x * (1 - dx) * (1 - dy);
     intensity += read_imageui(image, sampler, (float2)(ix+1, iy)).x * dx * (1 - dy);
     intensity += read_imageui(image, sampler, (float2)(ix, iy+1)).x * (1 - dx) * dy;
-    intensity += read_imageui(image, sampler, (float2)(ix+1, iy+1)).x * dx * dy;        
-//    const float intensity = read_imagei(image, sampler, (float2)(x, y)).x;
+    intensity += read_imageui(image, sampler, (float2)(ix+1, iy+1)).x * dx * dy;            
 
     return intensity;    
 }
