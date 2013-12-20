@@ -44,7 +44,7 @@ public class Compute2DImageGpuDirect extends Scenario2D {
         // prepare buffers
         final CLContext context = contextHandler.getContext();
 
-        CLImageFormat format = new CLImageFormat(CLImageFormat.ChannelOrder.INTENSITY, CLImageFormat.ChannelType.UNORM_INT8);
+        CLImageFormat format = new CLImageFormat(CLImageFormat.ChannelOrder.INTENSITY, CLImageFormat.ChannelType.UNSIGNED_INT32);
 
         final IntBuffer imageAbuffer = Buffers.newDirectIntBuffer(imageA);
         final CLImage2d<IntBuffer> imageAcl = context.createImage2d(imageAbuffer, params.getValue(Parameter.IMAGE_WIDTH), params.getValue(Parameter.IMAGE_HEIGHT), format, READ_ONLY);

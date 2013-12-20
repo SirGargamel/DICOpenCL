@@ -2,7 +2,7 @@ int computeIndex(const float x, const float y, const int width) {
     return (int)((y * width) + x);
 }
 
-constant sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_LINEAR;
+constant sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
 
 int interpolate(const float x, const float y, global read_only image2d_t image) {
     const float ix = floor(x);
@@ -12,10 +12,11 @@ int interpolate(const float x, const float y, global read_only image2d_t image) 
     const float dy = y - iy;
 
     float intensity = 0;    
-    intensity += read_imagei(image, sampler, (int2)(ix, iy)).x * (1 - dx) * (1 - dy);
-    intensity += read_imagei(image, sampler, (int2)(ix+1, iy)).x * dx * (1 - dy);
-    intensity += read_imagei(image, sampler, (int2)(ix, iy+1)).x * (1 - dx) * dy;
-    intensity += read_imagei(image, sampler, (int2)(ix+1, iy+1)).x * dx * dy;        
+    intensity += read_imageui(image, sampler, (float2)(ix, iy)).x * (1 - dx) * (1 - dy);
+    intensity += read_imageui(image, sampler, (float2)(ix+1, iy)).x * dx * (1 - dy);
+    intensity += read_imageui(image, sampler, (float2)(ix, iy+1)).x * (1 - dx) * dy;
+    intensity += read_imageui(image, sampler, (float2)(ix+1, iy+1)).x * dx * dy;        
+//    const float intensity = read_imagei(image, sampler, (float2)(x, y)).x;
 
     return intensity;    
 }
@@ -69,7 +70,7 @@ kernel void Compute2DImageGpuDirect(
         indexFacet = baseIndexFacet + i2;
                 
         // facet is just array of int coords        
-        facetI[i] = read_imagei(imageA, sampler, (int2)(facets[indexFacet], facets[indexFacet + 1])).x;        
+        facetI[i] = read_imageui(imageA, sampler, (int2)(facets[indexFacet], facets[indexFacet + 1])).x;        
         meanF += facetI[i];
         
         deformedI[i] = interpolate(deformedFacet[i2], deformedFacet[i2+1], imageB);        
