@@ -18,7 +18,7 @@ for graph=1:graphCount
         lws0 = data(index, INDEX_LWS0);
         lws1 = data(index, INDEX_LWS1);
         
-        if (variant == 1)        
+        if (variant == VARIANT_JAVA)        
             if (lws0 == 1)
                 lws0 = 2;
                 lws1 = 8;
