@@ -13,6 +13,7 @@ INDEX_RESY = 2;
 INDEX_TEST_CASE = 5;
 INDEX_TIME = 12;
 INDEX_VARIANT = 6;
+NAMES_VARIANTS = ['JavaThreads  ';'Naive Int[]  ';'Optimized Int';'Image2d_t    '];
 TEST_CASE_RANDOM = 1;
 TEST_CASE_SHIFT = 2;
 VARIANT_JAVA = 1;
