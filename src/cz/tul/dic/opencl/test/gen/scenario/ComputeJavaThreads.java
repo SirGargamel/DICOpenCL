@@ -115,7 +115,7 @@ public class ComputeJavaThreads extends Scenario {
     }
 
     @Override
-    void resetInner() {
+    protected void resetInner() {
         currentVariant = 0;
     }
 

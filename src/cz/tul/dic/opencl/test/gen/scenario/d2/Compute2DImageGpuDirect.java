@@ -1,5 +1,6 @@
-package cz.tul.dic.opencl.test.gen.scenario;
+package cz.tul.dic.opencl.test.gen.scenario.d2;
 
+import com.jogamp.common.nio.Buffers;
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;
@@ -8,11 +9,14 @@ import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLEvent.ProfilingCommand;
 import com.jogamp.opencl.CLEventList;
 import com.jogamp.opencl.CLException;
+import com.jogamp.opencl.CLImage2d;
+import com.jogamp.opencl.CLImageFormat;
 import com.jogamp.opencl.CLKernel;
 import static com.jogamp.opencl.CLMemory.Mem.READ_ONLY;
 import static com.jogamp.opencl.CLMemory.Mem.WRITE_ONLY;
 import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
+import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -21,18 +25,18 @@ import java.nio.IntBuffer;
  *
  * @author Petr Jecmen
  */
-public class Compute2DNaive extends Scenario2D {
+public class Compute2DImageGpuDirect extends Scenario2D {
 
-    private static final String NAME = "Compute2DNaive";
+    private static final String NAME = "Compute2DImageGpuDirect";
 
-    public Compute2DNaive(final ContextHandler contextHandler) throws IOException {
+    public Compute2DImageGpuDirect(final ContextHandler contextHandler) throws IOException {
         super(NAME, contextHandler);
     }
 
     @Override
     public ScenarioResult computeScenario(
             final int[] imageA, final int[] imageB,
-            final int[] facetData, final int[] facetCenters, 
+            final int[] facetData, final int[] facetCenters,
             final float[] deformations,
             final ParameterSet params) {
         float[] result = null;
@@ -40,23 +44,28 @@ public class Compute2DNaive extends Scenario2D {
         final int facetCount = params.getValue(Parameter.FACET_COUNT);
         // prepare buffers
         final CLContext context = contextHandler.getContext();
-        final CLBuffer<IntBuffer> bufferImageA = context.createIntBuffer(imageA.length, READ_ONLY);
-        final CLBuffer<IntBuffer> bufferImageB = context.createIntBuffer(imageB.length, READ_ONLY);
+
+        CLImageFormat format = new CLImageFormat(CLImageFormat.ChannelOrder.INTENSITY, CLImageFormat.ChannelType.UNSIGNED_INT32);
+
+        final IntBuffer imageAbuffer = Buffers.newDirectIntBuffer(imageA);
+        final CLImage2d<IntBuffer> imageAcl = context.createImage2d(imageAbuffer, params.getValue(Parameter.IMAGE_WIDTH), params.getValue(Parameter.IMAGE_HEIGHT), format, READ_ONLY);
+
+        final IntBuffer imageBbuffer = Buffers.newDirectIntBuffer(imageB);
+        final CLImage2d<IntBuffer> imageBcl = context.createImage2d(imageBbuffer, params.getValue(Parameter.IMAGE_WIDTH), params.getValue(Parameter.IMAGE_HEIGHT), format, READ_ONLY);
+
         final CLBuffer<IntBuffer> bufferFacetData = context.createIntBuffer(facetData.length, READ_ONLY);
         final CLBuffer<IntBuffer> bufferFacetCenters = context.createIntBuffer(facetCenters.length, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferDeformations = context.createFloatBuffer(deformations.length, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferResult = context.createFloatBuffer(facetCount * params.getValue(Parameter.DEFORMATION_COUNT), WRITE_ONLY);
-        long clSize = bufferImageA.getCLSize() + bufferImageB.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
+        long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
         params.addParameter(Parameter.DATASIZE, (int) (clSize / 1000));
-        // fill buffers
-        fillBuffer(bufferImageA.getBuffer(), imageA);
-        fillBuffer(bufferImageB.getBuffer(), imageB);
+        // fill buffers        
         fillBuffer(bufferFacetData.getBuffer(), facetData);
         fillBuffer(bufferFacetCenters.getBuffer(), facetCenters);
         fillBuffer(bufferDeformations.getBuffer(), deformations);
         // prepare kernel arguments
         final CLKernel kernel = contextHandler.getKernel();
-        kernel.putArgs(bufferImageA, bufferImageB, bufferFacetData, bufferFacetCenters, bufferDeformations, bufferResult)
+        kernel.putArgs(imageAcl, imageBcl, bufferFacetData, bufferFacetCenters, bufferDeformations, bufferResult)
                 .putArg(params.getValue(Parameter.IMAGE_WIDTH))
                 .putArg(params.getValue(Parameter.DEFORMATION_COUNT))
                 .putArg(facetSize)
@@ -74,29 +83,29 @@ public class Compute2DNaive extends Scenario2D {
         try {
             CLEventList eventList = new CLEventList(1);
 
-            final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(Mode.PROFILING_MODE);            
+            final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(Mode.PROFILING_MODE);
 
-            queue.putWriteBuffer(bufferImageA, false);
-            queue.putWriteBuffer(bufferImageB, false);
+            queue.putWriteImage(imageAcl, false);
+            queue.putWriteImage(imageBcl, false);
             queue.putWriteBuffer(bufferFacetData, false);
             queue.putWriteBuffer(bufferFacetCenters, false);
-            queue.putWriteBuffer(bufferDeformations, false);            
+            queue.putWriteBuffer(bufferDeformations, false);
             queue.put2DRangeKernel(kernel, 0, 0, facetGlobalWorkSize, deformationsGlobalWorkSize, lws0, lws1, eventList);
             queue.putReadBuffer(bufferResult, true);
             result = readBuffer(bufferResult.getBuffer());
-            
+
             final long start = eventList.getEvent(0).getProfilingInfo(ProfilingCommand.START);
             final long end = eventList.getEvent(0).getProfilingInfo(ProfilingCommand.END);
             duration = end - start;
 
             // data cleanup
-            bufferImageA.release();
-            bufferImageB.release();
+            imageAcl.release();
+            imageBcl.release();
             bufferFacetData.release();
             bufferFacetCenters.release();
             bufferDeformations.release();
             bufferResult.release();
-            eventList.release();            
+            eventList.release();
         } catch (CLException ex) {
             System.err.println("CL error - " + ex.getLocalizedMessage());
         }

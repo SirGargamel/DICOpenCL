@@ -1,8 +1,10 @@
-package cz.tul.dic.opencl.test.gen.scenario;
+package cz.tul.dic.opencl.test.gen.scenario.d2;
 
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import cz.tul.dic.opencl.test.gen.CustomMath;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
+import cz.tul.dic.opencl.test.gen.scenario.Scenario;
+import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import java.io.IOException;
 
 /**
@@ -75,7 +77,7 @@ public abstract class Scenario2D extends Scenario {
     }
 
     @Override
-    public void resetInner() {
+    protected void resetInner() {
         currentVariant = 0;
         prepareNextVariant();
     }

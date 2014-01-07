@@ -4,9 +4,8 @@ import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLPlatform;
 import cz.tul.dic.opencl.test.gen.data.ShiftedImageCase;
 import cz.tul.dic.opencl.test.gen.data.TestCase;
-import cz.tul.dic.opencl.test.gen.scenario.Compute2DImageGpuDirect;
-import cz.tul.dic.opencl.test.gen.scenario.Compute2DIntGpuDirect;
-import cz.tul.dic.opencl.test.gen.scenario.Compute2DNaive;
+import cz.tul.dic.opencl.test.gen.scenario.d2.Compute2DImageGpuDirect;
+import cz.tul.dic.opencl.test.gen.scenario.d2.Compute2DInt;
 import cz.tul.dic.opencl.test.gen.scenario.ComputeJavaThreads;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
@@ -24,14 +23,14 @@ import java.util.List;
 public class PerformanceTest {
 
     private static final int IMAGE_WIDTH_MIN = 128;
-    private static final int IMAGE_WIDTH_MAX = 512;
-//    private static final int IMAGE_WIDTH_MAX = 128;
+//    private static final int IMAGE_WIDTH_MAX = 512;
+    private static final int IMAGE_WIDTH_MAX = 128;
     private static final double IMAGE_RATIO = 3 / (double) 4;
-    private static final int[] FACET_SIZES = new int[]{9, 17};
-//    private static final int[] FACET_SIZES = new int[]{9};
+//    private static final int[] FACET_SIZES = new int[]{9, 17};
+    private static final int[] FACET_SIZES = new int[]{9};
     private static final int DEFORMATION_COUNT_MIN = 200;
-    private static final int DEFORMATION_COUNT_MAX = 400;
-//    private static final int DEFORMATION_COUNT_MAX = 200;
+//    private static final int DEFORMATION_COUNT_MAX = 400;
+    private static final int DEFORMATION_COUNT_MAX = 200;
 
     public static void computeImageFillTest() throws IOException {
         CLPlatform.initialize();
@@ -146,8 +145,8 @@ public class PerformanceTest {
         final List<Scenario> scenarios = new LinkedList<>();
 
         scenarios.add(new ComputeJavaThreads());
-        scenarios.add(new Compute2DNaive(contextHandler));
-        scenarios.add(new Compute2DIntGpuDirect(contextHandler));
+        scenarios.add(new Compute2DInt("Compute2DNaive", contextHandler));
+        scenarios.add(new Compute2DInt("Compute2DIntGpuDirect", contextHandler));
         scenarios.add(new Compute2DImageGpuDirect(contextHandler));
 
         return scenarios;

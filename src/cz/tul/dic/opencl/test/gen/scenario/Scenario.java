@@ -34,7 +34,7 @@ public abstract class Scenario {
         resetInner();
     }
 
-    abstract void resetInner();
+    protected abstract void resetInner();
 
     public String getDescription() {
         return name;
