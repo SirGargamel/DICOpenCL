@@ -7,6 +7,8 @@ import com.jogamp.opencl.CLMemory;
 import com.jogamp.opencl.CLPlatform;
 import com.jogamp.opencl.util.Filter;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
+import cz.tul.dic.opencl.test.gen.scenario.d1.Scenario1D;
+import cz.tul.dic.opencl.test.gen.scenario.d2.Scenario2D;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,7 +52,18 @@ public class ContextHandler {
         if (context != null && scenario != null) {
             final String name = scenario.getDescription();
             try {
-                kernel = context.createProgram(Scenario.class.getResourceAsStream(name.concat(CL_EXTENSION))).build().createCLKernel(name);
+                Class cls;
+                if (sc instanceof Scenario2D) {
+                    cls = Scenario2D.class;
+                    //kernel = context.createProgram(Scenario2D.class.getResourceAsStream(name.concat(CL_EXTENSION))).build().createCLKernel(name);
+                } else if (sc instanceof Scenario1D) {
+                    cls = Scenario1D.class;
+                    //kernel = context.createProgram(Scenario1D.class.getResourceAsStream(name.concat(CL_EXTENSION))).build().createCLKernel(name);
+                } else {
+                    cls = Scenario.class;
+                    //kernel = context.createProgram(Scenario.class.getResourceAsStream(name.concat(CL_EXTENSION))).build().createCLKernel(name);
+                }
+                kernel = context.createProgram(cls.getResourceAsStream(name.concat(CL_EXTENSION))).build().createCLKernel(name);
             } catch (IOException ex) {
                 // should not happen
                 ex.printStackTrace(System.err);
