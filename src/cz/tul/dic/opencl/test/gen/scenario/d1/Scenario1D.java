@@ -1,8 +1,10 @@
-package cz.tul.dic.opencl.test.gen.scenario;
+package cz.tul.dic.opencl.test.gen.scenario.d1;
 
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import cz.tul.dic.opencl.test.gen.CustomMath;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
+import cz.tul.dic.opencl.test.gen.scenario.Scenario;
+import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import java.io.IOException;
 
 /**
