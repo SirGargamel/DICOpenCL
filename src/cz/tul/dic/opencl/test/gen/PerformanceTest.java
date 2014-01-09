@@ -4,11 +4,15 @@ import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLPlatform;
 import cz.tul.dic.opencl.test.gen.data.ShiftedImageCase;
 import cz.tul.dic.opencl.test.gen.data.TestCase;
-import cz.tul.dic.opencl.test.gen.scenario.d2.Compute2DImageGpuDirect;
-import cz.tul.dic.opencl.test.gen.scenario.d2.Compute2DInt;
 import cz.tul.dic.opencl.test.gen.scenario.ComputeJavaThreads;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
+import cz.tul.dic.opencl.test.gen.scenario.d1.Compute1DIntPerDeformationSingle;
+import cz.tul.dic.opencl.test.gen.scenario.d1.Compute1DIntPerFacetSingle;
+import cz.tul.dic.opencl.test.gen.scenario.d15.Compute15DIntPerDeformation;
+import cz.tul.dic.opencl.test.gen.scenario.d15.Compute15DIntPerFacet;
+import cz.tul.dic.opencl.test.gen.scenario.d2.Compute2DImageGpuDirect;
+import cz.tul.dic.opencl.test.gen.scenario.d2.Compute2DInt;
 import java.io.File;
 import java.io.IOException;
 import static java.lang.System.nanoTime;
@@ -148,6 +152,10 @@ public class PerformanceTest {
         scenarios.add(new Compute2DInt("Compute2DNaive", contextHandler));
         scenarios.add(new Compute2DInt("Compute2DIntGpuDirect", contextHandler));
         scenarios.add(new Compute2DImageGpuDirect(contextHandler));
+        scenarios.add(new Compute1DIntPerFacetSingle(contextHandler));
+        scenarios.add(new Compute1DIntPerDeformationSingle(contextHandler));
+        scenarios.add(new Compute15DIntPerFacet(contextHandler));
+        scenarios.add(new Compute15DIntPerDeformation(contextHandler));
 
         return scenarios;
     }
