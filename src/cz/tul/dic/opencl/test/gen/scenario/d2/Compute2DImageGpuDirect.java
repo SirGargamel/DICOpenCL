@@ -113,40 +113,4 @@ public class Compute2DImageGpuDirect extends Scenario2D {
         return new ScenarioResult(result, duration);
     }
 
-    private static void fillBuffer(IntBuffer buffer, int[] data) {
-        for (int i : data) {
-            buffer.put(i);
-        }
-        buffer.rewind();
-    }
-
-    private static void fillBuffer(FloatBuffer buffer, float[] data) {
-        for (float f : data) {
-            buffer.put(f);
-        }
-        buffer.rewind();
-    }
-
-    private static float[] readBuffer(final FloatBuffer buffer) {
-        buffer.rewind();
-        float[] result = new float[buffer.remaining()];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = buffer.get(i);
-        }
-        return result;
-    }
-
-    private static int roundUp(int groupSize, int globalSize) {
-        int r = globalSize % groupSize;
-
-        int result;
-        if (r == 0) {
-            result = globalSize;
-        } else {
-            result = globalSize + groupSize - r;
-        }
-
-        return result;
-    }
-
 }
