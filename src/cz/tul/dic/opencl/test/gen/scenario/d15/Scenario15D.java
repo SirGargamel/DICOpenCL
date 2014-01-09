@@ -2,6 +2,7 @@ package cz.tul.dic.opencl.test.gen.scenario.d15;
 
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import cz.tul.dic.opencl.test.gen.CustomMath;
+import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
@@ -31,6 +32,7 @@ public abstract class Scenario15D extends Scenario {
             final ParameterSet params) {
         final ScenarioResult result = computeScenario(imageA, imageB, facetData, facetCenters, deformations, params);
         currentVariant++;
+        params.addParameter(Parameter.LWS1, 0);
         return result;
     }
 
