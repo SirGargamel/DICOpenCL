@@ -24,10 +24,11 @@ import java.nio.IntBuffer;
  */
 public class Compute1DIntPerFacetSingle extends Scenario1D {
 
+    private static final String KERNEL_NAME = "Compute1DIntPerFacetSingle";
     private static final int FACET_DIMENSION = 2;
 
-    public Compute1DIntPerFacetSingle(final String kernelName, final ContextHandler contextHandler) throws IOException {
-        super(kernelName, contextHandler);
+    public Compute1DIntPerFacetSingle(final ContextHandler contextHandler) throws IOException {
+        super(KERNEL_NAME, contextHandler);
     }
 
     @Override
@@ -44,7 +45,7 @@ public class Compute1DIntPerFacetSingle extends Scenario1D {
         final CLBuffer<IntBuffer> bufferFacetData = context.createIntBuffer(facetDataSize, READ_ONLY);
         final CLBuffer<IntBuffer> bufferFacetCenter = context.createIntBuffer(FACET_DIMENSION, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferDeformations = context.createFloatBuffer(deformations.length, READ_ONLY);
-        final CLBuffer<FloatBuffer> bufferResult = context.createFloatBuffer(params.getValue(Parameter.DEFORMATION_COUNT), WRITE_ONLY);
+        final CLBuffer<FloatBuffer> bufferResult = context.createFloatBuffer(deformationCount, WRITE_ONLY);
         long clSize = bufferImageA.getCLSize() + bufferImageB.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
         params.addParameter(Parameter.DATASIZE, (int) (clSize / 1000));
         // fill constant buffers
