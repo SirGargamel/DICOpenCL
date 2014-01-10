@@ -32,7 +32,7 @@ public abstract class Scenario15D extends Scenario {
             final ParameterSet params) {
         final ScenarioResult result = computeScenario(imageA, imageB, facetData, facetCenters, deformations, params);
         currentVariant++;
-        params.addParameter(Parameter.LWS1, 0);
+        params.addParameter(Parameter.LWS1, 1);
         return result;
     }
 
