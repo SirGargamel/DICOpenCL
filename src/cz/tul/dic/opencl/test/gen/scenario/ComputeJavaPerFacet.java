@@ -16,15 +16,14 @@ import java.util.logging.Logger;
  *
  * @author Petr Jecmen
  */
-public class ComputeJavaThreads extends Scenario {
+public class ComputeJavaPerFacet extends Scenario {
 
-    private static final String NAME = "JavaThreads";
-    private static final int COUNT_VARIANT = 4;
-    private static final int COUNT_THREADS = Runtime.getRuntime().availableProcessors() - 1;
+    private static final String NAME = "JavaPerFacet";
+    private static final int COUNT_THREADS = Runtime.getRuntime().availableProcessors();
     private ExecutorService exec;
     private int currentVariant;
 
-    public ComputeJavaThreads() throws IOException {
+    public ComputeJavaPerFacet() throws IOException {
         super(NAME, null);
 
         currentVariant = 0;
@@ -32,80 +31,29 @@ public class ComputeJavaThreads extends Scenario {
 
     @Override
     public ScenarioResult compute(int[] imageA, int[] imageB, int[] facetData, int[] facetCenters, float[] deformations, ParameterSet params) {
+        final int threadCount = currentVariant + 1;
         // preparation
-        exec = Executors.newFixedThreadPool(COUNT_THREADS);
+        exec = Executors.newFixedThreadPool(threadCount);
         final int facetCount = params.getValue(Parameter.FACET_COUNT);
         final int deformationCount = params.getValue(Parameter.DEFORMATION_COUNT);
         final float[] results = new float[facetCount * deformationCount];
         // execution
         final int[] counts;
-        final List<Worker> workers = new ArrayList<>(COUNT_THREADS);
-        switch (currentVariant) {
-            case 0:
-                // per facet computation                
-                params.addParameter(Parameter.LWS0, 1);
-                params.addParameter(Parameter.LWS1, 1);
-                workers.add(new WorkerPerFacet(
-                        0, facetCount,
-                        imageA, imageB,
-                        params.getValue(Parameter.IMAGE_WIDTH),
-                        facetData, facetCenters,
-                        deformations,
-                        params.getValue(Parameter.FACET_SIZE),
-                        results));
+        final List<Worker> workers = new ArrayList<>(threadCount);
 
-                break;
-            case 1:
-                // per deformation computation                
-                params.addParameter(Parameter.LWS0, 1);
-                params.addParameter(Parameter.LWS1, 1);
+        counts = generateCounts(threadCount + 1, facetCount);
+        params.addParameter(Parameter.LWS0, 1);
+        params.addParameter(Parameter.LWS1, threadCount);
 
-                workers.add(new WorkerPerDeformation(
-                        0, deformationCount,
-                        imageA, imageB,
-                        params.getValue(Parameter.IMAGE_WIDTH),
-                        facetData, facetCenters,
-                        deformations,
-                        params.getValue(Parameter.FACET_SIZE),
-                        results));
-                break;
-            case 2:
-                // per facet computation
-                counts = generateCounts(COUNT_THREADS + 1, facetCount);
-                params.addParameter(Parameter.LWS0, 1);
-                params.addParameter(Parameter.LWS1, COUNT_THREADS);
-
-                for (int i = 0; i < COUNT_THREADS; i++) {
-                    workers.add(new WorkerPerFacet(
-                            counts[i], counts[i + 1],
-                            imageA, imageB,
-                            params.getValue(Parameter.IMAGE_WIDTH),
-                            facetData, facetCenters,
-                            deformations,
-                            params.getValue(Parameter.FACET_SIZE),
-                            results));
-                }
-                break;
-            case 3:
-                // per deformation computation
-                counts = generateCounts(COUNT_THREADS + 1, deformationCount);
-                params.addParameter(Parameter.LWS0, COUNT_THREADS);
-                params.addParameter(Parameter.LWS1, 1);
-
-                for (int i = 0; i < COUNT_THREADS; i++) {
-                    workers.add(new WorkerPerDeformation(
-                            counts[i], counts[i + 1],
-                            imageA, imageB,
-                            params.getValue(Parameter.IMAGE_WIDTH),
-                            facetData, facetCenters,
-                            deformations,
-                            params.getValue(Parameter.FACET_SIZE),
-                            results));
-                }
-                break;
-            default:
-                System.err.println("Illegal currentVariant - " + currentVariant);
-                break;
+        for (int i = 0; i < threadCount; i++) {
+            workers.add(new WorkerPerFacet(
+                    counts[i], counts[i + 1],
+                    imageA, imageB,
+                    params.getValue(Parameter.IMAGE_WIDTH),
+                    facetData, facetCenters,
+                    deformations,
+                    params.getValue(Parameter.FACET_SIZE),
+                    results));
         }
 
         long innerTime = System.nanoTime();
@@ -116,7 +64,7 @@ public class ComputeJavaThreads extends Scenario {
             exec.shutdown();
             exec.awaitTermination(1, TimeUnit.DAYS);
         } catch (InterruptedException ex) {
-            Logger.getLogger(ComputeJavaThreads.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ComputeJavaPerFacet.class.getName()).log(Level.SEVERE, null, ex);
         }
         innerTime = System.nanoTime() - innerTime;
 
@@ -139,7 +87,7 @@ public class ComputeJavaThreads extends Scenario {
 
     @Override
     public boolean hasNext() {
-        return currentVariant < COUNT_VARIANT;
+        return currentVariant < COUNT_THREADS;
     }
 
     @Override
@@ -149,7 +97,7 @@ public class ComputeJavaThreads extends Scenario {
 
     @Override
     public int getVariantCount() {
-        return COUNT_VARIANT;
+        return COUNT_THREADS;
     }
 
     private static abstract class Worker implements Runnable {
@@ -201,39 +149,6 @@ public class ComputeJavaThreads extends Scenario {
                     deform(facetData, facetSize, facetCenters, fi, deformedFacet, deformations, di);
                     interpolate(deformedFacet, deformedFacetI, imageB, imageWidth);
                     results[fi * deformationCount + di] = correlate(facetI, deformedFacetI);
-                }
-            }
-        }
-    }
-
-    private static class WorkerPerDeformation extends Worker {
-
-        public WorkerPerDeformation(int startIndex, int endIndex, int[] imageA, int[] imageB, int imageWidth, int[] facetData, int[] facetCenters, float[] deformations, int facetSize, float[] results) {
-            super(startIndex, endIndex, imageA, imageB, imageWidth, facetData, facetCenters, deformations, facetSize, results);
-        }
-
-        @Override
-        public void run() {
-            final int facetArraySize = Utils.calculateFacetArraySize(facetSize);
-            final int facetArea = Utils.calculateFacetArea(facetSize);
-
-            final int facetCount = facetData.length / facetArraySize;
-            final int[][] facetsI = new int[facetCount][];
-
-            final float[] deformedFacet = new float[facetArraySize];
-            final int[] deformedFacetI = new int[facetArea];
-            final int deformationCount = deformations.length / Utils.DEFORMATION_DIM;
-
-            for (int di = startIndex; di < endIndex; di++) {
-                for (int fi = 0; fi < facetCount; fi++) {
-                    if (facetsI[fi] == null) {
-                        facetsI[fi] = new int[facetArea];
-                        interpolate(facetData, fi, facetsI[fi], imageA, imageWidth);
-                    }
-
-                    deform(facetData, facetSize, facetCenters, fi, deformedFacet, deformations, di);
-                    interpolate(deformedFacet, deformedFacetI, imageB, imageWidth);
-                    results[fi * deformationCount + di] = correlate(facetsI[fi], deformedFacetI);
                 }
             }
         }
