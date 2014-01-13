@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 public class ComputeJavaThreads extends Scenario {
 
     private static final String NAME = "JavaThreads";
-    private static final int COUNT_VARIANT = 2;
+    private static final int COUNT_VARIANT = 4;
     private static final int COUNT_THREADS = Runtime.getRuntime().availableProcessors() - 1;
     private ExecutorService exec;
     private int currentVariant;
@@ -42,6 +42,34 @@ public class ComputeJavaThreads extends Scenario {
         final List<Worker> workers = new ArrayList<>(COUNT_THREADS);
         switch (currentVariant) {
             case 0:
+                // per facet computation                
+                params.addParameter(Parameter.LWS0, 1);
+                params.addParameter(Parameter.LWS1, 1);
+                workers.add(new WorkerPerFacet(
+                        0, facetCount,
+                        imageA, imageB,
+                        params.getValue(Parameter.IMAGE_WIDTH),
+                        facetData, facetCenters,
+                        deformations,
+                        params.getValue(Parameter.FACET_SIZE),
+                        results));
+
+                break;
+            case 1:
+                // per deformation computation                
+                params.addParameter(Parameter.LWS0, 1);
+                params.addParameter(Parameter.LWS1, 1);
+
+                workers.add(new WorkerPerDeformation(
+                        0, deformationCount,
+                        imageA, imageB,
+                        params.getValue(Parameter.IMAGE_WIDTH),
+                        facetData, facetCenters,
+                        deformations,
+                        params.getValue(Parameter.FACET_SIZE),
+                        results));
+                break;
+            case 2:
                 // per facet computation
                 counts = generateCounts(COUNT_THREADS + 1, facetCount);
                 params.addParameter(Parameter.LWS0, 1);
@@ -58,7 +86,7 @@ public class ComputeJavaThreads extends Scenario {
                             results));
                 }
                 break;
-            case 1:
+            case 3:
                 // per deformation computation
                 counts = generateCounts(COUNT_THREADS + 1, deformationCount);
                 params.addParameter(Parameter.LWS0, COUNT_THREADS);
@@ -304,13 +332,13 @@ public class ComputeJavaThreads extends Scenario {
         final float deltaA = delta(a, meanA);
 
         final float meanB = mean(b);
-        final float deltaB = delta(b, meanB);        
+        final float deltaB = delta(b, meanB);
 
-        float result = 0;        
-        for (int i = 0; i < a.length; i++) {            
+        float result = 0;
+        for (int i = 0; i < a.length; i++) {
             result += (a[i] - meanA) * (b[i] - meanB);
         }
-        result /=  deltaA * deltaB;
+        result /= deltaA * deltaB;
 
         return result;
     }
