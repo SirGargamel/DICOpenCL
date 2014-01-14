@@ -18,14 +18,9 @@ for graph=1:graphCount
         lws0 = data(index, INDEX_LWS0);
         lws1 = data(index, INDEX_LWS1);
         
-        if (variant == VARIANT_JAVA)        
-            if (lws0 == 1)
-                lws0 = 2;
-                lws1 = 8;
-            elseif (lws0 == 7)
-                lws0 = 8;
-                lws1 = 2;
-            end;                              
+        if (variant == VARIANT_JAVA_FACET || variant == VARIANT_JAVA_DEFORMATION)        
+            lws0 = 2^lws0;
+            lws1 = 2^lws1;                                          
         end;
         
         % multiple variants, multiple test cases

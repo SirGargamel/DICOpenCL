@@ -4,7 +4,8 @@ import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLPlatform;
 import cz.tul.dic.opencl.test.gen.data.ShiftedImageCase;
 import cz.tul.dic.opencl.test.gen.data.TestCase;
-import cz.tul.dic.opencl.test.gen.scenario.ComputeJavaThreads;
+import cz.tul.dic.opencl.test.gen.scenario.ComputeJavaPerDeformation;
+import cz.tul.dic.opencl.test.gen.scenario.ComputeJavaPerFacet;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import cz.tul.dic.opencl.test.gen.scenario.d1.Compute1DIntPerDeformationSingle;
@@ -26,15 +27,15 @@ import java.util.List;
  */
 public class PerformanceTest {
 
-    private static final int IMAGE_WIDTH_MIN = 128;
-//    private static final int IMAGE_WIDTH_MAX = 512;
-    private static final int IMAGE_WIDTH_MAX = 128;
     private static final double IMAGE_RATIO = 3 / (double) 4;
-//    private static final int[] FACET_SIZES = new int[]{9, 17};
-    private static final int[] FACET_SIZES = new int[]{9};
+    private static final int IMAGE_WIDTH_MIN = 128;
+    private static final int IMAGE_WIDTH_MAX = 1024;
+//    private static final int IMAGE_WIDTH_MAX = 128;    
+    private static final int[] FACET_SIZES = new int[]{9, 17, 35};
+//    private static final int[] FACET_SIZES = new int[]{9};
     private static final int DEFORMATION_COUNT_MIN = 200;
-//    private static final int DEFORMATION_COUNT_MAX = 400;
-    private static final int DEFORMATION_COUNT_MAX = 200;
+    private static final int DEFORMATION_COUNT_MAX = 800;
+//    private static final int DEFORMATION_COUNT_MAX = 200;
 
     public static void computeImageFillTest() throws IOException {
         CLPlatform.initialize();
@@ -148,14 +149,15 @@ public class PerformanceTest {
     private static List<Scenario> prepareScenarios(final ContextHandler contextHandler) throws IOException {
         final List<Scenario> scenarios = new LinkedList<>();
 
-        scenarios.add(new ComputeJavaThreads());
-        scenarios.add(new Compute2DInt("Compute2DNaive", contextHandler));
-        scenarios.add(new Compute2DInt("Compute2DIntGpuDirect", contextHandler));
-        scenarios.add(new Compute2DImageGpuDirect(contextHandler));
+        scenarios.add(new ComputeJavaPerFacet());
+        scenarios.add(new ComputeJavaPerDeformation());        
         scenarios.add(new Compute1DIntPerFacetSingle(contextHandler));
         scenarios.add(new Compute1DIntPerDeformationSingle(contextHandler));
         scenarios.add(new Compute15DIntPerFacet(contextHandler));
         scenarios.add(new Compute15DIntPerDeformation(contextHandler));
+        scenarios.add(new Compute2DInt("Compute2DNaive", contextHandler));
+        scenarios.add(new Compute2DInt("Compute2DIntGpuDirect", contextHandler));
+        scenarios.add(new Compute2DImageGpuDirect(contextHandler));
 
         return scenarios;
     }
