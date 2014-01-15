@@ -8,14 +8,6 @@ LoadData;
 INSPECTED_TEST_CASE = TEST_CASE_SHIFT;
 INSPECTED_VARIANT = VARIANT_15D_DEFORMATION;
 % Plot graphs
-% line colors
-colors = [[0 0 0];[1 0 0 ];[0 1 0];[0 0 1];[1 1 0];[1 0 1];[0 1 1];[1 1 1]];
-% x-axis value labels
-x = 1 : COUNT_LWS1;
-xlabels = cell(COUNT_LWS1,1);
-for i=1:COUNT_LWS1
-     xlabels(i) = cellstr(int2str(2^(i-1)));    
-end;
 % Main plot, create multiple windows
 % split graphs to multiple windows
 graphCountX = 2;
@@ -44,7 +36,7 @@ for win=1:windowCount
             % plot curves for all LWS0 into one subfigure
             hold on;                                                
             bar(allCurves(1, :, INSPECTED_VARIANT, INSPECTED_TEST_CASE, innerBase))                
-            set(gca, 'XTick', 1:COUNT_LWS1, 'XTickLabel', xlabels);
+            set(gca, 'XTick', X, 'XTickLabel', X_LABELS);
             hold off;
         end;
     end;

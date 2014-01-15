@@ -19,14 +19,6 @@ for graph=1:graphCount
     end;
 end;
 % Plot graphs
-% line colors
-colors = [[0 0 0];[1 0 0 ];[0 1 0]];
-% x-axis value labels
-x = 1 : COUNT_LWS1;
-xlabels = cell(COUNT_LWS1,1);
-for i=1:COUNT_LWS1
-    xlabels(i) = cellstr(int2str(2^(i-1)));
-end;
 % Main plot, create multiple windows
 % split graphs to multiple windows
 graphCountX = 2;
@@ -53,7 +45,7 @@ for win=1:windowCount
             % plot both curves to one subfigure       
             hold on;                                    
             bar(bestCurves(:, innerBase));
-            set(gca, 'XTickLabel',NAMES_VARIANTS, 'XTick',1:numel(NAMES_VARIANTS));
+            set(gca, 'XTickLabel',NAMES_VARIANTS);
 
             % Finish plotting to subfigure
             hold off;

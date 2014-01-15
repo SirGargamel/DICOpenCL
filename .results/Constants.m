@@ -1,3 +1,4 @@
+COLORS = [[0 0 0];[1 0 0 ];[0 1 0];[0 0 1];[1 1 0];[1 0 1];[0 1 1];[1 1 1];[0 0 0];[1 0 0 ];[0 1 0]];
 COUNT_LWS0 = log2(1024) + 1;
 COUNT_LWS1 = log2(1024) + 1;
 FILE_DELIMITER = ',';
@@ -26,4 +27,10 @@ VARIANT_15D_DEFORMATION = 6;
 VARIANT_2D_NAIVE = 7;
 VARIANT_2D_INT = 8;
 VARIANT_2D_IMAGE = 9;
+X = 1 : COUNT_LWS1;
+X_LABELS = cell(COUNT_LWS1,1);
+for i=1:COUNT_LWS1
+    X_LABELS(i) = cellstr(int2str(2^(i-1)));
+end;
+% which time will be used in graphs
 ANALYZED_TIME = INDEX_TIME_TOTAL;

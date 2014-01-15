@@ -8,14 +8,6 @@ LoadData;
 INSPECTED_TEST_CASE = TEST_CASE_SHIFT;
 INSPECTED_VARIANT = VARIANT_2D_IMAGE;
 % Plot graphs
-% line colors
-colors = [[0 0 0];[1 0 0 ];[0 1 0];[0 0 1];[1 1 0];[1 0 1];[0 1 1];[1 1 1];[0 0 0];[1 0 0 ];[0 1 0]];
-% x-axis value labels
-x = 1 : COUNT_LWS1;
-xlabels = cell(COUNT_LWS1,1);
-for i=1:COUNT_LWS1
-     xlabels(i) = cellstr(int2str(2^(i-1)));    
-end;
 % Main plot, create multiple windows
 graphCountX = 2;
 graphCountY = 3;
@@ -43,9 +35,9 @@ for win=1:windowCount
             % plot curves for all LWS0 into one subfigure
             hold on;                                    
             for lws0i=1:COUNT_LWS0
-                plot(x, allCurves(:, lws0i, INSPECTED_VARIANT, INSPECTED_TEST_CASE, innerBase),'-o','Color',colors(lws0i, :), 'LineSmoothing','on')                
+                plot(allCurves(:, lws0i, INSPECTED_VARIANT, INSPECTED_TEST_CASE, innerBase),'-o','Color',COLORS(lws0i, :), 'LineSmoothing','on')                
             end;            
-            set(gca, 'XTick', 1:COUNT_LWS1, 'XTickLabel', xlabels);
+            set(gca, 'XTick', X, 'XTickLabel', X_LABELS);
             h = legend('1', '2', '4', '8', '16', '32', '64');
             v = get(h,'title');
             set(v,'string','LWS0');

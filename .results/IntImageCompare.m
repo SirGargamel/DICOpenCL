@@ -21,14 +21,6 @@ for graph=1:graphCount
     end;
 end;
 % Plot graphs
-% line colors
-colors = [[0 0 0];[1 0 0 ];[0 1 0]];
-% x-axis value labels
-x = 1 : COUNT_LWS1;
-xlabels = cell(COUNT_LWS1,1);
-for i=1:COUNT_LWS1
-    xlabels(i) = cellstr(int2str(2^(i-1)));
-end;
 % split graphs to multiple windows
 graphCountX = 2;
 graphCountY = 3;
@@ -54,12 +46,12 @@ for win=1:windowCount
             title(cellstr([int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY)) ', fs=' int2str(data(index, INDEX_FACET_SIZE)) ', dc=' int2str(data(index, INDEX_DEFORMATION_COUNT))]));            
             % plot both curves to one subfigure       
             hold on;                                    
-            plot(x,bestCurves(:, VARIANT_2D_NAIVE, innerBase),'-+','Color',colors(1, :), 'LineSmoothing','on')
-            plot(x,bestCurves(:, VARIANT_2D_INT, innerBase),'-x','Color',colors(2, :), 'LineSmoothing','on')
-            plot(x,bestCurves(:, VARIANT_2D_IMAGE, innerBase),'-o','Color',colors(3, :), 'LineSmoothing','on')           
+            plot(X,bestCurves(:, VARIANT_2D_NAIVE, innerBase),'-+','Color',COLORS(1, :), 'LineSmoothing','on')
+            plot(X,bestCurves(:, VARIANT_2D_INT, innerBase),'-x','Color',COLORS(2, :), 'LineSmoothing','on')
+            plot(X,bestCurves(:, VARIANT_2D_IMAGE, innerBase),'-o','Color',COLORS(3, :), 'LineSmoothing','on')           
 
             legend(h,['naive, LWS0 = ' int2str(bestCurvesParams(VARIANT_2D_NAIVE,innerBase))], ['int[], LWS0 = ' int2str(bestCurvesParams(VARIANT_2D_INT,innerBase))], ['image2d, LWS0 = ' int2str(bestCurvesParams(VARIANT_2D_IMAGE,innerBase))]);
-            set(gca, 'XTick', 1:COUNT_LWS1, 'XTickLabel', xlabels);
+            set(gca, 'XTick', X, 'XTickLabel', X_LABELS);
             % Finish plotting to subfigure
             hold off;
         end;
