@@ -5,7 +5,6 @@ clc;
 % Data format specification can be found in Constants.m and LoadData.m
 Constants;
 LoadData;
-INSPECTED_TEST_CASE = TEST_CASE_SHIFT;
 INSPECTED_VARIANT = VARIANT_15D_DEFORMATION;
 LWS1 = 1;
 % Plot graphs

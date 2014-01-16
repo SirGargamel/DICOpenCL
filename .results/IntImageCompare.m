@@ -5,7 +5,6 @@ clc;
 % Data format specification can be found in Constants.m and LoadData.m
 Constants;
 LoadData;
-INSPECTED_TEST_CASE = TEST_CASE_SHIFT;
 % Find best curves (fastest) for each variant
 bestCurves = NaN(COUNT_LWS1, variantCount, graphCount);
 bestCurvesParams = NaN(variantCount, graphCount);

@@ -36,3 +36,5 @@ for i=1:COUNT_LWS1
 end;
 % which time will be used in graphs
 ANALYZED_TIME = TIME_TOTAL;
+% which case will be analyzed in graphs
+INSPECTED_TEST_CASE = TEST_CASE_SHIFT;

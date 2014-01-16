@@ -6,7 +6,6 @@ clc;
 % Data format specification can be found in Constants.m and LoadData.m
 Constants;
 LoadData;
-INSPECTED_TEST_CASE = TEST_CASE_SHIFT;
 VAL_VARIANT = 1;
 VAL_TIME = 2;
 VAL_LWS0 = 3;
