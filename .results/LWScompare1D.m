@@ -7,6 +7,7 @@ Constants;
 LoadData;
 INSPECTED_TEST_CASE = TEST_CASE_SHIFT;
 INSPECTED_VARIANT = VARIANT_15D_DEFORMATION;
+LWS1 = 1;
 % Plot graphs
 % Main plot, create multiple windows
 % split graphs to multiple windows
@@ -31,11 +32,11 @@ for win=1:windowCount
             subplot(graphCountX, graphCountY, (graphY-1) * graphCountX + graphX);
             xlabel('LWS0');
             ylabel('Time [ms]');            
-            title(cellstr(['Facet size ' int2str(data(index, INDEX_FACET_SIZE)) ', Deformation count ' int2str(data(index, INDEX_DEFORMATION_COUNT))]));
-            
+            title(cellstr([int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY)) ', fs=' int2str(data(index, INDEX_FACET_SIZE)) ', dc=' int2str(data(index, INDEX_DEFORMATION_COUNT))]));            
             % plot curves for all LWS0 into one subfigure
-            hold on;                                                
-            bar(allCurves(1, :, INSPECTED_VARIANT, INSPECTED_TEST_CASE, innerBase))                
+            hold on;
+            values = allCurves(ANALYZED_TIME, LWS1, :, INSPECTED_VARIANT, INSPECTED_TEST_CASE, innerBase);
+            bar(values(1,:));
             set(gca, 'XTick', X, 'XTickLabel', X_LABELS);
             hold off;
         end;

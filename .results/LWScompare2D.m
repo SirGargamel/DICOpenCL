@@ -30,12 +30,11 @@ for win=1:windowCount
             subplot(graphCountX, graphCountY, (graphY-1) * graphCountX + graphX);
             xlabel('LWS1');
             ylabel('Time [ms]');            
-            title(cellstr(['Facet size ' int2str(data(index, INDEX_FACET_SIZE)) ', Deformation count ' int2str(data(index, INDEX_DEFORMATION_COUNT))]));
-            
+            title(cellstr([int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY)) ', fs=' int2str(data(index, INDEX_FACET_SIZE)) ', dc=' int2str(data(index, INDEX_DEFORMATION_COUNT))]));            
             % plot curves for all LWS0 into one subfigure
             hold on;                                    
             for lws0i=1:COUNT_LWS0
-                plot(allCurves(:, lws0i, INSPECTED_VARIANT, INSPECTED_TEST_CASE, innerBase),'-o','Color',COLORS(lws0i, :), 'LineSmoothing','on')                
+                plot(allCurves(ANALYZED_TIME, :, lws0i, INSPECTED_VARIANT, INSPECTED_TEST_CASE, innerBase),'-o','Color',COLORS(lws0i, :), 'LineSmoothing','on')                
             end;            
             set(gca, 'XTick', X, 'XTickLabel', X_LABELS);
             h = legend('1', '2', '4', '8', '16', '32', '64');

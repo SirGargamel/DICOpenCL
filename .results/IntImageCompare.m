@@ -16,7 +16,7 @@ for graph=1:graphCount
         [minLws1, minLws0] = ind2sub(size(m(:)), index);
 
         % extract line with lowest value found
-        bestCurves(:, var, graph) = allCurves(:, minLws0, var, INSPECTED_TEST_CASE, graph);        
+        bestCurves(:, var, graph) = allCurves(ANALYZED_TIME, :, minLws0, var, INSPECTED_TEST_CASE, graph);        
         bestCurvesParams(var, graph) = minLws0;
     end;
 end;

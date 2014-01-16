@@ -18,6 +18,8 @@ INDEX_VARIANT = 6;
 NAMES_VARIANTS = ['ThrdsPF ';' ThrdsPD';' 1DPerF '; ' 1DPerD '; ' 1.5DpF '; ' 1.5DpD ';' 2DNaive';' 2DInt[]';' 2DImage'; '        ';];
 TEST_CASE_RANDOM = 1;
 TEST_CASE_SHIFT = 2;
+TIME_KERNEL = 1;
+TIME_TOTAL = 2;
 VARIANT_JAVA_FACET = 1;
 VARIANT_JAVA_DEFORMATION = 2;
 VARIANT_1D_FACET = 3;
@@ -33,4 +35,4 @@ for i=1:COUNT_LWS1
     X_LABELS(i) = cellstr(int2str(2^(i-1)));
 end;
 % which time will be used in graphs
-ANALYZED_TIME = INDEX_TIME_TOTAL;
+ANALYZED_TIME = TIME_TOTAL;

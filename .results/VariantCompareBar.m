@@ -11,7 +11,7 @@ bestCurves = NaN(variantCount, graphCount);
 bestCurvesParams = NaN(2, variantCount, graphCount);
 for graph=1:graphCount
     for var=1:variantCount
-        m = allCurves(:,:,var,INSPECTED_TEST_CASE,graph);
+        m = allCurves(ANALYZED_TIME,:,:,var,INSPECTED_TEST_CASE,graph);
         [minVal, index] = min(m(:));
         [minLws1, minLws0] = ind2sub(size(m(:)), index);
 
@@ -41,7 +41,7 @@ for win=1:windowCount
             % create subplot
             h = subplot(graphCountX, graphCountY, (graphY-1) * graphCountX + graphX);                                 
             ylabel('Time [ms]');                        
-            title(cellstr([int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY)) ', fs=' int2str(data(index, INDEX_FACET_SIZE)) ', dc=' int2str(data(index, INDEX_DEFORMATION_COUNT))]));            
+            title(cellstr([int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY)) ', fs=' int2str(data(index, INDEX_FACET_SIZE)) ', dc=' int2str(data(index, INDEX_DEFORMATION_COUNT))]));
             % plot both curves to one subfigure       
             hold on;                                    
             bar(bestCurves(:, innerBase));
