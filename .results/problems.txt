@@ -1,0 +1,1 @@
+pristup k datum neni uniformni (deformovany facet muze byt hodne rozlezly)

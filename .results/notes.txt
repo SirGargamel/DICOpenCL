@@ -1,0 +1,2 @@
+porovnani total time / kernel time
+porovnani lws pro jednu variantu
