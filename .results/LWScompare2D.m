@@ -27,7 +27,7 @@ for win=1:windowCount
             end;            
             index = ((innerBase - 1) * pointCount) + 1;
             % create subfigure
-            subplot(graphCountX, graphCountY, (graphY-1) * graphCountX + graphX);
+            subplot(graphCountY, graphCountX, (graphY-1) * graphCountX + graphX);
             xlabel('LWS1');
             ylabel('Time [ms]');            
             title(cellstr([int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY)) ', fs=' int2str(data(index, INDEX_FACET_SIZE)) ', dc=' int2str(data(index, INDEX_DEFORMATION_COUNT))]));            

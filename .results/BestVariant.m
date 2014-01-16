@@ -11,6 +11,7 @@ VAL_VARIANT = 1;
 VAL_TIME = 2;
 VAL_LWS0 = 3;
 VAL_LWS1 = 4;
+ANALYZED_TIME = TIME_TOTAL;
 % Find best value (fastest) for each variant
 bestVariantData = repmat(intmax, 4, graphCount);
 for graph=1:graphCount
@@ -51,10 +52,11 @@ for win=1:windowCount
             end;
             for i=1:columnsPerGraph
                 index = ((innerBase - 1 + i) * pointCount);
-                titles(i) = cellstr([int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY)) ', fs=', int2str(data(index, INDEX_FACET_SIZE)) ', dc=', int2str(data(index, INDEX_DEFORMATION_COUNT)) ', var=' int2str(bestVariantData(VAL_VARIANT, innerBase+i-1))]);
+                variant = NAMES_VARIANTS(bestVariantData(VAL_VARIANT, innerBase+i-1));
+                titles(i) = cellstr([int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY)) ', fs=', int2str(data(index, INDEX_FACET_SIZE)) ', dc=', int2str(data(index, INDEX_DEFORMATION_COUNT)) ', var=' variant{:}]);
             end;            
             % plot data to subplot
-            subplot(graphCountX, graphCountY, (graphY-1) * graphCountX + graphX);    
+            subplot(graphCountY, graphCountX, (graphY-1) * graphCountX + graphX);
             bar(bestVariantData(VAL_TIME, innerBase:innerBase+columnsPerGraph-1));
             set(gca,'xticklabel',titles);
             fix_xticklabels();

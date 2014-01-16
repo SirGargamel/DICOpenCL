@@ -22,7 +22,7 @@ for graph=1:graphCount
 end;
 % Plot graphs
 % split graphs to multiple windows
-graphCountX = 2;
+graphCountX = 3;
 graphCountY = 3;
 graphsPerWindowCount = graphCountX * graphCountY;
 windowCount = ceil(graphCount / graphsPerWindowCount);
@@ -40,7 +40,7 @@ for win=1:windowCount
             end;   
             index = ((innerBase - 1) * pointCount) + 1;
             % create subplot
-            h = subplot(graphCountX, graphCountY, (graphY-1) * graphCountX + graphX);                     
+            h = subplot(graphCountY, graphCountX, (graphY-1) * graphCountX + graphX);
             xlabel('LWS1');
             ylabel('Time [ms]');                        
             title(cellstr([int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY)) ', fs=' int2str(data(index, INDEX_FACET_SIZE)) ', dc=' int2str(data(index, INDEX_DEFORMATION_COUNT))]));            
