@@ -7,26 +7,28 @@ clc;
 Constants;
 LoadData;
 VAL_VARIANT = 1;
-VAL_TIME = 2;
-VAL_LWS0 = 3;
-VAL_LWS1 = 4;
-ANALYZED_TIME = TIME_TOTAL;
+VAL_TIME_KERNEL = 2;
+VAL_TIME_OVERHEAD = 3;
+VAL_LWS0 = 4;
+VAL_LWS1 = 5;
 % Find best value (fastest) for each variant
 bestVariantData = repmat(intmax, 4, graphCount);
 for graph=1:graphCount
     for var=1:variantCount
-        m = allCurves(ANALYZED_TIME,:,:,var,INSPECTED_TEST_CASE,graph);
+        m = squeeze(allCurves(TIME_TOTAL,:,:,var,INSPECTED_TEST_CASE,graph));
         [minVal, index] = min(m(:));
-        [minLws1, minLws0] = ind2sub(size(m(:)), index);
+        [minLws1, minLws0] = ind2sub(size(m), index);
 
-        if (minVal < bestVariantData(VAL_TIME, graph))
-            bestVariantData(VAL_TIME, graph) = minVal;
+        if (minVal < bestVariantData(VAL_TIME_KERNEL, graph))
+            bestVariantData(VAL_TIME_KERNEL, graph) = minVal;
+            bestVariantData(VAL_TIME_OVERHEAD, graph) = minVal - allCurves(TIME_KERNEL,minLws1,minLws0,var,INSPECTED_TEST_CASE,graph);
             bestVariantData(VAL_VARIANT, graph) = var;
             bestVariantData(VAL_LWS0, graph) = minLws0;
             bestVariantData(VAL_LWS1, graph) = minLws1;
         end;        
     end;
 end;
+plotData = bestVariantData(2:3, :);
 % Plot graphs
 % Main plot, create multiple windows
 % split graphs to multiple windows
@@ -50,13 +52,15 @@ for win=1:windowCount
                 break;
             end;
             for i=1:columnsPerGraph
-                index = ((innerBase - 1 + i) * pointCount);
+                innerBaseI = innerBase - 1 + i;
+                index = innerBaseI * pointCount;
                 variant = NAMES_VARIANTS(bestVariantData(VAL_VARIANT, innerBase+i-1));
-                titles(i) = cellstr([int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY)) ', fs=', int2str(data(index, INDEX_FACET_SIZE)) ', dc=', int2str(data(index, INDEX_DEFORMATION_COUNT)) ', var=' variant{:}]);
+                titles(i) = cellstr([int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY)) ', fs=', int2str(data(index, INDEX_FACET_SIZE)) ', dc=', int2str(data(index, INDEX_DEFORMATION_COUNT)) ', var=' variant{:} ', time=' int2str(bestVariantData(VAL_TIME_KERNEL, innerBaseI)) '+' int2str(bestVariantData(VAL_TIME_OVERHEAD, innerBaseI))]);
             end;            
             % plot data to subplot
             subplot(graphCountY, graphCountX, (graphY-1) * graphCountX + graphX);
-            bar(bestVariantData(VAL_TIME, innerBase:innerBase+columnsPerGraph-1));
+%             bar(bestVariantData(VAL_TIME_KERNEL, innerBase:innerBase+columnsPerGraph-1));
+            bar(bestVariantData(2:3, innerBase:innerBase+columnsPerGraph-1)','stacked');
             set(gca,'xticklabel',titles);
             fix_xticklabels();
             ylabel('Time [ms]');

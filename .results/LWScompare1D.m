@@ -5,7 +5,7 @@ clc;
 % Data format specification can be found in Constants.m and LoadData.m
 Constants;
 LoadData;
-INSPECTED_VARIANT = VARIANT_JAVA_DEFORMATION;
+INSPECTED_VARIANT = VARIANT_1D_DEFORMATION;
 LWS1 = 1;
 % Plot graphs
 % Main plot, create multiple windows
@@ -34,8 +34,9 @@ for win=1:windowCount
             title(cellstr([int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY)) ', fs=' int2str(data(index, INDEX_FACET_SIZE)) ', dc=' int2str(data(index, INDEX_DEFORMATION_COUNT))]));            
             % plot curves for all LWS0 into one subfigure
             hold on;
-            values = allCurves(ANALYZED_TIME, LWS1, :, INSPECTED_VARIANT, INSPECTED_TEST_CASE, innerBase);
-            bar(values(1,:));
+            values(1, :) = allCurves(TIME_TOTAL, LWS1, :, INSPECTED_VARIANT, INSPECTED_TEST_CASE, innerBase);
+            values(2, :) = allCurves(TIME_TOTAL, LWS1, :, INSPECTED_VARIANT, INSPECTED_TEST_CASE, innerBase) - allCurves(TIME_KERNEL, LWS1, :, INSPECTED_VARIANT, INSPECTED_TEST_CASE, innerBase);
+            bar(values(:,:)', 'stacked');
             set(gca, 'XTick', X, 'XTickLabel', X_LABELS);
             hold off;
         end;
