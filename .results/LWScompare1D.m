@@ -5,7 +5,7 @@ clc;
 % Data format specification can be found in Constants.m and LoadData.m
 Constants;
 LoadData;
-INSPECTED_VARIANT = VARIANT_15D_DEFORMATION;
+INSPECTED_VARIANT = VARIANT_JAVA_DEFORMATION;
 LWS1 = 1;
 % Plot graphs
 % Main plot, create multiple windows
