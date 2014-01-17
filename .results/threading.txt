@@ -1,0 +1,10 @@
+CPU threads
+- 8 threadu je v nekterych pripadech az moc
+- zrychleni cca 3x
+- nejlepe vychazi prekvapive perDeformation varianta pro maximalni pocet vlaken
+
+GPU
+- LWS0 a LWS1 zavisle na velikosti dat, obecne se nevyplaci menit facet 
+- zrychle velke - 128x96, 9, 200 	- 206	| 26 	| 5, (8x, 41x)
+				- 512x384, 17, 400	- 2837	| 889	| 103, (3x, 27x)
+				- 1024x768, 35, 800	- 21979	| 6847	| 746 (3x, 29x)
