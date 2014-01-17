@@ -41,9 +41,9 @@ public class ComputeJavaPerFacet extends Scenario {
         final int[] counts;
         final List<Worker> workers = new ArrayList<>(threadCount);
 
-        counts = generateCounts(threadCount + 1, facetCount);
-        params.addParameter(Parameter.LWS0, 1);
-        params.addParameter(Parameter.LWS1, threadCount);
+        counts = generateCounts(threadCount + 1, facetCount);        
+        params.addParameter(Parameter.LWS0, threadCount);
+        params.addParameter(Parameter.LWS1, 1);
 
         for (int i = 0; i < threadCount; i++) {
             workers.add(new WorkerPerFacet(
