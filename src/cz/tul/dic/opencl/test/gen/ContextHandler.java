@@ -2,6 +2,7 @@ package cz.tul.dic.opencl.test.gen;
 
 import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLDevice;
+import com.jogamp.opencl.CLDevice.Type;
 import com.jogamp.opencl.CLKernel;
 import com.jogamp.opencl.CLMemory;
 import com.jogamp.opencl.CLPlatform;
@@ -19,10 +20,11 @@ import java.util.logging.Logger;
  * @author Petr Jecmen
  */
 public class ContextHandler {
-    
+
     private static final String CL_EXTENSION = ".cl";
     private static final int MAX_RESET_COUNT_IN_TIME = 3;
     private static final long RESET_TIME = 60000;
+    private final DeviceType type;
     private CLPlatform platform;
     private Scenario scenario;
     private CLContext context;
@@ -30,31 +32,32 @@ public class ContextHandler {
     private CLKernel kernel;
     private int resetCounter, facetSize;
     private long firstResetTime;
-    
-    public ContextHandler() {
+
+    public ContextHandler(final DeviceType type) {
+        this.type = type;
         reset();
         resetCounter--;
     }
-    
+
     public CLContext getContext() {
         return context;
     }
-    
+
     public CLDevice getDevice() {
         return device;
     }
-    
+
     public CLKernel getKernel() {
         return kernel;
     }
-    
+
     public void setFacetSize(int facetSize) {
         if (this.facetSize != facetSize) {
             this.facetSize = facetSize;
             assignScenario(scenario);
         }
     }
-    
+
     public void assignScenario(final Scenario sc) {
         scenario = sc;
         if (context != null && scenario != null) {
@@ -76,7 +79,7 @@ public class ContextHandler {
             }
         }
     }
-    
+
     public final void reset() {
         resetCounter++;
         if (resetCounter == 1) {
@@ -97,7 +100,7 @@ public class ContextHandler {
             }
             resetCounter = 0;
         }
-        
+
         if (context != null && !context.isReleased()) {
             for (CLMemory mem : context.getMemoryObjects()) {
                 mem.release();
@@ -105,23 +108,88 @@ public class ContextHandler {
             context.release();
         }
 
-        // select best GPU (non-integrated one for laptops)        
-        final Filter<CLPlatform> filter = new Filter<CLPlatform>() {
-            @Override
-            public boolean accept(CLPlatform item) {
-                return item.listCLDevices(CLDevice.Type.CPU).length == 0;
-            }
-        };
+        final Filter<CLPlatform> filter;
+        final Type deviceType;
+
+        switch (type) {
+            case CPU:
+                filter = new Filter<CLPlatform>() {
+                    @Override
+                    public boolean accept(CLPlatform item) {
+                        return item.listCLDevices(CLDevice.Type.CPU).length > 0;
+                    }
+                };
+                deviceType = Type.CPU;
+                break;
+            case GPU:
+                // select best GPU (prefer non-integrated)
+                filter = new Filter<CLPlatform>() {
+                    @Override
+                    public boolean accept(CLPlatform item) {
+                        return item.listCLDevices(CLDevice.Type.CPU).length == 0;
+                    }
+                };
+                deviceType = Type.GPU;
+                break;
+            case iGPU:
+                // select integrated GPU
+                filter = new Filter<CLPlatform>() {
+                    @Override
+                    public boolean accept(CLPlatform item) {
+                        return item.listCLDevices(CLDevice.Type.CPU).length > 0;
+                    }
+                };
+                deviceType = Type.GPU;
+                break;
+            default:
+                filter = new Filter<CLPlatform>() {
+
+                    @Override
+                    public boolean accept(CLPlatform i) {
+                        return true;
+                    }
+                };
+                deviceType = Type.ALL;
+        }
+
         platform = CLPlatform.getDefault(filter);
-        
         if (platform == null) {
             platform = CLPlatform.getDefault();
         }
+
+        device = platform.getMaxFlopsDevice(deviceType);
+        if (device == null) {
+            device = CLPlatform.getDefault().getMaxFlopsDevice();
+        }
         
-        device = platform.getMaxFlopsDevice(CLDevice.Type.GPU);
         context = CLContext.create(device);
         System.out.println("Using " + device + " on " + context);
-        
+
         assignScenario(scenario);
+    }
+
+    public final String getDeviceName() {
+        final String innerName = device.getName().toLowerCase();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(type.toString());
+        sb.append("-");
+
+        if (innerName.contains("intel")) {
+            sb.append("Intel");
+        } else if (innerName.contains("geforce")) {
+            sb.append("GeForce");
+        } else if (innerName.contains("amd") || innerName.contains("ati")) {
+            sb.append("AMD");
+        }
+
+        return sb.toString();
+    }
+
+    public enum DeviceType {
+
+        CPU,
+        GPU,
+        iGPU
     }
 }

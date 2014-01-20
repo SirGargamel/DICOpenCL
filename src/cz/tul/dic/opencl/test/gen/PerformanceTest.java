@@ -26,19 +26,20 @@ import java.util.List;
  */
 public class PerformanceTest {
 
+    private static final ContextHandler.DeviceType HW_TYPE = ContextHandler.DeviceType.CPU;
     private static final double IMAGE_RATIO = 3 / (double) 4;
     private static final int IMAGE_WIDTH_MIN = 128;
-    private static final int IMAGE_WIDTH_MAX = 1024;
-//    private static final int IMAGE_WIDTH_MAX = 128;    
-    private static final int[] FACET_SIZES = new int[]{9, 17, 35};
-//    private static final int[] FACET_SIZES = new int[]{9};
+//    private static final int IMAGE_WIDTH_MAX = 1024;
+    private static final int IMAGE_WIDTH_MAX = 128;
+//    private static final int[] FACET_SIZES = new int[]{9, 17, 35};
+    private static final int[] FACET_SIZES = new int[]{9};
     private static final int DEFORMATION_COUNT_MIN = 200;
-    private static final int DEFORMATION_COUNT_MAX = 800;
-//    private static final int DEFORMATION_COUNT_MAX = 200;
+//    private static final int DEFORMATION_COUNT_MAX = 800;
+    private static final int DEFORMATION_COUNT_MAX = 200;
 
     public static void computeImageFillTest() throws IOException {
         CLPlatform.initialize();
-        final ContextHandler ch = new ContextHandler();
+        final ContextHandler ch = new ContextHandler(HW_TYPE);
 
         final List<Scenario> scenarios = prepareScenarios(ch);
         for (Scenario sc : scenarios) {
@@ -132,7 +133,8 @@ public class PerformanceTest {
             }
         }
 
-        DataStorage.exportData(new File("D:\\DIC_OpenCL_Data.csv"));
+        String fileName = "D:\\DIC_OpenCL_Data_" + ch.getDeviceName() + ".csv";
+        DataStorage.exportData(new File(fileName));
         DataStorage.exportResultGroups(new File("D:\\DIC_OpenCL_Results.csv"));
     }
 
@@ -149,7 +151,7 @@ public class PerformanceTest {
         final List<Scenario> scenarios = new LinkedList<>();
 
         scenarios.add(new ComputeJavaPerFacet());
-        scenarios.add(new ComputeJavaPerDeformation());        
+        scenarios.add(new ComputeJavaPerDeformation());
         scenarios.add(new Compute1DIntPerFacetSingle(contextHandler));
         scenarios.add(new Compute1DIntPerDeformationSingle(contextHandler));
         scenarios.add(new Compute15DIntPerFacet(contextHandler));
