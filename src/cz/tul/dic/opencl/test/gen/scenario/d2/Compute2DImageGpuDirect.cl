@@ -4,7 +4,7 @@ int computeIndex(const float x, const float y, const int width) {
 
 constant sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
 
-int interpolate(const float x, const float y, global read_only image2d_t image) {
+int interpolate(const float x, const float y, read_only image2d_t image) {
     const float ix = floor(x);
     const float dx = x - ix;
     
@@ -21,7 +21,7 @@ int interpolate(const float x, const float y, global read_only image2d_t image) 
 }
 
 kernel void Compute2DImageGpuDirect(
-    global read_only image2d_t imageA, global read_only image2d_t imageB, 
+    read_only image2d_t imageA, read_only image2d_t imageB, 
     global read_only int * facets, global read_only int * facetCenters,
     global read_only float * deformations,
     global write_only float * result,    
