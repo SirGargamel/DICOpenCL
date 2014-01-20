@@ -16,7 +16,6 @@ import cz.tul.dic.opencl.test.gen.scenario.d2.Compute2DImageGpuDirect;
 import cz.tul.dic.opencl.test.gen.scenario.d2.Compute2DInt;
 import java.io.File;
 import java.io.IOException;
-import static java.lang.System.nanoTime;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -94,9 +93,9 @@ public class PerformanceTest {
                                     ps.addParameter(Parameter.VARIANT, sci);
                                     ps.addParameter(Parameter.TEST_CASE, tci);
 
-                                    time = nanoTime();
+                                    time = System.nanoTime();
                                     result = sc.compute(images[0], images[1], facetData, facetCenters, deformations, ps);
-                                    time = nanoTime() - time;
+                                    time = System.nanoTime() - time;
                                     result.setTotalTime(time);
 
                                     tc.checkResult(result, ps.getValue(Parameter.FACET_COUNT));
