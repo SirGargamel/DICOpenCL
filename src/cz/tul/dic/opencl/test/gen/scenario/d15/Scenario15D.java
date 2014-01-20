@@ -30,6 +30,7 @@ public abstract class Scenario15D extends Scenario {
             final int[] facetData, final int[] facetCenters,
             final float[] deformations,
             final ParameterSet params) {
+        contextHandler.setFacetSize(params.getValue(Parameter.FACET_SIZE));
         final ScenarioResult result = computeScenario(imageA, imageB, facetData, facetCenters, deformations, params);
         currentVariant++;
         params.addParameter(Parameter.LWS1, 1);

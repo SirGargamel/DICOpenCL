@@ -2,6 +2,7 @@ package cz.tul.dic.opencl.test.gen.scenario.d2;
 
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import cz.tul.dic.opencl.test.gen.CustomMath;
+import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
@@ -39,6 +40,7 @@ public abstract class Scenario2D extends Scenario {
             final int[] facetData, final int[] facetCenters,
             final float[] deformations,
             final ParameterSet params) {
+        contextHandler.setFacetSize(params.getValue(Parameter.FACET_SIZE));
         final ScenarioResult result = computeScenario(imageA, imageB, facetData, facetCenters, deformations, params);
         prepareNextVariant();
 

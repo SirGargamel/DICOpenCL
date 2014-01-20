@@ -39,7 +39,7 @@ kernel void Compute1DIntPerFacetSingle(
     const int facetCoordCount = facetSize2 * 2;    
     const int baseIndexDeformation = deformationId * 6;
     // deform facet
-    float deformedFacet[50*50*2];    
+    float deformedFacet[-1*-1*2];    
     int indexFacet, i2, x, y, dx, dy;   
     for (int i = 0; i < facetSize2; i++) {
         i2 = i*2;          
@@ -54,8 +54,8 @@ kernel void Compute1DIntPerFacetSingle(
         deformedFacet[i2 + 1] = y + deformations[baseIndexDeformation + 1] + deformations[baseIndexDeformation + 3] * dx + deformations[baseIndexDeformation + 5] * dy;    
     }
     // compute correlation using ZNCC
-    float deformedI[50*50];
-    float facetI[50*50];
+    float deformedI[-1*-1];
+    float facetI[-1*-1];
     float meanF = 0;
     float meanG = 0; 
     float val;
