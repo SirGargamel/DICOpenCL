@@ -92,6 +92,7 @@ public class Compute1DIntPerDeformationSingle extends Scenario1D {
 
                 duration += eventList.getEvent(i).getProfilingInfo(CLEvent.ProfilingCommand.END) - eventList.getEvent(i).getProfilingInfo(CLEvent.ProfilingCommand.START);
             }
+            queue.finish();
 
             // data cleanup
             bufferImageA.release();

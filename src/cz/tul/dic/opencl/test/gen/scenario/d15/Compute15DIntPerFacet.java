@@ -89,6 +89,7 @@ public class Compute15DIntPerFacet extends Scenario15D {
                 queue.put1DRangeKernel(kernel, 0, facetGlobalWorkSize, lws0, eventList);
             }
             queue.putReadBuffer(bufferResult, true);
+            queue.finish();
             result = readBuffer(bufferResult.getBuffer());
 
             for (CLEvent ev : eventList) {

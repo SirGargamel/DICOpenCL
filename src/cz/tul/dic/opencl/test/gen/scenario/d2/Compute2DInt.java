@@ -81,6 +81,7 @@ public class Compute2DInt extends Scenario2D {
             queue.putWriteBuffer(bufferDeformations, false);            
             queue.put2DRangeKernel(kernel, 0, 0, facetGlobalWorkSize, deformationsGlobalWorkSize, lws0, lws1, eventList);
             queue.putReadBuffer(bufferResult, true);
+            queue.finish();
             result = readBuffer(bufferResult.getBuffer());
             
             final long start = eventList.getEvent(0).getProfilingInfo(CLEvent.ProfilingCommand.START);
