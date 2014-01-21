@@ -16,8 +16,10 @@ public class TestCase {
         final int[] result = new int[length];
 
         Random rnd = new Random();
+        int val;
         for (int j = 0; j < length; j++) {
-            result[j] = rnd.nextInt(256);
+            val = rnd.nextInt(256);
+            result[j] = val + (val << 8) + (val << 16) + (val << 24);
         }
 
         return new int[][]{result, result};
