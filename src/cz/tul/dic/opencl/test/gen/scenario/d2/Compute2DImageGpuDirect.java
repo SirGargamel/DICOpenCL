@@ -43,9 +43,9 @@ public class Compute2DImageGpuDirect extends Scenario2D {
         final int facetSize = params.getValue(Parameter.FACET_SIZE);
         final int facetCount = params.getValue(Parameter.FACET_COUNT);
         // prepare buffers
-        final CLContext context = contextHandler.getContext();
+        final CLContext context = contextHandler.getContext();        
 
-        CLImageFormat format = new CLImageFormat(CLImageFormat.ChannelOrder.INTENSITY, CLImageFormat.ChannelType.UNSIGNED_INT32);
+        CLImageFormat format = new CLImageFormat(CLImageFormat.ChannelOrder.RGBA, CLImageFormat.ChannelType.UNSIGNED_INT8);
 
         final IntBuffer imageAbuffer = Buffers.newDirectIntBuffer(imageA);
         final CLImage2d<IntBuffer> imageAcl = context.createImage2d(imageAbuffer, params.getValue(Parameter.IMAGE_WIDTH), params.getValue(Parameter.IMAGE_HEIGHT), format, READ_ONLY);
