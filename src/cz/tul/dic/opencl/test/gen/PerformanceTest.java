@@ -28,7 +28,7 @@ public class PerformanceTest {
 //  static data
     private static final double IMAGE_RATIO = 3 / (double) 4;
     private static final int IMAGE_WIDTH_MIN = 128;
-    private static final int DEFORMATION_COUNT_MIN = 200;
+    private static final int DEFORMATION_COUNT_MIN = 100;
 //  Devices for computation
 //    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU};
 //    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.CPU, ContextHandler.DeviceType.GPU};
@@ -40,7 +40,7 @@ public class PerformanceTest {
 //  Small task
 //    private static final int IMAGE_WIDTH_MAX = 128;
 //    private static final int[] FACET_SIZES = new int[]{9};
-//    private static final int DEFORMATION_COUNT_MAX = 200;
+//    private static final int DEFORMATION_COUNT_MAX = 100;
 
     public static void computeImageFillTest() throws IOException {
         for (ContextHandler.DeviceType device : HW) {
