@@ -35,6 +35,7 @@ public class ContextHandler {
 
     public ContextHandler(final DeviceType type) {
         this.type = type;
+        facetSize = 1;
         reset();
         resetCounter--;
     }
@@ -52,7 +53,7 @@ public class ContextHandler {
     }
 
     public void setFacetSize(int facetSize) {
-        if (this.facetSize != facetSize) {
+        if (facetSize > 0 && this.facetSize != facetSize) {
             this.facetSize = facetSize;
             assignScenario(scenario);
         }
