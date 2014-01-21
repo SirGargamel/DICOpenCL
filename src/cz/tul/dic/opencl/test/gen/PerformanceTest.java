@@ -34,13 +34,13 @@ public class PerformanceTest {
 //    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.CPU, ContextHandler.DeviceType.GPU};
     private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU, ContextHandler.DeviceType.iGPU, ContextHandler.DeviceType.CPU};
 //  Large task    
-//    private static final int IMAGE_WIDTH_MAX = 1024;    
-//    private static final int[] FACET_SIZES = new int[]{9, 17, 35};
-//    private static final int DEFORMATION_COUNT_MAX = 800;
+    private static final int IMAGE_WIDTH_MAX = 1024;    
+    private static final int[] FACET_SIZES = new int[]{9, 17, 35};
+    private static final int DEFORMATION_COUNT_MAX = 800;
 //  Small task
-    private static final int IMAGE_WIDTH_MAX = 128;
-    private static final int[] FACET_SIZES = new int[]{9};
-    private static final int DEFORMATION_COUNT_MAX = 200;
+//    private static final int IMAGE_WIDTH_MAX = 128;
+//    private static final int[] FACET_SIZES = new int[]{9};
+//    private static final int DEFORMATION_COUNT_MAX = 200;
 
     public static void computeImageFillTest() throws IOException {
         for (ContextHandler.DeviceType device : HW) {
