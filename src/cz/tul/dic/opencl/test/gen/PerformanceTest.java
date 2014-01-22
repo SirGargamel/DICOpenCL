@@ -26,6 +26,7 @@ import java.util.List;
  */
 public class PerformanceTest {
 //  static data
+
     private static final double IMAGE_RATIO = 3 / (double) 4;
     private static final int IMAGE_WIDTH_MIN = 128;
     private static final int DEFORMATION_COUNT_MIN = 100;
@@ -34,7 +35,7 @@ public class PerformanceTest {
 //    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.CPU, ContextHandler.DeviceType.GPU};
     private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU, ContextHandler.DeviceType.iGPU, ContextHandler.DeviceType.CPU};
 //  Large task    
-    private static final int IMAGE_WIDTH_MAX = 1024;    
+    private static final int IMAGE_WIDTH_MAX = 1024;
     private static final int[] FACET_SIZES = new int[]{9, 17, 35};
     private static final int DEFORMATION_COUNT_MAX = 800;
 //  Small task
@@ -43,9 +44,9 @@ public class PerformanceTest {
 //    private static final int DEFORMATION_COUNT_MAX = 100;
 
     public static void computeImageFillTest() throws IOException {
-        for (ContextHandler.DeviceType device : HW) {
+        for (int device = 0; device < HW.length; device++) {
             CLPlatform.initialize();
-            final ContextHandler ch = new ContextHandler(device);
+            final ContextHandler ch = new ContextHandler(HW[device]);
 
             final List<Scenario> scenarios = prepareScenarios(ch);
             for (Scenario sc : scenarios) {
@@ -92,6 +93,7 @@ public class PerformanceTest {
                                     sc.reset();
                                     while (sc.hasNext()) {
                                         ps = new ParameterSet();
+                                        ps.addParameter(Parameter.HW, device);
                                         ps.addParameter(Parameter.IMAGE_WIDTH, w);
                                         ps.addParameter(Parameter.IMAGE_HEIGHT, h);
                                         ps.addParameter(Parameter.FACET_SIZE, s);
@@ -138,11 +140,11 @@ public class PerformanceTest {
                     context.release();
                 }
             }
-
-            String fileName = "D:\\DIC_OpenCL_Data_" + ch.getDeviceName() + ".csv";
-            DataStorage.exportData(new File(fileName));
-            DataStorage.exportResultGroups(new File("D:\\DIC_OpenCL_Results_" + ch.getDeviceName() + ".csv"));
         }
+
+        String fileName = "D:\\DIC_OpenCL_Data.csv";
+        DataStorage.exportData(new File(fileName));
+        DataStorage.exportResultGroups(new File("D:\\DIC_OpenCL_Results.csv"));
     }
 
     private static List<TestCase> prepareTestCases() {
