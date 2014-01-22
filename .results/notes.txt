@@ -1,0 +1,1 @@
+- Intel ma daleko agresivnejsi ovladace co se dodrzovani standartu tyce (to, co lze prelozit na GeForce nemusi nutne jit na Intel)
