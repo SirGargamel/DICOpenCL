@@ -3,6 +3,7 @@ package cz.tul.dic.opencl.test.gen;
 import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLDevice;
 import com.jogamp.opencl.CLDevice.Type;
+import com.jogamp.opencl.CLErrorHandler;
 import com.jogamp.opencl.CLKernel;
 import com.jogamp.opencl.CLMemory;
 import com.jogamp.opencl.CLPlatform;
@@ -25,6 +26,7 @@ public class ContextHandler {
     private static final int MAX_RESET_COUNT_IN_TIME = 3;
     private static final long RESET_TIME = 60000;
     private final DeviceType type;
+    private final CLErrorHandler errorHandler;
     private CLPlatform platform;
     private Scenario scenario;
     private CLContext context;
@@ -35,6 +37,7 @@ public class ContextHandler {
 
     public ContextHandler(final DeviceType type) {
         this.type = type;
+        errorHandler = new SimpleCLErrorHandler();
         facetSize = 1;
         reset();
         resetCounter--;
@@ -164,6 +167,7 @@ public class ContextHandler {
         }
         
         context = CLContext.create(device);
+        context.addCLErrorHandler(errorHandler);
         System.out.println("Using " + device + " on " + context);
 
         assignScenario(scenario);
