@@ -44,21 +44,20 @@ kernel void CL2DImageInterleaved(
     const int baseIndexFacetCenter = facetId * 2;
     const int baseIndexDeformation = deformationId * 6;
     // deform facet
-    float deformedFacet[-1*-1*2];
-    int facet[-1*-1*2];
-    int index, i2, dx, dy;    
+    float deformedFacet[-1*-1*2];    
+    int index, i2, dx, dy, x, y;    
     for (int i = 0; i < facetSize2; i++) {        
         i2 = i*2;
-        index = i*facetCoordCount + 2*facetId;
+        index = baseIndexFacet + i2;
         
-        facet[i2] = facets[index];
-        facet[i2 + 1] = facets[index + 1];
+        x = facets[index];
+        y = facets[index+1];
 
-        dx = facet[i2] - facetCenters[baseIndexFacetCenter];
-        dy = facet[i2+1] - facetCenters[baseIndexFacetCenter + 1];
+        dx = x - facetCenters[baseIndexFacetCenter];
+        dy = y - facetCenters[baseIndexFacetCenter + 1];
         
-        deformedFacet[i2] = facet[i2] + deformations[baseIndexDeformation] + deformations[baseIndexDeformation + 2] * dx + deformations[baseIndexDeformation + 4] * dy;                    
-        deformedFacet[i2 + 1] = facet[i2+1] + deformations[baseIndexDeformation + 1] + deformations[baseIndexDeformation + 3] * dx + deformations[baseIndexDeformation + 5] * dy; 
+        deformedFacet[i2] = x + deformations[baseIndexDeformation] + deformations[baseIndexDeformation + 2] * dx + deformations[baseIndexDeformation + 4] * dy;                    
+        deformedFacet[i2 + 1] = y + deformations[baseIndexDeformation + 1] + deformations[baseIndexDeformation + 3] * dx + deformations[baseIndexDeformation + 5] * dy; 
     }
     // compute correlation using ZNCC
     float deformedI[-1*-1];
@@ -67,9 +66,9 @@ kernel void CL2DImageInterleaved(
     float meanG = 0; 
     for (int i = 0; i < facetSize2; i++) {
         i2 = i*2;        
-                
+        index = baseIndexFacet + i2;
         // facet is just array of int coords        
-        facetI[i] = read_imageui(imageA, sampler, (int2)(facet[i2], facet[i2 + 1])).x;        
+        facetI[i] = read_imageui(imageA, sampler, (int2)(facets[index], facets[index + 1])).x;
         meanF += facetI[i];
         
         deformedI[i] = interpolate(deformedFacet[i2], deformedFacet[i2+1], imageB);        
