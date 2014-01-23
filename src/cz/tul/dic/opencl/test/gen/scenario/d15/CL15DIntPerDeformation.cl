@@ -18,21 +18,18 @@ int interpolate(const float x, const float y, global read_only int * image, cons
     return intensity;    
 }
 
-kernel void Compute2DIntGpuDirect(
+kernel void CL15DIntPerDeformation(
     global read_only int * imageA, global read_only int * imageB, 
     global read_only int * facets, global read_only int * facetCenters,
     global read_only float * deformations,
-    global write_only float * result,    
+    global write_only float * result,
+    global read_only int * deformationIndex,
     const int imageWidth, const int deformationCount,
     const int facetSize, const int facetCount) 
 {        
-    // id checks    
+    // id checks         
     const size_t facetId = get_global_id(0);
     if (facetId >= facetCount) {
-        return;
-    }        
-    const size_t deformationId = get_global_id(1);
-    if (deformationId >= deformationCount) {
         return;
     }
     // index computation
@@ -40,7 +37,7 @@ kernel void Compute2DIntGpuDirect(
     const int facetCoordCount = facetSize2 * 2;
     const int baseIndexFacet = facetId * facetCoordCount;         
     const int baseIndexFacetCenter = facetId * 2;
-    const int baseIndexDeformation = deformationId * 6;
+    const int baseIndexDeformation = deformationIndex[0] * 6;
     // deform facet
     float deformedFacet[-1*-1*2];    
     int indexFacet, i2, x, y, dx, dy;   
@@ -104,6 +101,6 @@ kernel void Compute2DIntGpuDirect(
     resultVal /= deltaFs * deltaGs;    
     
     //store result
-    indexFacet = facetId * deformationCount + deformationId;
+    indexFacet = facetId * deformationCount + deformationIndex[0];
     result[indexFacet] = resultVal;    
 }

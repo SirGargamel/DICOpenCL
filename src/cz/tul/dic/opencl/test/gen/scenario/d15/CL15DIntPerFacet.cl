@@ -17,34 +17,33 @@ int interpolate(const float x, const float y, global read_only int * image, cons
 
     return intensity;    
 }
-/**
- * @author Petr Jecmen
- */
-kernel void Compute1DIntPerDeformationSingle(
+
+kernel void CL15DIntPerFacet(
     global read_only int * imageA, global read_only int * imageB, 
     global read_only int * facets, global read_only int * facetCenters,
-    global read_only float * deformation,
-    global write_only float * result,    
-    const int imageWidth, const int facetCount,
-    const int facetSize) 
-{
-    // id checks       
-    const size_t facetId = get_global_id(0);
-    if (facetId >= facetCount) {
+    global read_only float * deformations,
+    global write_only float * result,
+    global read_only int * facetIndex,
+    const int imageWidth, const int deformationCount,
+    const int facetSize, const int facetCount) 
+{        
+    // id checks         
+    const size_t deformationId = get_global_id(0);
+    if (deformationId >= deformationCount) {
         return;
     }
-    
     // index computation
     const int facetSize2 = facetSize * facetSize;
-    const int facetCoordCount = facetSize2 * 2;   
-    const int baseIndexFacet = facetId * facetCoordCount;         
-    const int baseIndexFacetCenter = facetId * 2;
+    const int facetCoordCount = facetSize2 * 2;
+    const int baseIndexFacet = facetIndex[0] * facetCoordCount;         
+    const int baseIndexFacetCenter = facetIndex[0] * 2;
+    const int baseIndexDeformation = deformationId * 6;
     // deform facet
     float deformedFacet[-1*-1*2];    
     int indexFacet, i2, x, y, dx, dy;   
     for (int i = 0; i < facetSize2; i++) {
         i2 = i*2;
-        indexFacet = baseIndexFacet + i2; 
+        indexFacet = baseIndexFacet + i2;        
         
         x = facets[indexFacet];
         y = facets[indexFacet+1];
@@ -52,8 +51,8 @@ kernel void Compute1DIntPerDeformationSingle(
         dx = x - facetCenters[baseIndexFacetCenter];
         dy = y - facetCenters[baseIndexFacetCenter + 1];
         
-        deformedFacet[i2] = x + deformation[0] + deformation[2] * dx + deformation[4] * dy;                    
-        deformedFacet[i2 + 1] = y + deformation[1] + deformation[3] * dx + deformation[5] * dy;    
+        deformedFacet[i2] = x + deformations[baseIndexDeformation] + deformations[baseIndexDeformation + 2] * dx + deformations[baseIndexDeformation + 4] * dy;                    
+        deformedFacet[i2 + 1] = y + deformations[baseIndexDeformation + 1] + deformations[baseIndexDeformation + 3] * dx + deformations[baseIndexDeformation + 5] * dy;    
     }
     // compute correlation using ZNCC
     float deformedI[-1*-1];
@@ -79,7 +78,10 @@ kernel void Compute1DIntPerDeformationSingle(
     
     float deltaF = 0;
     float deltaG = 0;    
-    for (int i = 0; i < facetSize2; i++) {                                     
+    for (int i = 0; i < facetSize2; i++) {
+        i2 = i*2;
+        indexFacet = baseIndexFacet + i2;
+                                     
         val = facetI[i] - meanF;
         facetI[i] = val;
         deltaF += val * val;
@@ -92,10 +94,13 @@ kernel void Compute1DIntPerDeformationSingle(
     const float deltaGs = sqrt(deltaG);    
     
     float resultVal = 0;                  
-    for (int i = 0; i < facetSize2; i++) {                    
+    for (int i = 0; i < facetSize2; i++) {        
+        indexFacet = baseIndexFacet + i*2;        
         resultVal += facetI[i] * deformedI[i];
-    }    
+    }
+    resultVal /= deltaFs * deltaGs;    
     
-    //store result    
-    result[facetId] = resultVal / (deltaFs * deltaGs);    
+    //store result
+    indexFacet = facetIndex[0] * deformationCount + deformationId;
+    result[indexFacet] = resultVal;    
 }

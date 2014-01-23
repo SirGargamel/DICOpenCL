@@ -18,7 +18,7 @@ int interpolate(const float x, const float y, global read_only int * image, cons
     return intensity;    
 }
 
-kernel void Compute2DNaive(
+kernel void CL2DInt(
     global read_only int * imageA, global read_only int * imageB, 
     global read_only int * facets, global read_only int * facetCenters,
     global read_only float * deformations,

@@ -20,7 +20,7 @@ int interpolate(const float x, const float y, global read_only int * image, cons
 /**
  * @author Petr Jecmen
  */
-kernel void Compute1DIntPerFacetSingle(
+kernel void CL1DIntPerFacetSingle(
     global read_only int * imageA, global read_only int * imageB, 
     global read_only int * facet, global read_only int * facetCenter,
     global read_only float * deformations,

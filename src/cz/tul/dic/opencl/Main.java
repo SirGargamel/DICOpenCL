@@ -5,7 +5,6 @@
  */
 package cz.tul.dic.opencl;
 
-import cz.tul.dic.opencl.test.gen.PerformanceTest;
 import java.io.IOException;
 
 /**
