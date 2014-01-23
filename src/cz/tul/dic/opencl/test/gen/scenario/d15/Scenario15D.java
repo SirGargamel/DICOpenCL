@@ -17,8 +17,8 @@ public abstract class Scenario15D extends Scenario {
     private final int maxVariantCount;
     private int currentVariant;
 
-    public Scenario15D(final String scenarioName, final ContextHandler contextHandler) throws IOException {
-        super(scenarioName, contextHandler);
+    public Scenario15D(final ContextHandler contextHandler) throws IOException {
+        super(contextHandler);
 
         currentVariant = 0;
         maxVariantCount = CustomMath.power2(contextHandler.getDevice().getMaxWorkGroupSize()) + 1;

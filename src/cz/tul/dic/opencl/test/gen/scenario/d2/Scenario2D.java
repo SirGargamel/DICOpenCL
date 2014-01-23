@@ -19,8 +19,8 @@ public abstract class Scenario2D extends Scenario {
     private final int lws0count, lws1count, maxWorkSize;
     private int currentVariant;
 
-    public Scenario2D(final String scenarioName, final ContextHandler contextHandler) throws IOException {
-        super(scenarioName, contextHandler);
+    public Scenario2D(final ContextHandler contextHandler) throws IOException {
+        super(contextHandler);
 
         currentVariant = 0;
 

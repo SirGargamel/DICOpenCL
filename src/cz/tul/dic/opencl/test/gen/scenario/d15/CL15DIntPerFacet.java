@@ -22,12 +22,10 @@ import java.nio.IntBuffer;
  *
  * @author Petr Jecmen
  */
-public class CL15DIntPerFacet extends Scenario15D {
-
-    private static final String KERNEL_NAME = "CL15DIntPerFacet";
+public class CL15DIntPerFacet extends Scenario15D {    
 
     public CL15DIntPerFacet(final ContextHandler contextHandler) throws IOException {
-        super(KERNEL_NAME, contextHandler);
+        super(contextHandler);
     }
 
     @Override

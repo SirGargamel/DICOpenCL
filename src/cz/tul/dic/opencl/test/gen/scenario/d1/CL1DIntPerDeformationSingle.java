@@ -22,12 +22,10 @@ import java.nio.IntBuffer;
  *
  * @author Petr Jecmen
  */
-public class CL1DIntPerDeformationSingle extends Scenario1D {
-
-    private static final String KERNEL_NAME = "CL1DIntPerDeformationSingle";
+public class CL1DIntPerDeformationSingle extends Scenario1D {    
 
     public CL1DIntPerDeformationSingle(final ContextHandler contextHandler) throws IOException {
-        super(KERNEL_NAME, contextHandler);
+        super(contextHandler);
     }
 
     @Override

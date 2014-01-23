@@ -25,12 +25,10 @@ import java.nio.IntBuffer;
  *
  * @author Petr Jecmen
  */
-public class CL2DImage extends Scenario2D {
-
-    private static final String NAME = "CL2DImage";
+public class CL2DImage extends Scenario2D {    
 
     public CL2DImage(final ContextHandler contextHandler) throws IOException {
-        super(NAME, contextHandler);
+        super(contextHandler);
     }
 
     @Override

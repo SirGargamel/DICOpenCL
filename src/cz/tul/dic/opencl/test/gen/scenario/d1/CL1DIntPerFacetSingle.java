@@ -23,12 +23,11 @@ import java.nio.IntBuffer;
  * @author Petr Jecmen
  */
 public class CL1DIntPerFacetSingle extends Scenario1D {
-
-    private static final String KERNEL_NAME = "CL1DIntPerFacetSingle";
+    
     private static final int FACET_DIMENSION = 2;
 
     public CL1DIntPerFacetSingle(final ContextHandler contextHandler) throws IOException {
-        super(KERNEL_NAME, contextHandler);
+        super(contextHandler);
     }
 
     @Override

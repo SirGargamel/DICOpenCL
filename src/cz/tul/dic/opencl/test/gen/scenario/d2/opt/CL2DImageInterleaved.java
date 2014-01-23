@@ -27,10 +27,8 @@ import java.nio.IntBuffer;
  */
 public class CL2DImageInterleaved extends Scenario2D {
 
-    private static final String NAME = "CL2DImageInterleaved";
-
     public CL2DImageInterleaved(final ContextHandler contextHandler) throws IOException {
-        super(NAME, contextHandler);
+        super(contextHandler);
     }
 
     @Override

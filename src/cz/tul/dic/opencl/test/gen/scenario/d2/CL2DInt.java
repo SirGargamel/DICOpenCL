@@ -22,9 +22,18 @@ import java.nio.IntBuffer;
  * @author Petr Jecmen
  */
 public class CL2DInt extends Scenario2D {
+    
+    private final String kernelName;
 
     public CL2DInt(final String kernelName, final ContextHandler contextHandler) throws IOException {
-        super(kernelName, contextHandler);
+        super(contextHandler);
+        
+        this.kernelName = kernelName;
+    }
+    
+    @Override
+    public String getKernelName() {
+        return kernelName;
     }
 
     @Override

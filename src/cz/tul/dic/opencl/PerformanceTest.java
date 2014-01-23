@@ -9,7 +9,6 @@ import cz.tul.dic.opencl.test.gen.DataStorage;
 import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
 import cz.tul.dic.opencl.test.gen.Utils;
-import cz.tul.dic.opencl.test.gen.data.ShiftedImageCase;
 import cz.tul.dic.opencl.test.gen.data.TestCase;
 import cz.tul.dic.opencl.test.gen.scenario.JavaPerDeformation;
 import cz.tul.dic.opencl.test.gen.scenario.JavaPerFacet;
@@ -21,6 +20,7 @@ import cz.tul.dic.opencl.test.gen.scenario.d15.CL15DIntPerDeformation;
 import cz.tul.dic.opencl.test.gen.scenario.d15.CL15DIntPerFacet;
 import cz.tul.dic.opencl.test.gen.scenario.d2.CL2DImage;
 import cz.tul.dic.opencl.test.gen.scenario.d2.CL2DInt;
+import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageInterleaved;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -125,16 +125,16 @@ public class PerformanceTest {
 
                                         switch (result.getState()) {
                                             case SUCCESS:
-                                                System.out.println("Finished " + sc.getDescription() + " " + (result.getTotalTime() / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
+                                                System.out.println("Finished " + sc.getKernelName() + " " + (result.getTotalTime() / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
                                                 break;
                                             case WRONG_RESULT_DYNAMIC:
-                                                System.out.println("Wrong dynamic part of result for  " + sc.getDescription() + " " + (result.getTotalTime() / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
+                                                System.out.println("Wrong dynamic part of result for  " + sc.getKernelName() + " " + (result.getTotalTime() / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
                                                 break;
                                             case WRONG_RESULT_FIXED:
-                                                System.out.println("Wrong fixed part of result for  " + sc.getDescription() + " " + (result.getTotalTime() / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
+                                                System.out.println("Wrong fixed part of result for  " + sc.getKernelName() + " " + (result.getTotalTime() / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
                                                 break;
                                             case FAIL:
-                                                System.out.println("Failed " + sc.getDescription() + " with params " + ps);
+                                                System.out.println("Failed " + sc.getKernelName() + " with params " + ps);
                                                 ch.reset();
                                         }
 
@@ -165,7 +165,7 @@ public class PerformanceTest {
         List<TestCase> result = new ArrayList<>(2);
 
         result.add(new TestCase());
-        result.add(new ShiftedImageCase(5, 2));
+//        result.add(new ShiftedImageCase(5, 2));
 
         return result;
     }
@@ -182,6 +182,7 @@ public class PerformanceTest {
         scenarios.add(new CL2DInt("CL2DInt", contextHandler));
         scenarios.add(new CL2DInt("CL2DIntOpt", contextHandler));
         scenarios.add(new CL2DImage(contextHandler));
+        scenarios.add(new CL2DImageInterleaved(contextHandler));
 
         return scenarios;
     }

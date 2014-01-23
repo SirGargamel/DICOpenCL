@@ -17,14 +17,13 @@ import java.util.logging.Logger;
  * @author Petr Jecmen
  */
 public class JavaPerDeformation extends Scenario {
-
-    private static final String NAME = "JavaPerDeformation";
+    
     private static final int COUNT_THREADS = Runtime.getRuntime().availableProcessors();
     private ExecutorService exec;
     private int currentVariant;
 
     public JavaPerDeformation() throws IOException {
-        super(NAME, null);
+        super(null);
 
         currentVariant = 0;
     }

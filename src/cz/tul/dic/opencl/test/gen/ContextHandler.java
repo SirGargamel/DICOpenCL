@@ -65,7 +65,7 @@ public class ContextHandler {
     public void assignScenario(final Scenario sc) {
         scenario = sc;
         if (context != null && scenario != null) {
-            final String name = scenario.getDescription();
+            final String name = scenario.getKernelName();
             try {
                 Class cls = sc.getClass();
                 InputStream in = cls.getResourceAsStream(name.concat(CL_EXTENSION));

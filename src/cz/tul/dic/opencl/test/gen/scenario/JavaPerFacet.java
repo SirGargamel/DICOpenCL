@@ -17,14 +17,13 @@ import java.util.logging.Logger;
  * @author Petr Jecmen
  */
 public class JavaPerFacet extends Scenario {
-
-    private static final String NAME = "JavaPerFacet";
+    
     private static final int COUNT_THREADS = Runtime.getRuntime().availableProcessors();
     private ExecutorService exec;
     private int currentVariant;
 
     public JavaPerFacet() throws IOException {
-        super(NAME, null);
+        super(null);
 
         currentVariant = 0;
     }

@@ -11,13 +11,11 @@ import java.nio.IntBuffer;
  * @author Petr Jecmen
  */
 public abstract class Scenario {
-
-    private final String name;
+    
     protected final ContextHandler contextHandler;
 
-    public Scenario(final String scenarioName, final ContextHandler contextHandler) throws IOException {
-        this.contextHandler = contextHandler;
-        this.name = scenarioName;
+    public Scenario(final ContextHandler contextHandler) throws IOException {
+        this.contextHandler = contextHandler;        
     }
 
     public abstract ScenarioResult compute(
@@ -38,8 +36,8 @@ public abstract class Scenario {
 
     protected abstract void resetInner();
 
-    public String getDescription() {
-        return name;
+    public String getKernelName() {
+        return getClass().getSimpleName();
     }
 
     public abstract int getVariantCount();
