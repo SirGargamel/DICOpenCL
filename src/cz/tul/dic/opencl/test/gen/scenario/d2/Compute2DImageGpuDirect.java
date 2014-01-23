@@ -38,12 +38,12 @@ public class Compute2DImageGpuDirect extends Scenario2D {
             final int[] imageA, final int[] imageB,
             final int[] facetData, final int[] facetCenters,
             final float[] deformations,
-            final ParameterSet params) {
+            final ParameterSet params) throws CLException {
         float[] result = null;
         final int facetSize = params.getValue(Parameter.FACET_SIZE);
         final int facetCount = params.getValue(Parameter.FACET_COUNT);
         // prepare buffers
-        final CLContext context = contextHandler.getContext();        
+        final CLContext context = contextHandler.getContext();
 
         CLImageFormat format = new CLImageFormat(CLImageFormat.ChannelOrder.RGBA, CLImageFormat.ChannelType.UNSIGNED_INT8);
 
@@ -80,36 +80,32 @@ public class Compute2DImageGpuDirect extends Scenario2D {
         params.addParameter(Parameter.LWS1, lws1);
         // execute kernel
         long duration = -1;
-        try {
-            CLEventList eventList = new CLEventList(1);
+        CLEventList eventList = new CLEventList(1);
 
-            final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(Mode.PROFILING_MODE);
+        final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(Mode.PROFILING_MODE);
 
-            queue.putWriteImage(imageAcl, false);
-            queue.putWriteImage(imageBcl, false);
-            queue.putWriteBuffer(bufferFacetData, false);
-            queue.putWriteBuffer(bufferFacetCenters, false);
-            queue.putWriteBuffer(bufferDeformations, false);
-            queue.put2DRangeKernel(kernel, 0, 0, facetGlobalWorkSize, deformationsGlobalWorkSize, lws0, lws1, eventList);
-            queue.putReadBuffer(bufferResult, true);
-            queue.finish();
-            result = readBuffer(bufferResult.getBuffer());
+        queue.putWriteImage(imageAcl, false);
+        queue.putWriteImage(imageBcl, false);
+        queue.putWriteBuffer(bufferFacetData, false);
+        queue.putWriteBuffer(bufferFacetCenters, false);
+        queue.putWriteBuffer(bufferDeformations, false);
+        queue.put2DRangeKernel(kernel, 0, 0, facetGlobalWorkSize, deformationsGlobalWorkSize, lws0, lws1, eventList);
+        queue.putReadBuffer(bufferResult, true);
+        queue.finish();
+        result = readBuffer(bufferResult.getBuffer());
 
-            final long start = eventList.getEvent(0).getProfilingInfo(ProfilingCommand.START);
-            final long end = eventList.getEvent(0).getProfilingInfo(ProfilingCommand.END);
-            duration = end - start;
+        final long start = eventList.getEvent(0).getProfilingInfo(ProfilingCommand.START);
+        final long end = eventList.getEvent(0).getProfilingInfo(ProfilingCommand.END);
+        duration = end - start;
 
-            // data cleanup
-            imageAcl.release();
-            imageBcl.release();
-            bufferFacetData.release();
-            bufferFacetCenters.release();
-            bufferDeformations.release();
-            bufferResult.release();
-            eventList.release();
-        } catch (CLException ex) {
-            System.err.println("CL error - " + ex.getLocalizedMessage());
-        }
+        // data cleanup
+        imageAcl.release();
+        imageBcl.release();
+        bufferFacetData.release();
+        bufferFacetCenters.release();
+        bufferDeformations.release();
+        bufferResult.release();
+        eventList.release();
 
         return new ScenarioResult(result, duration);
     }

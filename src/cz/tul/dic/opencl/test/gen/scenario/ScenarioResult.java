@@ -12,6 +12,12 @@ public class ScenarioResult {
     private State state;
     private int resultGroup;
 
+    public ScenarioResult(final long totalTime) {
+        state = State.FAIL;
+        this.totalTime = totalTime;
+        this.kernelExecutionTime = -1;
+    }
+    
     public ScenarioResult(float[] resultData, long kernelExecutionTime) {
         this.resultData = resultData;
         this.kernelExecutionTime = kernelExecutionTime;

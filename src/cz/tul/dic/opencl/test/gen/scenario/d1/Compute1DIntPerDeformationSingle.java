@@ -25,13 +25,13 @@ import java.nio.IntBuffer;
 public class Compute1DIntPerDeformationSingle extends Scenario1D {
 
     private static final String KERNEL_NAME = "Compute1DIntPerDeformationSingle";
-    
+
     public Compute1DIntPerDeformationSingle(final ContextHandler contextHandler) throws IOException {
         super(KERNEL_NAME, contextHandler);
     }
 
     @Override
-    ScenarioResult computeScenario(int[] imageA, int[] imageB, int[] facetData, int[] facetCenters, float[] deformations, ParameterSet params) {
+    ScenarioResult computeScenario(int[] imageA, int[] imageB, int[] facetData, int[] facetCenters, float[] deformations, ParameterSet params) throws CLException {
         final int facetSize = params.getValue(Parameter.FACET_SIZE);
         final int facetCount = params.getValue(Parameter.FACET_COUNT);
         final int deformationCount = deformations.length / Utils.DEFORMATION_DIM;
@@ -50,7 +50,7 @@ public class Compute1DIntPerDeformationSingle extends Scenario1D {
         fillBuffer(bufferImageA.getBuffer(), imageA);
         fillBuffer(bufferImageB.getBuffer(), imageB);
         fillBuffer(bufferFacetData.getBuffer(), facetData);
-        fillBuffer(bufferFacetCenters.getBuffer(), facetCenters);        
+        fillBuffer(bufferFacetCenters.getBuffer(), facetCenters);
         // prepare kernel arguments
         final CLKernel kernel = contextHandler.getKernel();
         kernel.putArgs(bufferImageA, bufferImageB, bufferFacetData, bufferFacetCenters, bufferDeformation, bufferResult)
@@ -65,46 +65,43 @@ public class Compute1DIntPerDeformationSingle extends Scenario1D {
         // execute kernel        
         long duration = 0;
         float[] oneResult;
-        try {
-            CLEventList eventList = new CLEventList(deformationCount);
 
-            final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(CLCommandQueue.Mode.PROFILING_MODE);
+        CLEventList eventList = new CLEventList(deformationCount);
 
-            queue.putWriteBuffer(bufferImageA, false);
-            queue.putWriteBuffer(bufferImageB, false);
-            queue.putWriteBuffer(bufferFacetData, false);
-            queue.putWriteBuffer(bufferFacetCenters, false);
+        final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(CLCommandQueue.Mode.PROFILING_MODE);
 
-            // obalit forem
-            for (int i = 0; i < deformationCount; i++) {
-                // plnit buffer spravnou deformaci
-                fillBuffer(bufferDeformation.getBuffer(), deformations, i * Utils.DEFORMATION_DIM, Utils.DEFORMATION_DIM);
-                // write new data and run kernel
-                queue.putWriteBuffer(bufferDeformation, false);
+        queue.putWriteBuffer(bufferImageA, false);
+        queue.putWriteBuffer(bufferImageB, false);
+        queue.putWriteBuffer(bufferFacetData, false);
+        queue.putWriteBuffer(bufferFacetCenters, false);
 
-                queue.put1DRangeKernel(kernel, 0, facetGlobalWorkSize, lws0, eventList);
-                queue.putReadBuffer(bufferResult, true);
-                oneResult = readBuffer(bufferResult.getBuffer());
-                // store result                
-                for (int r = 0; r < facetCount; r++) {
-                    result[(r * deformationCount) + i] = oneResult[r];
-                }
+        // obalit forem
+        for (int i = 0; i < deformationCount; i++) {
+            // plnit buffer spravnou deformaci
+            fillBuffer(bufferDeformation.getBuffer(), deformations, i * Utils.DEFORMATION_DIM, Utils.DEFORMATION_DIM);
+            // write new data and run kernel
+            queue.putWriteBuffer(bufferDeformation, false);
 
-                duration += eventList.getEvent(i).getProfilingInfo(CLEvent.ProfilingCommand.END) - eventList.getEvent(i).getProfilingInfo(CLEvent.ProfilingCommand.START);
+            queue.put1DRangeKernel(kernel, 0, facetGlobalWorkSize, lws0, eventList);
+            queue.putReadBuffer(bufferResult, true);
+            oneResult = readBuffer(bufferResult.getBuffer());
+            // store result                
+            for (int r = 0; r < facetCount; r++) {
+                result[(r * deformationCount) + i] = oneResult[r];
             }
-            queue.finish();
 
-            // data cleanup
-            bufferImageA.release();
-            bufferImageB.release();
-            bufferFacetData.release();
-            bufferFacetCenters.release();
-            bufferDeformation.release();
-            bufferResult.release();
-            eventList.release();
-        } catch (CLException ex) {
-            System.err.println("CL error - " + ex.getLocalizedMessage());
+            duration += eventList.getEvent(i).getProfilingInfo(CLEvent.ProfilingCommand.END) - eventList.getEvent(i).getProfilingInfo(CLEvent.ProfilingCommand.START);
         }
+        queue.finish();
+
+        // data cleanup
+        bufferImageA.release();
+        bufferImageB.release();
+        bufferFacetData.release();
+        bufferFacetCenters.release();
+        bufferDeformation.release();
+        bufferResult.release();
+        eventList.release();
 
         return new ScenarioResult(result, duration);
     }

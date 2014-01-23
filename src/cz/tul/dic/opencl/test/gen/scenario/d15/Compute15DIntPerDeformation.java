@@ -35,7 +35,7 @@ public class Compute15DIntPerDeformation extends Scenario15D {
             final int[] imageA, final int[] imageB,
             final int[] facetData, final int[] facetCenters,
             final float[] deformations,
-            final ParameterSet params) {
+            final ParameterSet params) throws CLException {
         float[] result = null;
         final int facetSize = params.getValue(Parameter.FACET_SIZE);
         final int facetCount = params.getValue(Parameter.FACET_COUNT);
@@ -71,42 +71,38 @@ public class Compute15DIntPerDeformation extends Scenario15D {
         params.addParameter(Parameter.LWS0, lws0);
         // execute kernel
         long duration = -1;
-        try {
-            CLEventList eventList = new CLEventList(deformationCount);
+        CLEventList eventList = new CLEventList(deformationCount);
 
-            final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(CLCommandQueue.Mode.PROFILING_MODE);
+        final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(CLCommandQueue.Mode.PROFILING_MODE);
 
-            queue.putWriteBuffer(bufferImageA, false);
-            queue.putWriteBuffer(bufferImageB, false);
-            queue.putWriteBuffer(bufferFacetData, false);
-            queue.putWriteBuffer(bufferFacetCenters, false);
-            queue.putWriteBuffer(bufferDeformations, false);
+        queue.putWriteBuffer(bufferImageA, false);
+        queue.putWriteBuffer(bufferImageB, false);
+        queue.putWriteBuffer(bufferFacetData, false);
+        queue.putWriteBuffer(bufferFacetCenters, false);
+        queue.putWriteBuffer(bufferDeformations, false);
 
-            for (int i = 0; i < deformationCount; i++) {
-                fillBuffer(bufferDeformationIndex.getBuffer(), i);
-                queue.putWriteBuffer(bufferDeformationIndex, false);
+        for (int i = 0; i < deformationCount; i++) {
+            fillBuffer(bufferDeformationIndex.getBuffer(), i);
+            queue.putWriteBuffer(bufferDeformationIndex, false);
 
-                queue.put1DRangeKernel(kernel, 0, facetGlobalWorkSize, lws0, eventList);
-            }
-            queue.putReadBuffer(bufferResult, true);
-            queue.finish();
-            result = readBuffer(bufferResult.getBuffer());
-
-            for (CLEvent ev : eventList) {
-                duration += ev.getProfilingInfo(CLEvent.ProfilingCommand.END) - ev.getProfilingInfo(CLEvent.ProfilingCommand.START);
-            }
-
-            // data cleanup
-            bufferImageA.release();
-            bufferImageB.release();
-            bufferFacetData.release();
-            bufferFacetCenters.release();
-            bufferDeformations.release();
-            bufferResult.release();
-            eventList.release();
-        } catch (CLException ex) {
-            System.err.println("CL error - " + ex.getLocalizedMessage());
+            queue.put1DRangeKernel(kernel, 0, facetGlobalWorkSize, lws0, eventList);
         }
+        queue.putReadBuffer(bufferResult, true);
+        queue.finish();
+        result = readBuffer(bufferResult.getBuffer());
+
+        for (CLEvent ev : eventList) {
+            duration += ev.getProfilingInfo(CLEvent.ProfilingCommand.END) - ev.getProfilingInfo(CLEvent.ProfilingCommand.START);
+        }
+
+        // data cleanup
+        bufferImageA.release();
+        bufferImageB.release();
+        bufferFacetData.release();
+        bufferFacetCenters.release();
+        bufferDeformations.release();
+        bufferResult.release();
+        eventList.release();
 
         return new ScenarioResult(result, duration);
     }

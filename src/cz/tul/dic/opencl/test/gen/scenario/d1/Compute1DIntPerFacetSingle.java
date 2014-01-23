@@ -32,7 +32,7 @@ public class Compute1DIntPerFacetSingle extends Scenario1D {
     }
 
     @Override
-    ScenarioResult computeScenario(int[] imageA, int[] imageB, int[] facetData, int[] facetCenters, float[] deformations, ParameterSet params) {
+    ScenarioResult computeScenario(int[] imageA, int[] imageB, int[] facetData, int[] facetCenters, float[] deformations, ParameterSet params) throws CLException {
         final int facetSize = params.getValue(Parameter.FACET_SIZE);
         final int facetCount = params.getValue(Parameter.FACET_COUNT);
         final int facetDataSize = Utils.calculateFacetArraySize(facetSize);
@@ -65,46 +65,42 @@ public class Compute1DIntPerFacetSingle extends Scenario1D {
         params.addParameter(Parameter.LWS0, lws0);
         // execute kernel        
         long duration = 0;
-        float[] oneResult;        
-        try {
-            CLEventList eventList = new CLEventList(facetCount);
+        float[] oneResult;
+        CLEventList eventList = new CLEventList(facetCount);
 
-            final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(CLCommandQueue.Mode.PROFILING_MODE);
+        final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(CLCommandQueue.Mode.PROFILING_MODE);
 
-            queue.putWriteBuffer(bufferImageA, false);
-            queue.putWriteBuffer(bufferImageB, false);
-            queue.putWriteBuffer(bufferDeformations, false);
+        queue.putWriteBuffer(bufferImageA, false);
+        queue.putWriteBuffer(bufferImageB, false);
+        queue.putWriteBuffer(bufferDeformations, false);
 
-            // obalit forem
-            for (int i = 0; i < facetCount; i++) {
-                // plnit buffer spravnym facetem
-                fillBuffer(bufferFacetData.getBuffer(), facetData, i * facetDataSize, facetDataSize);
-                fillBuffer(bufferFacetCenter.getBuffer(), facetCenters, i * 2, 2);
-                // write new data and run kernel
-                queue.putWriteBuffer(bufferFacetData, false);
-                queue.putWriteBuffer(bufferFacetCenter, false);
+        // obalit forem
+        for (int i = 0; i < facetCount; i++) {
+            // plnit buffer spravnym facetem
+            fillBuffer(bufferFacetData.getBuffer(), facetData, i * facetDataSize, facetDataSize);
+            fillBuffer(bufferFacetCenter.getBuffer(), facetCenters, i * 2, 2);
+            // write new data and run kernel
+            queue.putWriteBuffer(bufferFacetData, false);
+            queue.putWriteBuffer(bufferFacetCenter, false);
 
-                queue.put1DRangeKernel(kernel, 0, facetGlobalWorkSize, lws0, eventList);
-                queue.putReadBuffer(bufferResult, true);
-                oneResult = readBuffer(bufferResult.getBuffer());
-                // store result
-                System.arraycopy(oneResult, 0, result, i * deformationCount, deformationCount);
-                
-                duration += eventList.getEvent(i).getProfilingInfo(CLEvent.ProfilingCommand.END) - eventList.getEvent(i).getProfilingInfo(CLEvent.ProfilingCommand.START);
-            }
-            queue.finish();
+            queue.put1DRangeKernel(kernel, 0, facetGlobalWorkSize, lws0, eventList);
+            queue.putReadBuffer(bufferResult, true);
+            oneResult = readBuffer(bufferResult.getBuffer());
+            // store result
+            System.arraycopy(oneResult, 0, result, i * deformationCount, deformationCount);
 
-            // data cleanup
-            bufferImageA.release();
-            bufferImageB.release();
-            bufferFacetData.release();
-            bufferFacetCenter.release();
-            bufferDeformations.release();
-            bufferResult.release();
-            eventList.release();
-        } catch (CLException ex) {
-            System.err.println("CL error - " + ex.getLocalizedMessage());
+            duration += eventList.getEvent(i).getProfilingInfo(CLEvent.ProfilingCommand.END) - eventList.getEvent(i).getProfilingInfo(CLEvent.ProfilingCommand.START);
         }
+        queue.finish();
+
+        // data cleanup
+        bufferImageA.release();
+        bufferImageB.release();
+        bufferFacetData.release();
+        bufferFacetCenter.release();
+        bufferDeformations.release();
+        bufferResult.release();
+        eventList.release();
 
         return new ScenarioResult(result, duration);
     }

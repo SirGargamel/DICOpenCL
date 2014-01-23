@@ -1,6 +1,7 @@
 package cz.tul.dic.opencl.test.gen;
 
 import com.jogamp.opencl.CLContext;
+import com.jogamp.opencl.CLException;
 import com.jogamp.opencl.CLPlatform;
 import cz.tul.dic.opencl.test.gen.data.ShiftedImageCase;
 import cz.tul.dic.opencl.test.gen.data.TestCase;
@@ -103,21 +104,25 @@ public class PerformanceTest {
                                         ps.addParameter(Parameter.TEST_CASE, tci);
 
                                         time = System.nanoTime();
-                                        result = sc.compute(images[0], images[1], facetData, facetCenters, deformations, ps);
-                                        time = System.nanoTime() - time;
-                                        result.setTotalTime(time);
-
-                                        tc.checkResult(result, ps.getValue(Parameter.FACET_COUNT));
+                                        try {
+                                            result = sc.compute(images[0], images[1], facetData, facetCenters, deformations, ps);                                            
+                                            result.setTotalTime(System.nanoTime() - time);
+                                            tc.checkResult(result, ps.getValue(Parameter.FACET_COUNT));
+                                        } catch (CLException ex) {                                            
+                                            result = new ScenarioResult(System.nanoTime() - time);
+                                            System.err.println("CL error - " + ex.getLocalizedMessage());
+                                        }
+                                        
 
                                         switch (result.getState()) {
                                             case SUCCESS:
-                                                System.out.println("Finished " + sc.getDescription() + " " + (time / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
+                                                System.out.println("Finished " + sc.getDescription() + " " + (result.getTotalTime() / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
                                                 break;
                                             case WRONG_RESULT_DYNAMIC:
-                                                System.out.println("Wrong dynamic part of result for  " + sc.getDescription() + " " + (time / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
+                                                System.out.println("Wrong dynamic part of result for  " + sc.getDescription() + " " + (result.getTotalTime() / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
                                                 break;
                                             case WRONG_RESULT_FIXED:
-                                                System.out.println("Wrong fixed part of result for  " + sc.getDescription() + " " + (time / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
+                                                System.out.println("Wrong fixed part of result for  " + sc.getDescription() + " " + (result.getTotalTime() / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
                                                 break;
                                             case FAIL:
                                                 System.out.println("Failed " + sc.getDescription() + " with params " + ps);
