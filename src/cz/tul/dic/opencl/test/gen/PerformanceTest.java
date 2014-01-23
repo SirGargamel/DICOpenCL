@@ -111,6 +111,9 @@ public class PerformanceTest {
                                         } catch (CLException ex) {                                            
                                             result = new ScenarioResult(System.nanoTime() - time);
                                             System.err.println("CL error - " + ex.getLocalizedMessage());
+                                        } catch (Exception | Error ex) {
+                                            result = new ScenarioResult(System.nanoTime() - time);
+                                            System.err.println("Error - " + ex.getLocalizedMessage());
                                         }
                                         
 
