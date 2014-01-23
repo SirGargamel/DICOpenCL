@@ -53,12 +53,16 @@ public class ScenarioResult {
         return state;
     }
     
-    public void markResultAsInvalidDynamic() {
+    public void markAsInvalidDynamicPart() {
         state = State.WRONG_RESULT_DYNAMIC;
     }
     
-    public void markResultAsInvalidFixed() {
+    public void markAsInvalidFixedPart() {
         state = State.WRONG_RESULT_FIXED;
+    }
+    
+    public void markAsInvalid() {
+        state = State.FAIL;
     }
 
     public int getResultGroup() {

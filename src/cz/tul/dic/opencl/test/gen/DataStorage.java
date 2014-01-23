@@ -52,7 +52,7 @@ public class DataStorage {
         final int resultGroup = validateResult(result, params);
         result.setResultGroup(resultGroup);
         if (result.getState().equals(State.SUCCESS) && resultGroup == ILLEGAL_RESULT) {
-            result.markResultAsInvalidDynamic();
+            result.markAsInvalidDynamicPart();
         }
 
         try {
