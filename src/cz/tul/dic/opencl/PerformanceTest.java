@@ -46,6 +46,10 @@ public class PerformanceTest {
 //    private static final int IMAGE_WIDTH_MAX = 1024;
 //    private static final int[] FACET_SIZES = new int[]{9, 17, 35};
 //    private static final int DEFORMATION_COUNT_MAX = 800;
+// Medium task
+//    private static final int IMAGE_WIDTH_MAX = 512;
+//    private static final int[] FACET_SIZES = new int[]{9, 17};
+//    private static final int DEFORMATION_COUNT_MAX = 400;
 //  Small task
     private static final int IMAGE_WIDTH_MAX = 128;
     private static final int[] FACET_SIZES = new int[]{9};
