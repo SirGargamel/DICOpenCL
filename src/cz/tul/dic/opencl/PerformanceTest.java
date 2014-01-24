@@ -52,25 +52,22 @@ public class PerformanceTest {
     private static final int DEFORMATION_COUNT_MAX = 100;
 
     public static void computeImageFillTest() throws IOException {
-        for (int device = 0; device < HW.length; device++) {
+        for (ContextHandler.DeviceType device : HW) {
             CLPlatform.initialize();
             DataStorage.reset();
-
-            final ContextHandler ch = new ContextHandler(HW[device]);
-
+            final ContextHandler ch = new ContextHandler(device);
             final List<Scenario> scenarios = prepareScenarios(ch);
             for (Scenario sc : scenarios) {
                 DataStorage.addVariantCount(sc.getVariantCount());
             }
 
             final List<TestCase> testCases = prepareTestCases();
-
             int lineCount = 1;
             lineCount *= CustomMath.power2(IMAGE_WIDTH_MAX / IMAGE_WIDTH_MIN) + 1;
             lineCount *= FACET_SIZES.length;
             lineCount *= CustomMath.power2(DEFORMATION_COUNT_MAX / DEFORMATION_COUNT_MIN) + 1;
             DataStorage.setCounts(lineCount, testCases.size());
-
+            
             int[][] images;
             int[] facetData, facetCenters;
             float[] deformations;
@@ -102,7 +99,7 @@ public class PerformanceTest {
                                     sc = scenarios.get(sci);
                                     sc.reset();
                                     while (sc.hasNext()) {
-                                        ps = new ParameterSet();                                        
+                                        ps = new ParameterSet();
                                         ps.addParameter(Parameter.IMAGE_WIDTH, w);
                                         ps.addParameter(Parameter.IMAGE_HEIGHT, h);
                                         ps.addParameter(Parameter.FACET_SIZE, s);
@@ -155,10 +152,9 @@ public class PerformanceTest {
                     context.release();
                 }
             }
-
-            String fileName = "D:\\DIC_OpenCL_Data_" + HW[device] + ".csv";
+            String fileName = "D:\\DIC_OpenCL_Data_" + device + ".csv";
             DataStorage.exportData(new File(fileName));
-            DataStorage.exportResultGroups(new File("D:\\DIC_OpenCL_Results_" + HW[device] + ".csv"));
+            DataStorage.exportResultGroups(new File("D:\\DIC_OpenCL_Results_" + device + ".csv"));
         }
     }
 
