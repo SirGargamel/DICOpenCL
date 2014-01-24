@@ -15,7 +15,7 @@ INDEX_TEST_CASE = 5;
 INDEX_TIME_KERNEL = 12;
 INDEX_TIME_TOTAL = 11;
 INDEX_VARIANT = 6;
-NAMES_VARIANTS = {'Threads pF' 'Threads pD' '1D pF' '1D pD' '1.5D pF' '1.5D pD' '2D Naive' '2D Int[]' '2D Image'};
+NAMES_VARIANTS = {'Threads pF' 'Threads pD' '1D pF' '1D pD' '1.5D pF' '1.5D pD' '2D Naive' '2D Int[]' '2D Image' '2DI FtoA' '2DI MC' '2DI Vec'};
 TEST_CASE_RANDOM = 1;
 TEST_CASE_SHIFT = 2;
 TIME_KERNEL = 1;
@@ -29,6 +29,8 @@ VARIANT_15D_DEFORMATION = 6;
 VARIANT_2D_NAIVE = 7;
 VARIANT_2D_INT = 8;
 VARIANT_2D_IMAGE = 9;
+VARIANT_2D_IMAGE_FA = 10;
+VARIANT_2D_IMAGE_MC = 11;
 X = 1 : COUNT_LWS1;
 X_LABELS = cell(COUNT_LWS1,1);
 for i=1:COUNT_LWS1
@@ -37,4 +39,4 @@ end;
 % which time will be used in graphs
 ANALYZED_TIME = TIME_TOTAL;
 % which case will be analyzed in graphs
-INSPECTED_TEST_CASE = TEST_CASE_SHIFT;
+ANALYZED_TEST_CASE = TEST_CASE_RANDOM;

@@ -10,12 +10,12 @@ ANALYZED_TIME = TIME_TOTAL;
 bestCurves = NaN(2,variantCount, graphCount);
 for graph=1:graphCount
     for var=1:variantCount
-        m = squeeze(allCurves(ANALYZED_TIME,:,:,var,INSPECTED_TEST_CASE,graph));        
+        m = squeeze(allCurves(ANALYZED_TIME,:,:,var,ANALYZED_TEST_CASE,graph));        
         [minVal, index] = min(m(:));        
         [minLws1, minLws0] = ind2sub(size(m), index);
 
-        bestCurves(1, var, graph) = allCurves(TIME_KERNEL,minLws1,minLws0,var,INSPECTED_TEST_CASE,graph);
-        bestCurves(2, var, graph) = allCurves(TIME_TOTAL,minLws1,minLws0,var,INSPECTED_TEST_CASE,graph) - bestCurves(1, var, graph);
+        bestCurves(1, var, graph) = allCurves(TIME_KERNEL,minLws1,minLws0,var,ANALYZED_TEST_CASE,graph);
+        bestCurves(2, var, graph) = allCurves(TIME_TOTAL,minLws1,minLws0,var,ANALYZED_TEST_CASE,graph) - bestCurves(1, var, graph);
     end;
 end;
 % Plot graphs
@@ -45,7 +45,7 @@ for win=1:windowCount
             % plot both curves to one subfigure       
             hold on;                                    
             bar(bestCurves(:, :, innerBase)','stacked');
-            set(gca,'XTick', X(1:numel(bestCurves(1, :, innerBase))), 'XTickLabel',NAMES_VARIANTS);
+            set(gca,'XTick', 1:numel(bestCurves(1, :, innerBase)), 'XTickLabel',NAMES_VARIANTS);
             fix_xticklabels();
             % Finish plotting to subfigure
             hold off;

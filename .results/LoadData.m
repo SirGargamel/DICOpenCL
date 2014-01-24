@@ -6,9 +6,10 @@ pointCounts = csvread(FILE_NAME,0,3,[0,3,0,1+ variantCount + 1]);
 pointCount = sum(pointCounts) * testCaseCount;
 fid = fopen(FILE_NAME);
 allData = textscan(fid, FILE_FORMAT, 'headerlines', FILE_HEADER_LINE_COUNT, 'Delimiter', FILE_DELIMITER);
+fclose(fid);
 data = cell2mat(allData(:, 1:INDEX_TIME_KERNEL));
 % Lines extraction
-allCurves = NaN(2 , COUNT_LWS1, COUNT_LWS0, variantCount, testCaseCount, graphCount);
+allCurves = NaN(2, COUNT_LWS1, COUNT_LWS0, variantCount, testCaseCount, graphCount);
 for graph=1:graphCount
     for point=1:pointCount
         index = ((graph - 1) * pointCount) + point;

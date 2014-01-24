@@ -15,13 +15,13 @@ VAL_LWS1 = 5;
 bestVariantData = repmat(intmax, 4, graphCount);
 for graph=1:graphCount
     for var=1:variantCount
-        m = squeeze(allCurves(TIME_TOTAL,:,:,var,INSPECTED_TEST_CASE,graph));
+        m = squeeze(allCurves(TIME_TOTAL,:,:,var,ANALYZED_TEST_CASE,graph));
         [minVal, index] = min(m(:));
         [minLws1, minLws0] = ind2sub(size(m), index);
 
         if (minVal < bestVariantData(VAL_TIME_KERNEL, graph))
             bestVariantData(VAL_TIME_KERNEL, graph) = minVal;
-            bestVariantData(VAL_TIME_OVERHEAD, graph) = minVal - allCurves(TIME_KERNEL,minLws1,minLws0,var,INSPECTED_TEST_CASE,graph);
+            bestVariantData(VAL_TIME_OVERHEAD, graph) = minVal - allCurves(TIME_KERNEL,minLws1,minLws0,var,ANALYZED_TEST_CASE,graph);
             bestVariantData(VAL_VARIANT, graph) = var;
             bestVariantData(VAL_LWS0, graph) = minLws0;
             bestVariantData(VAL_LWS1, graph) = minLws1;
@@ -53,14 +53,17 @@ for win=1:windowCount
             end;
             for i=1:columnsPerGraph
                 innerBaseI = innerBase - 1 + i;
-                index = innerBaseI * pointCount;
+                if (innerBaseI > size(bestVariantData, 2))
+                    break;
+                end;
+                
+                index = innerBaseI * pointCount;                
                 variant = NAMES_VARIANTS(bestVariantData(VAL_VARIANT, innerBase+i-1));
                 titles(i) = cellstr([int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY)) ', fs=', int2str(data(index, INDEX_FACET_SIZE)) ', dc=', int2str(data(index, INDEX_DEFORMATION_COUNT)) ', var=' variant{:} ', time=' int2str(bestVariantData(VAL_TIME_KERNEL, innerBaseI)) '+' int2str(bestVariantData(VAL_TIME_OVERHEAD, innerBaseI))]);
             end;            
             % plot data to subplot
             subplot(graphCountY, graphCountX, (graphY-1) * graphCountX + graphX);
-%             bar(bestVariantData(VAL_TIME_KERNEL, innerBase:innerBase+columnsPerGraph-1));
-            bar(bestVariantData(2:3, innerBase:innerBase+columnsPerGraph-1)','stacked');
+            bar(bestVariantData(2:3, innerBase:min(innerBase+columnsPerGraph-1, size(bestVariantData, 2)))','stacked');
             set(gca,'xticklabel',titles);
             fix_xticklabels();
             ylabel('Time [ms]');
