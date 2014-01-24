@@ -53,6 +53,8 @@ public class PerformanceTest {
     public static void computeImageFillTest() throws IOException {
         for (int device = 0; device < HW.length; device++) {
             CLPlatform.initialize();
+            DataStorage.reset();
+            
             final ContextHandler ch = new ContextHandler(HW[device]);
 
             final List<Scenario> scenarios = prepareScenarios(ch);
@@ -111,17 +113,16 @@ public class PerformanceTest {
 
                                         time = System.nanoTime();
                                         try {
-                                            result = sc.compute(images[0], images[1], facetData, facetCenters, deformations, ps);                                            
+                                            result = sc.compute(images[0], images[1], facetData, facetCenters, deformations, ps);
                                             result.setTotalTime(System.nanoTime() - time);
                                             tc.checkResult(result, ps.getValue(Parameter.FACET_COUNT));
-                                        } catch (CLException ex) {                                            
+                                        } catch (CLException ex) {
                                             result = new ScenarioResult(System.nanoTime() - time);
                                             System.err.println("CL error - " + ex.getLocalizedMessage());
                                         } catch (Exception | Error ex) {
                                             result = new ScenarioResult(System.nanoTime() - time);
                                             System.err.println("Error - " + ex.getLocalizedMessage());
                                         }
-                                        
 
                                         switch (result.getState()) {
                                             case SUCCESS:
@@ -154,11 +155,11 @@ public class PerformanceTest {
                     context.release();
                 }
             }
-        }
 
-        String fileName = "D:\\DIC_OpenCL_Data.csv";
-        DataStorage.exportData(new File(fileName));
-        DataStorage.exportResultGroups(new File("D:\\DIC_OpenCL_Results.csv"));
+            String fileName = "D:\\DIC_OpenCL_Data" + HW[device] + ".csv";
+            DataStorage.exportData(new File(fileName));
+            DataStorage.exportResultGroups(new File("D:\\DIC_OpenCL_Results" + HW[device] + ".csv"));
+        }
     }
 
     private static List<TestCase> prepareTestCases() {

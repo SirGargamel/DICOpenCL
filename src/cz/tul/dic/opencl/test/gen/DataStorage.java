@@ -46,6 +46,13 @@ public class DataStorage {
 
         runningInited = false;
     }
+    
+    public static void reset() {
+        data.clear();
+        resultGroups.clear();
+        variantCount.clear();
+        runningInited = false;
+    }
 
     public static void storeData(final ParameterSet params, final ScenarioResult result) {
         data.put(params, result);
