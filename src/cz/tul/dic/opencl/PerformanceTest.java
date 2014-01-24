@@ -20,6 +20,7 @@ import cz.tul.dic.opencl.test.gen.scenario.d15.CL15DIntPerDeformation;
 import cz.tul.dic.opencl.test.gen.scenario.d15.CL15DIntPerFacet;
 import cz.tul.dic.opencl.test.gen.scenario.d2.CL2DImage;
 import cz.tul.dic.opencl.test.gen.scenario.d2.CL2DInt;
+import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageFtoA;
 import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageInterleaved;
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +55,7 @@ public class PerformanceTest {
         for (int device = 0; device < HW.length; device++) {
             CLPlatform.initialize();
             DataStorage.reset();
-            
+
             final ContextHandler ch = new ContextHandler(HW[device]);
 
             final List<Scenario> scenarios = prepareScenarios(ch);
@@ -156,9 +157,9 @@ public class PerformanceTest {
                 }
             }
 
-            String fileName = "D:\\DIC_OpenCL_Data" + HW[device] + ".csv";
+            String fileName = "D:\\DIC_OpenCL_Data_" + HW[device] + ".csv";
             DataStorage.exportData(new File(fileName));
-            DataStorage.exportResultGroups(new File("D:\\DIC_OpenCL_Results" + HW[device] + ".csv"));
+            DataStorage.exportResultGroups(new File("D:\\DIC_OpenCL_Results_" + HW[device] + ".csv"));
         }
     }
 
@@ -183,7 +184,9 @@ public class PerformanceTest {
         scenarios.add(new CL2DInt("CL2DInt", contextHandler));
         scenarios.add(new CL2DInt("CL2DIntOpt", contextHandler));
         scenarios.add(new CL2DImage(contextHandler));
+        scenarios.add(new CL2DImageFtoA(contextHandler));
         scenarios.add(new CL2DImageInterleaved(contextHandler));
+//        scenarios.add(new CL2DImageVectorized(contextHandler));
 
         return scenarios;
     }
