@@ -5,8 +5,7 @@ package cz.tul.dic.opencl.test.gen;
  * @author Petr Jecmen
  */
 public enum Parameter {
-
-    HW,
+    
     IMAGE_WIDTH,
     IMAGE_HEIGHT,
     FACET_SIZE,

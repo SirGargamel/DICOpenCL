@@ -102,8 +102,7 @@ public class PerformanceTest {
                                     sc = scenarios.get(sci);
                                     sc.reset();
                                     while (sc.hasNext()) {
-                                        ps = new ParameterSet();
-                                        ps.addParameter(Parameter.HW, device);
+                                        ps = new ParameterSet();                                        
                                         ps.addParameter(Parameter.IMAGE_WIDTH, w);
                                         ps.addParameter(Parameter.IMAGE_HEIGHT, h);
                                         ps.addParameter(Parameter.FACET_SIZE, s);
