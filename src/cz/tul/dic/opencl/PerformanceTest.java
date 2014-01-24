@@ -22,6 +22,7 @@ import cz.tul.dic.opencl.test.gen.scenario.d2.CL2DImage;
 import cz.tul.dic.opencl.test.gen.scenario.d2.CL2DInt;
 import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageFtoA;
 import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageInterleaved;
+import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageVectorized;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -185,7 +186,7 @@ public class PerformanceTest {
         scenarios.add(new CL2DImage(contextHandler));
         scenarios.add(new CL2DImageFtoA(contextHandler));
         scenarios.add(new CL2DImageInterleaved(contextHandler));
-//        scenarios.add(new CL2DImageVectorized(contextHandler));
+        scenarios.add(new CL2DImageVectorized(contextHandler));
 
         return scenarios;
     }
