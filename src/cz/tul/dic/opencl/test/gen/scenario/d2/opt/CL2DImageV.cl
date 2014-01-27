@@ -4,12 +4,12 @@ int computeIndex(const float x, const float y, const int width) {
 
 constant sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
 
-int interpolate(const float x, const float y, read_only image2d_t image) {
-    const float ix = floor(x);
-    const float dx = x - ix;
+int interpolate(const float2 coords, read_only image2d_t image) {
+    const float ix = floor(coords.x);
+    const float dx = coords.x - ix;
     
-    const float iy = floor(y);
-    const float dy = y - iy;
+    const float iy = floor(coords.y);
+    const float dy = coords.y - iy;
 
     float intensity = 0;    
     intensity += read_imageui(image, sampler, (float2)(ix, iy)).x * (1 - dx) * (1 - dy);
@@ -42,7 +42,7 @@ kernel void CL2DImageV(
     const int baseIndexFacet = facetId * facetSize2;    
     const int baseIndexDeformation = deformationId * 6;
     // deform facet
-    float deformedFacet[-1*-1*2];
+    float2 deformedFacet[-1*-1];
     int indexFacet, i2;
     int2 coords, def;
     for (int i = 0; i < facetSize2; i++) {        
@@ -53,8 +53,9 @@ kernel void CL2DImageV(
         
         def = coords - facetCenters[facetId];        
         
-        deformedFacet[i2] = coords.x + deformations[baseIndexDeformation] + deformations[baseIndexDeformation + 2] * def.x + deformations[baseIndexDeformation + 4] * def.y;                    
-        deformedFacet[i2 + 1] = coords.y + deformations[baseIndexDeformation + 1] + deformations[baseIndexDeformation + 3] * def.x + deformations[baseIndexDeformation + 5] * def.y; 
+        deformedFacet[i] = (float2)(
+            coords.x + deformations[baseIndexDeformation] + deformations[baseIndexDeformation + 2] * def.x + deformations[baseIndexDeformation + 4] * def.y, 
+            coords.y + deformations[baseIndexDeformation + 1] + deformations[baseIndexDeformation + 3] * def.x + deformations[baseIndexDeformation + 5] * def.y);
     }
     // compute correlation using ZNCC
     float deformedI[-1*-1];
@@ -69,7 +70,7 @@ kernel void CL2DImageV(
         facetI[i] = read_imageui(imageA, sampler, facets[indexFacet]).x;
         meanF += facetI[i];
         
-        deformedI[i] = interpolate(deformedFacet[i2], deformedFacet[i2+1], imageB);        
+        deformedI[i] = interpolate(deformedFacet[i], imageB);        
         meanG += deformedI[i];
     } 
     meanF /= (float) facetSize2;
