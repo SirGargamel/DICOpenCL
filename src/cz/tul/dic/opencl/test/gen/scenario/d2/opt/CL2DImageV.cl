@@ -20,7 +20,7 @@ int interpolate(const float x, const float y, read_only image2d_t image) {
     return intensity;    
 }
 
-kernel void CL2DImageVectorized(
+kernel void CL2DImageV(
     read_only image2d_t imageA, read_only image2d_t imageB, 
     global read_only int2 * facets, global read_only int2 * facetCenters,
     global read_only float * deformations,

@@ -27,9 +27,9 @@ import java.nio.IntBuffer;
  *
  * @author Petr Jecmen
  */
-public class CL2DImageVectorized extends Scenario2D {    
+public class CL2DImageV extends Scenario2D {    
 
-    public CL2DImageVectorized(final ContextHandler contextHandler) throws IOException {
+    public CL2DImageV(final ContextHandler contextHandler) throws IOException {
         super(contextHandler);
     }
 
