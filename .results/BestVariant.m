@@ -16,6 +16,7 @@ bestVariantData = repmat(intmax, 4, graphCount);
 for graph=1:graphCount
     for var=1:variantCount
         m = squeeze(allCurves(TIME_TOTAL,:,:,var,ANALYZED_TEST_CASE,graph));
+        m(m == 0) = NaN;
         [minVal, index] = min(m(:));
         [minLws1, minLws0] = ind2sub(size(m), index);
 

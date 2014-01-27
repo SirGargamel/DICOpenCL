@@ -6,7 +6,8 @@ clc;
 Constants;
 LoadData;
 ANALYZED_TIME = TIME_TOTAL;
-ANALYZED_VARIANTS = [VARIANT_2D_IMAGE VARIANT_2D_IMAGE_MC VARIANT_2D_IMAGE_VEC VARIANT_2D_IMAGE_V_MC];
+% ANALYZED_VARIANTS = [VARIANT_2D_IMAGE VARIANT_2D_IMAGE_MC VARIANT_2D_IMAGE_VEC VARIANT_2D_IMAGE_V_MC];
+ANALYZED_VARIANTS = [1 2];
 varCount = size(ANALYZED_VARIANTS, 2);
 NAMES_VARIANTS_INNER = cell(varCount);
 for i=1:varCount
@@ -17,8 +18,9 @@ bestCurves = NaN(2,varCount, graphCount);
 for graph=1:graphCount
     for v=1:varCount
         var = ANALYZED_VARIANTS(v);
-        m = squeeze(allCurves(ANALYZED_TIME,:,:,var,ANALYZED_TEST_CASE,graph));        
-        [minVal, index] = min(m(:));        
+        m = squeeze(allCurves(ANALYZED_TIME,:,:,var,ANALYZED_TEST_CASE,graph));
+        m(m == 0) = NaN;
+        [minVal, index] = min(m(:));
         [minLws1, minLws0] = ind2sub(size(m), index);
 
         bestCurves(1, v, graph) = allCurves(TIME_KERNEL,minLws1,minLws0,var,ANALYZED_TEST_CASE,graph);
