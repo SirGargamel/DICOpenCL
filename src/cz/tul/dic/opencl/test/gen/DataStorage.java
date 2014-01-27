@@ -46,7 +46,7 @@ public class DataStorage {
 
         runningInited = false;
     }
-    
+
     public static void reset() {
         data.clear();
         resultGroups.clear();
@@ -204,9 +204,9 @@ public class DataStorage {
             }
             bw.write(DELIMITER_VALUE);
         }
-        bw.write(Long.toString(result.getTotalTime() / 1000000));
+        bw.write(df.format(result.getTotalTime() / (double) 1000000));
         bw.write(DELIMITER_VALUE);
-        bw.write(Long.toString(result.getKernelExecutionTime() / 1000000));
+        bw.write(df.format(result.getKernelExecutionTime() / (double) 1000000));
         bw.write(DELIMITER_VALUE);
         bw.write(result.getState().toString());
         bw.write(DELIMITER_VALUE);
