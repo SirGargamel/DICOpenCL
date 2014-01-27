@@ -21,8 +21,9 @@ import cz.tul.dic.opencl.test.gen.scenario.d15.CL15DIntPerFacet;
 import cz.tul.dic.opencl.test.gen.scenario.d2.CL2DImage;
 import cz.tul.dic.opencl.test.gen.scenario.d2.CL2DInt;
 import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageFtoA;
-import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageInterleaved;
-import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageVectorized;
+import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageMC;
+import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageV;
+import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImage_MC_V;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,20 +42,20 @@ public class PerformanceTest {
     private static final int DEFORMATION_COUNT_MIN = 100;
 //  Devices for computation
     private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU};
-//    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.CPU, ContextHandler.DeviceType.GPU};
+//    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU, ContextHandler.DeviceType.iGPU};
 //    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU, ContextHandler.DeviceType.iGPU, ContextHandler.DeviceType.CPU};
 //  Large task    
 //    private static final int IMAGE_WIDTH_MAX = 1024;
 //    private static final int[] FACET_SIZES = new int[]{9, 17, 35};
 //    private static final int DEFORMATION_COUNT_MAX = 800;
 // Medium task
-//    private static final int IMAGE_WIDTH_MAX = 512;
-//    private static final int[] FACET_SIZES = new int[]{9, 17};
-//    private static final int DEFORMATION_COUNT_MAX = 400;
+    private static final int IMAGE_WIDTH_MAX = 512;
+    private static final int[] FACET_SIZES = new int[]{9, 17};
+    private static final int DEFORMATION_COUNT_MAX = 400;
 //  Small task
-    private static final int IMAGE_WIDTH_MAX = 128;
-    private static final int[] FACET_SIZES = new int[]{9};
-    private static final int DEFORMATION_COUNT_MAX = 100;
+//    private static final int IMAGE_WIDTH_MAX = 128;
+//    private static final int[] FACET_SIZES = new int[]{9};
+//    private static final int DEFORMATION_COUNT_MAX = 100;
 
     public static void computeImageFillTest() throws IOException {
         for (ContextHandler.DeviceType device : HW) {
@@ -185,8 +186,9 @@ public class PerformanceTest {
         scenarios.add(new CL2DInt("CL2DIntOpt", contextHandler));
         scenarios.add(new CL2DImage(contextHandler));
         scenarios.add(new CL2DImageFtoA(contextHandler));
-        scenarios.add(new CL2DImageInterleaved(contextHandler));
-        scenarios.add(new CL2DImageVectorized(contextHandler));
+        scenarios.add(new CL2DImageMC(contextHandler));
+        scenarios.add(new CL2DImageV(contextHandler));
+        scenarios.add(new CL2DImage_MC_V(contextHandler));
 
         return scenarios;
     }

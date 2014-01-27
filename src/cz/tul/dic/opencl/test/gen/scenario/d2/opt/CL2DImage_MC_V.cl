@@ -20,9 +20,9 @@ int interpolate(const float x, const float y, read_only image2d_t image) {
     return intensity;    
 }
 
-kernel void CL2DImageInterleaved(
+kernel void CL2DImage_MC_V(
     read_only image2d_t imageA, read_only image2d_t imageB, 
-    global read_only int * facets, global read_only int * facetCenters,
+    global read_only int2 * facets, global read_only int2 * facetCenters,
     global read_only float * deformations,
     global write_only float * result,    
     const int imageWidth, const int deformationCount,
@@ -38,26 +38,23 @@ kernel void CL2DImageInterleaved(
         return;
     }
     // index computation
-    const int facetSize2 = facetSize * facetSize;
-    const int facetCoordCount = facetSize2 * 2;    
-    const int baseIndexFacet = facetId * facetCoordCount; 
-    const int baseIndexFacetCenter = facetId * 2;
+    const int facetSize2 = facetSize * facetSize;  
+    const int baseIndexFacet = facetId * facetSize2; 
     const int baseIndexDeformation = deformationId * 6;
     // deform facet
     float deformedFacet[-1*-1*2];    
-    int index, i2, dx, dy, x, y;    
+    int indexFacet, i2;
+    int2 coords, def;
     for (int i = 0; i < facetSize2; i++) {        
         i2 = i*2;
-        index = baseIndexFacet + i2;
+        indexFacet = baseIndexFacet + i2;
         
-        x = facets[index];
-        y = facets[index+1];
+        coords = facets[indexFacet];
 
-        dx = x - facetCenters[baseIndexFacetCenter];
-        dy = y - facetCenters[baseIndexFacetCenter + 1];
+        def = coords - facetCenters[facetId];        
         
-        deformedFacet[i2] = x + deformations[baseIndexDeformation] + deformations[baseIndexDeformation + 2] * dx + deformations[baseIndexDeformation + 4] * dy;                    
-        deformedFacet[i2 + 1] = y + deformations[baseIndexDeformation + 1] + deformations[baseIndexDeformation + 3] * dx + deformations[baseIndexDeformation + 5] * dy; 
+        deformedFacet[i2] = coords.x + deformations[baseIndexDeformation] + deformations[baseIndexDeformation + 2] * def.x + deformations[baseIndexDeformation + 4] * def.y;                    
+        deformedFacet[i2 + 1] = coords.y + deformations[baseIndexDeformation + 1] + deformations[baseIndexDeformation + 3] * def.x + deformations[baseIndexDeformation + 5] * def.y; 
     }
     // compute correlation using ZNCC
     float deformedI[-1*-1];
@@ -66,9 +63,9 @@ kernel void CL2DImageInterleaved(
     float meanG = 0; 
     for (int i = 0; i < facetSize2; i++) {
         i2 = i*2;        
-        index = baseIndexFacet + i2;
+        indexFacet = baseIndexFacet + i2;
         // facet is just array of int coords        
-        facetI[i] = read_imageui(imageA, sampler, (int2)(facets[index], facets[index + 1])).x;
+        facetI[i] = read_imageui(imageA, sampler, facets[indexFacet]).x;
         meanF += facetI[i];
         
         deformedI[i] = interpolate(deformedFacet[i2], deformedFacet[i2+1], imageB);        
@@ -96,6 +93,6 @@ kernel void CL2DImageInterleaved(
     resultVal /= deltaFs * deltaGs;    
     
     //store result
-    index = facetId * deformationCount + deformationId;
-    result[index] = resultVal;    
+    indexFacet = facetId * deformationCount + deformationId;
+    result[indexFacet] = resultVal;    
 }

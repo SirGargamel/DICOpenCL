@@ -25,9 +25,9 @@ import java.nio.IntBuffer;
  *
  * @author Petr Jecmen
  */
-public class CL2DImageInterleaved extends Scenario2D {
+public class CL2DImage_MC_V extends Scenario2D {
 
-    public CL2DImageInterleaved(final ContextHandler contextHandler) throws IOException {
+    public CL2DImage_MC_V(final ContextHandler contextHandler) throws IOException {
         super(contextHandler);
     }
 
