@@ -44,7 +44,7 @@ public abstract class Scenario15D extends Scenario {
         return result;
     }
 
-    abstract ScenarioResult computeScenario(
+    protected abstract ScenarioResult computeScenario(
             final int[] imageA, final int[] imageB,
             final int[] facetData, final int[] facetCenters,
             final float[] deformations,

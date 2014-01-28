@@ -29,7 +29,7 @@ public class CL15DIntPerDeformation extends Scenario15D {
     }
 
     @Override
-    public ScenarioResult computeScenario(
+    protected ScenarioResult computeScenario(
             final int[] imageA, final int[] imageB,
             final int[] facetData, final int[] facetCenters,
             final float[] deformations,

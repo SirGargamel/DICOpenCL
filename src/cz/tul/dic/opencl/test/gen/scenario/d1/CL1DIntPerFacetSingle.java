@@ -31,7 +31,7 @@ public class CL1DIntPerFacetSingle extends Scenario1D {
     }
 
     @Override
-    ScenarioResult computeScenario(int[] imageA, int[] imageB, int[] facetData, int[] facetCenters, float[] deformations, ParameterSet params) throws CLException {
+    protected ScenarioResult computeScenario(int[] imageA, int[] imageB, int[] facetData, int[] facetCenters, float[] deformations, ParameterSet params) throws CLException {
         final int facetSize = params.getValue(Parameter.FACET_SIZE);
         final int facetCount = params.getValue(Parameter.FACET_COUNT);
         final int facetDataSize = Utils.calculateFacetArraySize(facetSize);
