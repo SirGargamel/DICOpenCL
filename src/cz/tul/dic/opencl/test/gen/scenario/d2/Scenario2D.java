@@ -1,5 +1,6 @@
 package cz.tul.dic.opencl.test.gen.scenario.d2;
 
+import com.jogamp.opencl.CLException;
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import cz.tul.dic.opencl.test.gen.CustomMath;
 import cz.tul.dic.opencl.test.gen.Parameter;
@@ -41,8 +42,15 @@ public abstract class Scenario2D extends Scenario {
             final float[] deformations,
             final ParameterSet params) {
         contextHandler.setFacetSize(params.getValue(Parameter.FACET_SIZE));
-        final ScenarioResult result = computeScenario(imageA, imageB, facetData, facetCenters, deformations, params);
-        prepareNextVariant();
+        
+        ScenarioResult result = null;
+        try {
+            result = computeScenario(imageA, imageB, facetData, facetCenters, deformations, params);
+        } catch (CLException ex) {
+            throw ex;
+        } finally {
+            prepareNextVariant();
+        }                        
 
         return result;
     }
@@ -51,7 +59,7 @@ public abstract class Scenario2D extends Scenario {
             final int[] imageA, final int[] imageB,
             final int[] facetData, final int[] facetCenters,
             final float[] deformations,
-            final ParameterSet params);
+            final ParameterSet params) throws CLException;
 
     private void prepareNextVariant() {
         boolean inc = true;
