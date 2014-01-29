@@ -39,8 +39,8 @@ public class ContextHandler {
         this.type = type;
         errorHandler = new SimpleCLErrorHandler();
         facetSize = 1;
-        reset();
-        resetCounter--;
+        resetCounter = -1;
+        reset();        
     }
 
     public CLContext getContext() {
@@ -163,7 +163,7 @@ public class ContextHandler {
 
         device = platform.getMaxFlopsDevice(deviceType);
         if (device == null) {
-            device = CLPlatform.getDefault().getMaxFlopsDevice();
+            device = platform.getMaxFlopsDevice();
         }
         
         context = CLContext.create(device);
