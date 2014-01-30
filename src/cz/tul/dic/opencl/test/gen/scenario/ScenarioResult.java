@@ -12,12 +12,16 @@ public class ScenarioResult {
     private State state;
     private int resultGroup;
 
-    public ScenarioResult(final long totalTime) {
-        state = State.FAIL;
+    public ScenarioResult(final long totalTime, final boolean exceptionOccured) {
+        if (exceptionOccured) {
+            state = State.FAIL;
+        } else {
+            state = State.INVALID_PARAMS;
+        }
         this.totalTime = totalTime;
         this.kernelExecutionTime = -1;
     }
-    
+
     public ScenarioResult(float[] resultData, long kernelExecutionTime) {
         this.resultData = resultData;
         this.kernelExecutionTime = kernelExecutionTime;
@@ -52,15 +56,15 @@ public class ScenarioResult {
     public State getState() {
         return state;
     }
-    
+
     public void markAsInvalidDynamicPart() {
         state = State.WRONG_RESULT_DYNAMIC;
     }
-    
+
     public void markAsInvalidFixedPart() {
         state = State.WRONG_RESULT_FIXED;
     }
-    
+
     public void markAsInvalid() {
         state = State.FAIL;
     }
@@ -77,6 +81,7 @@ public class ScenarioResult {
 
         SUCCESS,
         FAIL,
+        INVALID_PARAMS,
         WRONG_RESULT_FIXED,
         WRONG_RESULT_DYNAMIC
     }

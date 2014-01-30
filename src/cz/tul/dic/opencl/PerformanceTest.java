@@ -16,14 +16,18 @@ import cz.tul.dic.opencl.test.gen.scenario.Scenario;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import cz.tul.dic.opencl.test.gen.scenario.d1.CL1DIntPerDeformationSingle;
 import cz.tul.dic.opencl.test.gen.scenario.d1.CL1DIntPerFacetSingle;
+import cz.tul.dic.opencl.test.gen.scenario.d1.opt.CL1DImageLpF;
+import cz.tul.dic.opencl.test.gen.scenario.d1.opt.CL1DImageLpF_LWS;
 import cz.tul.dic.opencl.test.gen.scenario.d15.CL15DIntPerDeformation;
 import cz.tul.dic.opencl.test.gen.scenario.d15.CL15DIntPerFacet;
 import cz.tul.dic.opencl.test.gen.scenario.d2.CL2DImage;
 import cz.tul.dic.opencl.test.gen.scenario.d2.CL2DInt;
+import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageC;
 import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageFtoA;
 import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageMC;
 import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageV;
 import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImage_MC_V;
+import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImage_MC_V_C;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -73,7 +77,7 @@ public class PerformanceTest {
             lineCount *= FACET_SIZES.length;
             lineCount *= CustomMath.power2(DEFORMATION_COUNT_MAX / DEFORMATION_COUNT_MIN) + 1;
             DataStorage.setCounts(lineCount, testCases.size());
-            
+
             int[][] images;
             int[] facetData, facetCenters;
             float[] deformations;
@@ -117,13 +121,17 @@ public class PerformanceTest {
                                         time = System.nanoTime();
                                         try {
                                             result = sc.compute(images[0], images[1], facetData, facetCenters, deformations, ps);
-                                            result.setTotalTime(System.nanoTime() - time);
-                                            tc.checkResult(result, ps.getValue(Parameter.FACET_COUNT));
+                                            if (result == null) {
+                                                result = new ScenarioResult(System.nanoTime() - time, false);
+                                            } else {
+                                                result.setTotalTime(System.nanoTime() - time);
+                                                tc.checkResult(result, ps.getValue(Parameter.FACET_COUNT));
+                                            }
                                         } catch (CLException ex) {
-                                            result = new ScenarioResult(System.nanoTime() - time);
+                                            result = new ScenarioResult(System.nanoTime() - time, true);
                                             System.err.println("CL error - " + ex.getLocalizedMessage());
                                         } catch (Exception | Error ex) {
-                                            result = new ScenarioResult(System.nanoTime() - time);
+                                            result = new ScenarioResult(System.nanoTime() - time, true);
                                             System.err.println("Error - " + ex.getLocalizedMessage());
                                         }
 
@@ -140,6 +148,9 @@ public class PerformanceTest {
                                             case FAIL:
                                                 System.out.println("Failed " + sc.getKernelName() + " with params " + ps);
                                                 ch.reset();
+                                                break;
+                                            case INVALID_PARAMS:
+                                                System.out.println("Invalid params for " + sc.getKernelName() + " - " + ps);                                                
                                         }
 
                                         DataStorage.storeData(ps, result);
