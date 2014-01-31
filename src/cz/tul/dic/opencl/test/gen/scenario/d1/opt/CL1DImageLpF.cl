@@ -35,10 +35,7 @@ kernel void CL1DImageLpF(
         return;
     }       
     // deformation    
-    const int deformationId = get_local_id(0);
-    if (deformationId > deformationCount) {
-        return;
-    }
+    const int deformationId = get_local_id(0);    
     // index computation
     const int facetSize2 = facetSize * facetSize;
     const int facetCoordCount = facetSize2 * 2;    
@@ -51,6 +48,9 @@ kernel void CL1DImageLpF(
         facetLocal[deformationId] = facets[baseIndexFacet + deformationId];  
     }    
     barrier(CLK_LOCAL_MEM_FENCE);
+    if (deformationId >= deformationCount) {
+        return;
+    }
     // deform facet
     float deformedFacet[-1*-1*2];
     int i2, x, y, dx, dy;    
