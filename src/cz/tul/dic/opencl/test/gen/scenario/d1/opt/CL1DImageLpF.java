@@ -14,9 +14,10 @@ import com.jogamp.opencl.CLImageFormat;
 import com.jogamp.opencl.CLKernel;
 import static com.jogamp.opencl.CLMemory.Mem.READ_ONLY;
 import static com.jogamp.opencl.CLMemory.Mem.WRITE_ONLY;
-import com.jogamp.opencl.llb.CLKernelBinding;
+import cz.tul.dic.opencl.test.gen.CustomMath;
 import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
+import cz.tul.dic.opencl.test.gen.Utils;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import java.io.IOException;
@@ -45,7 +46,17 @@ public final class CL1DImageLpF extends Scenario {
             final ParameterSet params) throws CLException {
         final int facetSize = params.getValue(Parameter.FACET_SIZE);
         final int facetCount = params.getValue(Parameter.FACET_COUNT);
-        final int deformationcCount = params.getValue(Parameter.DEFORMATION_COUNT);
+        final int deformationCount = params.getValue(Parameter.DEFORMATION_COUNT);
+        // prepare work sizes
+        final int lws0 = (int) Math.pow(2, CustomMath.power2(deformationCount));
+        final int facetGlobalWorkSize = facetCount * lws0;
+        params.addParameter(Parameter.LWS0, lws0);
+        params.addParameter(Parameter.LWS1, 1);
+        final int maxWorkSize = contextHandler.getDevice().getMaxWorkGroupSize();
+        final int facetCoordCount = Utils.calculateFacetArraySize(facetSize);
+        if (maxWorkSize < facetCoordCount) {
+            return null;
+        }
         // prepare buffers
         final CLContext context = contextHandler.getContext();
 
@@ -75,11 +86,6 @@ public final class CL1DImageLpF extends Scenario {
                 .putArg(facetSize)
                 .putArg(facetCount)
                 .rewind();
-        // prepare work sizes
-        final int lws0 = deformationcCount;
-        final int facetGlobalWorkSize = facetCount * deformationcCount;
-        params.addParameter(Parameter.LWS0, lws0);
-        params.addParameter(Parameter.LWS1, 1);
         // execute kernel         
         CLEventList eventList = new CLEventList(1);
 
@@ -111,16 +117,12 @@ public final class CL1DImageLpF extends Scenario {
 
     @Override
     public ScenarioResult compute(int[] imageA, int[] imageB, int[] facetData, int[] facetCenters, float[] deformations, ParameterSet params) {
-        contextHandler.setFacetSize(params.getValue(Parameter.FACET_SIZE));
-        params.addParameter(Parameter.LWS1, 1);
+        final int facetSize = params.getValue(Parameter.FACET_SIZE);
+        contextHandler.setFacetSize(facetSize);
         computed = true;
 
-        ScenarioResult result = null;
-        final int maxWorkSize = contextHandler.getDevice().getMaxWorkGroupSize();
-        if (maxWorkSize >= params.getValue(Parameter.DEFORMATION_COUNT)) {
-            result = computeScenario(imageA, imageB, facetData, facetCenters, deformations, params);
-        }
-        
+        ScenarioResult result = computeScenario(imageA, imageB, facetData, facetCenters, deformations, params);
+
         return result;
     }
 
