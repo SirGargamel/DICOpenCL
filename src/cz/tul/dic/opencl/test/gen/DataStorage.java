@@ -56,10 +56,15 @@ public class DataStorage {
 
     public static void storeData(final ParameterSet params, final ScenarioResult result) {
         data.put(params, result);
-        final int resultGroup = validateResult(result, params);
-        result.setResultGroup(resultGroup);
-        if (result.getState().equals(State.SUCCESS) && resultGroup == ILLEGAL_RESULT) {
-            result.markAsInvalidDynamicPart();
+        
+        if (State.WRONG_RESULT_FIXED.equals(result.getState())) {
+            result.setResultGroup(ILLEGAL_RESULT);
+        } else {
+            final int resultGroup = validateResult(result, params);
+            result.setResultGroup(resultGroup);
+            if (result.getState().equals(State.SUCCESS) && resultGroup == ILLEGAL_RESULT) {
+                result.markAsInvalidDynamicPart();
+            }
         }
 
         try {
