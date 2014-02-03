@@ -23,7 +23,7 @@ public class JavaPerDeformation extends Scenario {
     private int currentVariant;
 
     public JavaPerDeformation() throws IOException {
-        super(null);
+        super();
 
         currentVariant = 0;
     }

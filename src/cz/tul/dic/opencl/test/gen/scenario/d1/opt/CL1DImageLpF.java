@@ -1,16 +1,12 @@
 package cz.tul.dic.opencl.test.gen.scenario.d1.opt;
 
-import com.jogamp.common.nio.Buffers;
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;
 import com.jogamp.opencl.CLCommandQueue.Mode;
-import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLEvent.ProfilingCommand;
-import com.jogamp.opencl.CLEventList;
 import com.jogamp.opencl.CLException;
 import com.jogamp.opencl.CLImage2d;
-import com.jogamp.opencl.CLImageFormat;
 import com.jogamp.opencl.CLKernel;
 import static com.jogamp.opencl.CLMemory.Mem.READ_ONLY;
 import static com.jogamp.opencl.CLMemory.Mem.WRITE_ONLY;
@@ -18,8 +14,7 @@ import cz.tul.dic.opencl.test.gen.CustomMath;
 import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
 import cz.tul.dic.opencl.test.gen.Utils;
-import cz.tul.dic.opencl.test.gen.scenario.Scenario;
-import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
+import cz.tul.dic.opencl.test.gen.scenario.ScenarioOpenCL;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -28,7 +23,7 @@ import java.nio.IntBuffer;
  *
  * @author Petr Jecmen
  */
-public final class CL1DImageLpF extends Scenario {
+public final class CL1DImageLpF extends ScenarioOpenCL {
 
     private static final int VARIANT_COUNT = 1;
     private boolean computed;
@@ -39,7 +34,16 @@ public final class CL1DImageLpF extends Scenario {
         resetInner();
     }
 
-    ScenarioResult computeScenario(
+    @Override
+    public float[] prepareAndCompute(int[] imageA, int[] imageB, int[] facetData, int[] facetCenters, float[] deformations, ParameterSet params) {
+        computed = true;
+
+        float[] result = computeScenario(imageA, imageB, facetData, facetCenters, deformations, params);
+
+        return result;
+    }
+
+    private float[] computeScenario(
             final int[] imageA, final int[] imageB,
             final int[] facetData, final int[] facetCenters,
             final float[] deformations,
@@ -57,27 +61,16 @@ public final class CL1DImageLpF extends Scenario {
         if (maxWorkSize < facetCoordCount) {
             return null;
         }
-        // prepare buffers
-        final CLContext context = contextHandler.getContext();
+        // prepare buffers        
+        final CLImage2d<IntBuffer> imageAcl = createImage(imageA, params.getValue(Parameter.IMAGE_WIDTH));
+        final CLImage2d<IntBuffer> imageBcl = createImage(imageB, params.getValue(Parameter.IMAGE_WIDTH));
 
-        CLImageFormat format = new CLImageFormat(CLImageFormat.ChannelOrder.RGBA, CLImageFormat.ChannelType.UNSIGNED_INT8);
-
-        final IntBuffer imageAbuffer = Buffers.newDirectIntBuffer(imageA);
-        final CLImage2d<IntBuffer> imageAcl = context.createImage2d(imageAbuffer, params.getValue(Parameter.IMAGE_WIDTH), params.getValue(Parameter.IMAGE_HEIGHT), format, READ_ONLY);
-
-        final IntBuffer imageBbuffer = Buffers.newDirectIntBuffer(imageB);
-        final CLImage2d<IntBuffer> imageBcl = context.createImage2d(imageBbuffer, params.getValue(Parameter.IMAGE_WIDTH), params.getValue(Parameter.IMAGE_HEIGHT), format, READ_ONLY);
-
-        final CLBuffer<IntBuffer> bufferFacetData = context.createIntBuffer(facetData.length, READ_ONLY);
-        final CLBuffer<IntBuffer> bufferFacetCenters = context.createIntBuffer(facetCenters.length, READ_ONLY);
-        final CLBuffer<FloatBuffer> bufferDeformations = context.createFloatBuffer(deformations.length, READ_ONLY);
-        final CLBuffer<FloatBuffer> bufferResult = context.createFloatBuffer(facetCount * params.getValue(Parameter.DEFORMATION_COUNT), WRITE_ONLY);
+        final CLBuffer<IntBuffer> bufferFacetData = createIntBuffer(facetData, READ_ONLY);
+        final CLBuffer<IntBuffer> bufferFacetCenters = createIntBuffer(facetCenters, READ_ONLY);
+        final CLBuffer<FloatBuffer> bufferDeformations = createFloatBuffer(deformations, READ_ONLY);
+        final CLBuffer<FloatBuffer> bufferResult = createFloatBuffer(facetCount * params.getValue(Parameter.DEFORMATION_COUNT), WRITE_ONLY);
         long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
         params.addParameter(Parameter.DATASIZE, (int) (clSize / 1000));
-        // fill buffers        
-        fillBuffer(bufferFacetData.getBuffer(), facetData);
-        fillBuffer(bufferFacetCenters.getBuffer(), facetCenters);
-        fillBuffer(bufferDeformations.getBuffer(), deformations);
         // prepare kernel arguments
         final CLKernel kernel = contextHandler.getKernel();
         kernel.putArgs(imageAcl, imageBcl, bufferFacetData, bufferFacetCenters, bufferDeformations, bufferResult)
@@ -87,8 +80,7 @@ public final class CL1DImageLpF extends Scenario {
                 .putArg(facetCount)
                 .rewind();
         // execute kernel         
-        CLEventList eventList = new CLEventList(1);
-
+        prepareEventList(1);
         final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(Mode.PROFILING_MODE);
 
         queue.putWriteImage(imageAcl, false);
@@ -102,26 +94,6 @@ public final class CL1DImageLpF extends Scenario {
 
         final float[] result = readBuffer(bufferResult.getBuffer());
         final long duration = eventList.getEvent(0).getProfilingInfo(ProfilingCommand.END) - eventList.getEvent(0).getProfilingInfo(ProfilingCommand.START);
-
-        // data cleanup
-        imageAcl.release();
-        imageBcl.release();
-        bufferFacetData.release();
-        bufferFacetCenters.release();
-        bufferDeformations.release();
-        bufferResult.release();
-        eventList.release();
-
-        return new ScenarioResult(result, duration);
-    }
-
-    @Override
-    public ScenarioResult compute(int[] imageA, int[] imageB, int[] facetData, int[] facetCenters, float[] deformations, ParameterSet params) {
-        final int facetSize = params.getValue(Parameter.FACET_SIZE);
-        contextHandler.setFacetSize(facetSize);
-        computed = true;
-
-        ScenarioResult result = computeScenario(imageA, imageB, facetData, facetCenters, deformations, params);
 
         return result;
     }

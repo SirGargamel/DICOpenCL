@@ -45,21 +45,21 @@ public class PerformanceTest {
     private static final int IMAGE_WIDTH_MIN = 128;
     private static final int DEFORMATION_COUNT_MIN = 100;
 //  Devices for computation
-//    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU};
-//    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU, ContextHandler.DeviceType.iGPU};
-    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU, ContextHandler.DeviceType.iGPU, ContextHandler.DeviceType.CPU};
+    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU};
+//    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.CPU, ContextHandler.DeviceType.iGPU};
+//    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.iGPU, ContextHandler.DeviceType.GPU, ContextHandler.DeviceType.CPU};
 //  Large task    
-    private static final int IMAGE_WIDTH_MAX = 1024;
-    private static final int[] FACET_SIZES = new int[]{9, 21, 35};
-    private static final int DEFORMATION_COUNT_MAX = 800;
+//    private static final int IMAGE_WIDTH_MAX = 1024;
+//    private static final int[] FACET_SIZES = new int[]{9, 21, 35};
+//    private static final int DEFORMATION_COUNT_MAX = 800;
 // Medium task
 //    private static final int IMAGE_WIDTH_MAX = 512;
 //    private static final int[] FACET_SIZES = new int[]{9, 21};
 //    private static final int DEFORMATION_COUNT_MAX = 400;
 //  Small task
-//    private static final int IMAGE_WIDTH_MAX = 128;
-//    private static final int[] FACET_SIZES = new int[]{9};
-//    private static final int DEFORMATION_COUNT_MAX = 100;
+    private static final int IMAGE_WIDTH_MAX = 128;
+    private static final int[] FACET_SIZES = new int[]{9};
+    private static final int DEFORMATION_COUNT_MAX = 100;
 
     public static void computeImageFillTest() throws IOException {
         for (ContextHandler.DeviceType device : HW) {

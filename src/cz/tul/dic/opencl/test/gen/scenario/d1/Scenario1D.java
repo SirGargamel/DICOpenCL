@@ -3,17 +3,15 @@ package cz.tul.dic.opencl.test.gen.scenario.d1;
 import com.jogamp.opencl.CLException;
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import cz.tul.dic.opencl.test.gen.CustomMath;
-import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
-import cz.tul.dic.opencl.test.gen.scenario.Scenario;
-import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
+import cz.tul.dic.opencl.test.gen.scenario.ScenarioOpenCL;
 import java.io.IOException;
 
 /**
  *
  * @author Petr Jecmen
  */
-public abstract class Scenario1D extends Scenario {
+public abstract class Scenario1D extends ScenarioOpenCL {
 
     private final int maxVariantCount;
     private int currentVariant;
@@ -26,13 +24,12 @@ public abstract class Scenario1D extends Scenario {
     }
 
     @Override
-    public ScenarioResult compute(
+    public float[] prepareAndCompute(
             final int[] imageA, final int[] imageB,
             final int[] facetData, final int[] facetCenters,
             final float[] deformations,
             final ParameterSet params) {
-        contextHandler.setFacetSize(params.getValue(Parameter.FACET_SIZE));
-        ScenarioResult result = null;
+        float[] result = null;
         try {
             result = computeScenario(imageA, imageB, facetData, facetCenters, deformations, params);
         } catch (CLException ex) {
@@ -40,11 +37,11 @@ public abstract class Scenario1D extends Scenario {
         } finally {
             currentVariant++;
         }
-        params.addParameter(Parameter.LWS1, 1);
+
         return result;
     }
 
-    protected abstract ScenarioResult computeScenario(
+    protected abstract float[] computeScenario(
             final int[] imageA, final int[] imageB,
             final int[] facetData, final int[] facetCenters,
             final float[] deformations,

@@ -23,7 +23,7 @@ public class JavaPerFacet extends Scenario {
     private int currentVariant;
 
     public JavaPerFacet() throws IOException {
-        super(null);
+        super();
 
         currentVariant = 0;
     }
