@@ -10,8 +10,8 @@ import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
 import cz.tul.dic.opencl.test.gen.Utils;
 import cz.tul.dic.opencl.test.gen.data.TestCase;
-import cz.tul.dic.opencl.test.gen.scenario.JavaPerDeformation;
-import cz.tul.dic.opencl.test.gen.scenario.JavaPerFacet;
+import cz.tul.dic.opencl.test.gen.scenario.java.JavaPerDeformation;
+import cz.tul.dic.opencl.test.gen.scenario.java.JavaPerFacet;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import cz.tul.dic.opencl.test.gen.scenario.d1.CL1DIntPerDeformationSingle;
@@ -122,16 +122,16 @@ public class PerformanceTest {
                                         try {
                                             result = sc.compute(images[0], images[1], facetData, facetCenters, deformations, ps);
                                             if (result == null) {
-                                                result = new ScenarioResult(System.nanoTime() - time, false);
+                                                result = new ScenarioResult(-1, false);
                                             } else {
                                                 result.setTotalTime(System.nanoTime() - time);
                                                 tc.checkResult(result, ps.getValue(Parameter.FACET_COUNT));
                                             }
                                         } catch (CLException ex) {
-                                            result = new ScenarioResult(System.nanoTime() - time, true);
+                                            result = new ScenarioResult(-1, true);
                                             System.err.println("CL error - " + ex.getLocalizedMessage());
                                         } catch (Exception | Error ex) {
-                                            result = new ScenarioResult(System.nanoTime() - time, true);
+                                            result = new ScenarioResult(-1, true);
                                             System.err.println("Error - " + ex.getLocalizedMessage());
                                         }
 
