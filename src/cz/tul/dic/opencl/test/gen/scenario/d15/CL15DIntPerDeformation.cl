@@ -23,7 +23,7 @@ kernel void CL15DIntPerDeformation(
     global read_only int * facets, global read_only int * facetCenters,
     global read_only float * deformations,
     global write_only float * result,
-    global read_only int * deformationIndex,
+    const int deformationIndex,
     const int imageWidth, const int deformationCount,
     const int facetSize, const int facetCount) 
 {        
@@ -37,7 +37,7 @@ kernel void CL15DIntPerDeformation(
     const int facetCoordCount = facetSize2 * 2;
     const int baseIndexFacet = facetId * facetCoordCount;         
     const int baseIndexFacetCenter = facetId * 2;
-    const int baseIndexDeformation = deformationIndex[0] * 6;
+    const int baseIndexDeformation = deformationIndex * 6;
     // deform facet
     float deformedFacet[-1*-1*2];    
     int indexFacet, i2, x, y, dx, dy;   
@@ -101,6 +101,6 @@ kernel void CL15DIntPerDeformation(
     resultVal /= deltaFs * deltaGs;    
     
     //store result
-    indexFacet = facetId * deformationCount + deformationIndex[0];
+    indexFacet = facetId * deformationCount + deformationIndex;
     result[indexFacet] = resultVal;    
 }

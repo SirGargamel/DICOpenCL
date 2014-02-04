@@ -38,19 +38,19 @@ public class CL15DIntPerDeformation extends Scenario15D {
         final CLBuffer<IntBuffer> bufferImageB = createIntBuffer(imageB, READ_ONLY);
         final CLBuffer<IntBuffer> bufferFacetData = createIntBuffer(facetData, READ_ONLY);
         final CLBuffer<IntBuffer> bufferFacetCenters = createIntBuffer(facetCenters, READ_ONLY);
-        final CLBuffer<FloatBuffer> bufferDeformations = createFloatBuffer(deformations, READ_ONLY);
-        final CLBuffer<IntBuffer> bufferDeformationIndex = createIntBuffer(1, READ_ONLY);
+        final CLBuffer<FloatBuffer> bufferDeformations = createFloatBuffer(deformations, READ_ONLY);        
         final CLBuffer<FloatBuffer> bufferResult = createFloatBuffer(facetCount * params.getValue(Parameter.DEFORMATION_COUNT), WRITE_ONLY);
         long clSize = bufferImageA.getCLSize() + bufferImageB.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
         params.addParameter(Parameter.DATASIZE, (int) (clSize / 1000));
         // prepare kernel arguments
         final CLKernel kernel = contextHandler.getKernel();
-        kernel.putArgs(bufferImageA, bufferImageB, bufferFacetData, bufferFacetCenters, bufferDeformations, bufferResult, bufferDeformationIndex)
+        kernel.putArgs(bufferImageA, bufferImageB, bufferFacetData, bufferFacetCenters, bufferDeformations, bufferResult)
+                .putArg(0)
                 .putArg(params.getValue(Parameter.IMAGE_WIDTH))
                 .putArg(params.getValue(Parameter.DEFORMATION_COUNT))
                 .putArg(facetSize)
                 .putArg(facetCount)
-                .rewind();
+                .rewind();        
         // prepare work sizes
         final int lws0 = getLWS0();
         final int facetGlobalWorkSize = roundUp(lws0, deformationCount);
@@ -66,8 +66,9 @@ public class CL15DIntPerDeformation extends Scenario15D {
         queue.putWriteBuffer(bufferDeformations, false);
 
         for (int i = 0; i < deformationCount; i++) {
-            fillBuffer(bufferDeformationIndex.getBuffer(), i);
-            queue.putWriteBuffer(bufferDeformationIndex, false);
+//            fillBuffer(bufferDeformationIndex.getBuffer(), i);
+//            queue.putWriteBuffer(bufferDeformationIndex, false);            
+            kernel.setArg(6, i);
 
             queue.put1DRangeKernel(kernel, 0, facetGlobalWorkSize, lws0, eventList);
         }

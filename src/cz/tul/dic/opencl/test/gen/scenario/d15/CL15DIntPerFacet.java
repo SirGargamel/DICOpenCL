@@ -38,14 +38,14 @@ public class CL15DIntPerFacet extends Scenario15D {
         final CLBuffer<IntBuffer> bufferImageB = createIntBuffer(imageB, READ_ONLY);
         final CLBuffer<IntBuffer> bufferFacetData = createIntBuffer(facetData, READ_ONLY);
         final CLBuffer<IntBuffer> bufferFacetCenters = createIntBuffer(facetCenters, READ_ONLY);
-        final CLBuffer<FloatBuffer> bufferDeformations = createFloatBuffer(deformations, READ_ONLY);
-        final CLBuffer<IntBuffer> bufferFacetIndex = createIntBuffer(1, READ_ONLY);
+        final CLBuffer<FloatBuffer> bufferDeformations = createFloatBuffer(deformations, READ_ONLY);        
         final CLBuffer<FloatBuffer> bufferResult = createFloatBuffer(facetCount * params.getValue(Parameter.DEFORMATION_COUNT), WRITE_ONLY);
         long clSize = bufferImageA.getCLSize() + bufferImageB.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
         params.addParameter(Parameter.DATASIZE, (int) (clSize / 1000));
         // prepare kernel arguments
         final CLKernel kernel = contextHandler.getKernel();
-        kernel.putArgs(bufferImageA, bufferImageB, bufferFacetData, bufferFacetCenters, bufferDeformations, bufferResult, bufferFacetIndex)
+        kernel.putArgs(bufferImageA, bufferImageB, bufferFacetData, bufferFacetCenters, bufferDeformations, bufferResult)
+                .putArg(0)
                 .putArg(params.getValue(Parameter.IMAGE_WIDTH))
                 .putArg(params.getValue(Parameter.DEFORMATION_COUNT))
                 .putArg(facetSize)
@@ -66,8 +66,9 @@ public class CL15DIntPerFacet extends Scenario15D {
         queue.putWriteBuffer(bufferDeformations, false);
 
         for (int i = 0; i < facetCount; i++) {
-            fillBuffer(bufferFacetIndex.getBuffer(), i);
-            queue.putWriteBuffer(bufferFacetIndex, false);
+//            fillBuffer(bufferFacetIndex.getBuffer(), i);
+//            queue.putWriteBuffer(bufferFacetIndex, false);
+            kernel.setArg(6, i);
 
             queue.put1DRangeKernel(kernel, 0, facetGlobalWorkSize, lws0, eventList);
         }
