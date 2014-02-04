@@ -10,7 +10,7 @@ LWS1 = 1;
 % Plot graphs
 % Main plot, create multiple windows
 % split graphs to multiple windows
-graphCountX = 3;
+graphCountX = 2;
 graphCountY = 3;
 graphsPerWindowCount = graphCountX * graphCountY;
 windowCount = ceil(graphCount / graphsPerWindowCount);
@@ -34,10 +34,14 @@ for win=1:windowCount
             title(cellstr([int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY)) ', fs=' int2str(data(index, INDEX_FACET_SIZE)) ', dc=' int2str(data(index, INDEX_DEFORMATION_COUNT))]));            
             % plot curves for all LWS0 into one subfigure
             hold on;
-            values(1, :) = allCurves(TIME_TOTAL, LWS1, :, ANALYZED_VARIANT, ANALYZED_TEST_CASE, innerBase);
-            values(2, :) = allCurves(TIME_TOTAL, LWS1, :, ANALYZED_VARIANT, ANALYZED_TEST_CASE, innerBase) - allCurves(TIME_KERNEL, LWS1, :, ANALYZED_VARIANT, INSPECTED_TEST_CASE, innerBase);
-            bar(values(:,:)', 'stacked');
+            values(1, :) = allCurves(TIME_KERNEL, LWS1, :, ANALYZED_VARIANT, ANALYZED_TEST_CASE, innerBase);
+            values(2, :) = allCurves(TIME_TOTAL, LWS1, :, ANALYZED_VARIANT, ANALYZED_TEST_CASE, innerBase) - allCurves(TIME_KERNEL, LWS1, :, ANALYZED_VARIANT, ANALYZED_TEST_CASE, innerBase);
+            values(3, :) = allCurves(TIME_TOTAL, LWS1, :, ANALYZED_VARIANT, ANALYZED_TEST_CASE, innerBase);
+            bar(values(1:2,:)', 'stacked');
             set(gca, 'XTick', X, 'XTickLabel', X_LABELS);
+            text(1:numel(values(3, :)), values(3, :)',num2str(values(3, :)','%0.2f'),...
+                'HorizontalAlignment','center',...
+                'VerticalAlignment','bottom');
             hold off;
         end;
     end;

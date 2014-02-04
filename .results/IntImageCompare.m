@@ -10,7 +10,7 @@ bestCurves = NaN(COUNT_LWS1, variantCount, graphCount);
 bestCurvesParams = NaN(variantCount, graphCount);
 for graph=1:graphCount
     for var=1:variantCount        
-        m = allCurves(:,:,var,ANALYZED_TEST_CASE,graph);
+        m = allCurves(ANALYZED_TIME,:,:,var,ANALYZED_TEST_CASE,graph);
         [minVal, index] = min(m(:));
         [minLws1, minLws0] = ind2sub(size(m(:)), index);
 

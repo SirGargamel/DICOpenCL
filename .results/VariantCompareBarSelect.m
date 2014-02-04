@@ -24,7 +24,8 @@ for graph=1:graphCount
         [minLws1, minLws0] = ind2sub(size(m), index);
 
         bestCurves(1, v, graph) = allCurves(TIME_KERNEL,minLws1,minLws0,var,ANALYZED_TEST_CASE,graph);
-        bestCurves(2, v, graph) = allCurves(TIME_TOTAL,minLws1,minLws0,var,ANALYZED_TEST_CASE,graph) - bestCurves(1, v, graph);
+        bestCurves(3, v, graph) = allCurves(TIME_TOTAL,minLws1,minLws0,var,ANALYZED_TEST_CASE,graph);
+        bestCurves(2, v, graph) = bestCurves(3, v, graph) - bestCurves(1, v, graph);        
     end;
 end;
 % Plot graphs
@@ -53,9 +54,13 @@ for win=1:windowCount
             title(cellstr([int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY)) ', fs=' int2str(data(index, INDEX_FACET_SIZE)) ', dc=' int2str(data(index, INDEX_DEFORMATION_COUNT))]));
             % plot both curves to one subfigure       
             hold on;                                    
-            bar(bestCurves(:, :, innerBase)','stacked');
+            bar(bestCurves(1:2, :, innerBase)','stacked');
             set(gca,'XTick', 1:numel(bestCurves(1, :, innerBase)), 'XTickLabel',NAMES_VARIANTS_INNER);
             fix_xticklabels();
+            % values on top
+            text(1:numel(bestCurves(1, :, innerBase)),bestCurves(3, :, innerBase)',num2str(bestCurves(3, :, innerBase)','%0.2f'),...
+                'HorizontalAlignment','center',...
+                'VerticalAlignment','bottom');
             % Finish plotting to subfigure
             hold off;
         end;

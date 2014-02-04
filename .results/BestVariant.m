@@ -9,10 +9,11 @@ LoadData;
 VAL_VARIANT = 1;
 VAL_TIME_KERNEL = 2;
 VAL_TIME_OVERHEAD = 3;
-VAL_LWS0 = 4;
-VAL_LWS1 = 5;
+VAL_TIME_TOTAL = 4;
+VAL_LWS0 = 5;
+VAL_LWS1 = 6;
 % Find best value (fastest) for each variant
-bestVariantData = repmat(intmax, 4, graphCount);
+bestVariantData = repmat(intmax, 6, graphCount);
 for graph=1:graphCount
     for var=1:variantCount
         m = squeeze(allCurves(TIME_TOTAL,:,:,var,ANALYZED_TEST_CASE,graph));
@@ -21,8 +22,9 @@ for graph=1:graphCount
         [minLws1, minLws0] = ind2sub(size(m), index);
 
         if (minVal < bestVariantData(VAL_TIME_KERNEL, graph))
-            bestVariantData(VAL_TIME_KERNEL, graph) = minVal;
-            bestVariantData(VAL_TIME_OVERHEAD, graph) = minVal - allCurves(TIME_KERNEL,minLws1,minLws0,var,ANALYZED_TEST_CASE,graph);
+            bestVariantData(VAL_TIME_TOTAL, graph) = minVal;
+            bestVariantData(VAL_TIME_KERNEL, graph) = allCurves(TIME_KERNEL,minLws1,minLws0,var,ANALYZED_TEST_CASE,graph);
+            bestVariantData(VAL_TIME_OVERHEAD, graph) = bestVariantData(VAL_TIME_TOTAL, graph) - bestVariantData(VAL_TIME_KERNEL, graph);
             bestVariantData(VAL_VARIANT, graph) = var;
             bestVariantData(VAL_LWS0, graph) = minLws0;
             bestVariantData(VAL_LWS1, graph) = minLws1;
@@ -64,9 +66,10 @@ for win=1:windowCount
             end;            
             % plot data to subplot
             subplot(graphCountY, graphCountX, (graphY-1) * graphCountX + graphX);
-            bar(bestVariantData(2:3, innerBase:min(innerBase+columnsPerGraph-1, size(bestVariantData, 2)))','stacked');
+            bar(bestVariantData(VAL_TIME_KERNEL:VAL_TIME_OVERHEAD, innerBase:min(innerBase+columnsPerGraph-1, size(bestVariantData, 2)))','stacked');
             set(gca,'xticklabel',titles);
             fix_xticklabels();
+            
             ylabel('Time [ms]');
         end;
     end;
