@@ -27,7 +27,7 @@ import java.nio.IntBuffer;
  */
 public final class CL1DImageLpF_LWS extends ScenarioOpenCL {
 
-    private final int maxVariantCount, lws0base;
+    private final int maxVariantCount, lws0base, lws0base2;
     private int currentVariant;
 
     public CL1DImageLpF_LWS(final ContextHandler contextHandler) throws IOException {
@@ -39,6 +39,7 @@ public final class CL1DImageLpF_LWS extends ScenarioOpenCL {
         final CL cl = context.getCL();
         cl.clGetKernelWorkGroupInfo(contextHandler.getKernel().ID, contextHandler.getDevice().ID, CLKernelBinding.CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, Integer.SIZE, val, null);
         lws0base = val.get(0);
+        lws0base2 = CustomMath.power2(lws0base);
 
         final int max = contextHandler.getDevice().getMaxWorkGroupSize();
         maxVariantCount = CustomMath.power2(max / lws0base) + 1;
@@ -79,7 +80,7 @@ public final class CL1DImageLpF_LWS extends ScenarioOpenCL {
         long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
         params.addParameter(Parameter.DATASIZE, (int) (clSize / 1000));
         // prepare work sizes        
-        final int lws0 = (int) Math.pow(2, currentVariant + 5);
+        final int lws0 = (int) Math.pow(2, currentVariant + lws0base2);
         final int facetGlobalWorkSize = roundUp(lws0, deformationCount) * facetCount;
         params.addParameter(Parameter.LWS0, lws0);
         params.addParameter(Parameter.LWS1, 1);
