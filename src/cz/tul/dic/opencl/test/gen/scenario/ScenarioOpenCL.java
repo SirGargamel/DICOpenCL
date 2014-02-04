@@ -60,7 +60,9 @@ public abstract class ScenarioOpenCL extends Scenario {
         }
 
         for (CLResource m : memoryObjects) {
-            m.release();
+            if (!m.isReleased()) {
+                m.release();
+            }
         }
         memoryObjects.clear();
 
