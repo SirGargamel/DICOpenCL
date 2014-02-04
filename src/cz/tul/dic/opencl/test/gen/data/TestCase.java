@@ -114,7 +114,7 @@ public class TestCase {
         final float[] coeffs = result.getResultData();
 
         if (coeffs == null) {
-            result.markAsInvalid();
+            result.markAsInvalidFixedPart();
         } else {
             int oneCount = 0;
             for (int i = 0; i < coeffs.length; i++) {

@@ -26,10 +26,10 @@ public class ScenarioResult {
         this.resultData = resultData;
         this.kernelExecutionTime = kernelExecutionTime;
 
-        if (resultData == null) {
-            state = State.FAIL;
-        } else {
+        if (resultData != null) {
             state = State.SUCCESS;
+        } else {
+            state = State.INVALID_PARAMS;
         }
     }
 
@@ -63,10 +63,6 @@ public class ScenarioResult {
 
     public void markAsInvalidFixedPart() {
         state = State.WRONG_RESULT_FIXED;
-    }
-
-    public void markAsInvalid() {
-        state = State.FAIL;
     }
 
     public int getResultGroup() {
