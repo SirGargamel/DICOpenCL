@@ -7,6 +7,10 @@ import cz.tul.dic.opencl.test.gen.ParameterSet;
  * @author Petr Jecmen
  */
 public abstract class Scenario {
+    
+    public void prepare(final ParameterSet params) {
+        // nothing to prepare here
+    }
 
     public abstract ScenarioResult compute(
             final int[] imageA, final int[] imageB,

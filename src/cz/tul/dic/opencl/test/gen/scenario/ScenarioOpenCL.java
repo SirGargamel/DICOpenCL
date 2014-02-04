@@ -39,12 +39,17 @@ public abstract class ScenarioOpenCL extends Scenario {
     }
 
     @Override
+    public void prepare(final ParameterSet ps) {
+        contextHandler.assignScenario(this);
+        contextHandler.setFacetSize(ps.getValue(Parameter.FACET_SIZE));
+    }
+
+    @Override
     public final ScenarioResult compute(
             final int[] imageA, final int[] imageB,
             final int[] facetData, final int[] facetCenters,
             final float[] deformations,
             final ParameterSet params) {
-        contextHandler.setFacetSize(params.getValue(Parameter.FACET_SIZE));
         params.addParameter(Parameter.LWS0, 1);
         params.addParameter(Parameter.LWS1, 1);
 
