@@ -1,6 +1,5 @@
 package cz.tul.dic.opencl.test.gen.scenario.d15;
 
-import com.jogamp.opencl.CLException;
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import cz.tul.dic.opencl.test.gen.CustomMath;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
@@ -32,7 +31,7 @@ public abstract class Scenario15D extends ScenarioOpenCL {
         float[] result = null;
         try {
             result = computeScenario(imageA, imageB, facetData, facetCenters, deformations, params);
-        } catch (CLException ex) {
+        } catch (Exception ex) {
             throw ex;
         } finally {
             currentVariant++;

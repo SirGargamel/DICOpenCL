@@ -1,6 +1,5 @@
 package cz.tul.dic.opencl.test.gen.scenario.d2;
 
-import com.jogamp.opencl.CLException;
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import cz.tul.dic.opencl.test.gen.CustomMath;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
@@ -42,7 +41,7 @@ public abstract class Scenario2D extends ScenarioOpenCL {
         float[] result = null;
         try {
             result = computeScenario(imageA, imageB, facetData, facetCenters, deformations, params);
-        } catch (CLException ex) {
+        } catch (Exception ex) {
             throw ex;
         } finally {
             prepareNextVariant();
@@ -54,7 +53,7 @@ public abstract class Scenario2D extends ScenarioOpenCL {
             final int[] imageA, final int[] imageB,
             final int[] facetData, final int[] facetCenters,
             final float[] deformations,
-            final ParameterSet params) throws CLException;
+            final ParameterSet params);
 
     private void prepareNextVariant() {
         boolean inc = true;
