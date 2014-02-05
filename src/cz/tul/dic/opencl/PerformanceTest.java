@@ -39,32 +39,38 @@ import java.util.List;
  */
 public class PerformanceTest {
 
-//  Static data
-    private static final double IMAGE_RATIO = 3 / (double) 4;
 //  Devices for computation
 //    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.iGPU};
 //    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.CPU, ContextHandler.DeviceType.iGPU};
     private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU, ContextHandler.DeviceType.iGPU, ContextHandler.DeviceType.CPU};
 //  Large task
-//    private static final int[] IMAGE_WIDTHS = new int[]{1024};
+//    private static final int[][] IMAGE_SIZES = new int[]{{1024, 768}};
 //    private static final int[] DEFORMATION_COUNTS = new int[]{800};
 //    private static final int[] FACET_SIZES = new int[]{35};
 //  Medium task
-//    private static final int[] IMAGE_WIDTHS = new int[]{512};
+//    private static final int[][] IMAGE_SIZES = new int[][]{{512, 384}};
 //    private static final int[] DEFORMATION_COUNTS = new int[]{400};
 //    private static final int[] FACET_SIZES = new int[]{21};
 //  Small task
-//    private static final int[] IMAGE_WIDTHS = new int[]{128};
+//    private static final int[][] IMAGE_SIZES = new int[][]{{128, 96}};
 //    private static final int[] DEFORMATION_COUNTS = new int[]{100};
 //    private static final int[] FACET_SIZES = new int[]{9};
 //  Full task
-//    private static final int[] IMAGE_WIDTHS = new int[]{128, 256, 512, 1024};
+//    private static final int[][] IMAGE_SIZES = new int[][]{{128, 96}, {512, 384}, {1024, 768}};
 //    private static final int[] DEFORMATION_COUNTS = new int[]{100, 200, 400, 800};
 //    private static final int[] FACET_SIZES = new int[]{9, 21, 35};
+//  Real task 1st order
+    private static final int[][] IMAGE_SIZES = new int[][]{{44, 240}, {110, 712}};
+    private static final int[] DEFORMATION_COUNTS = new int[]{500};
+    private static final int[] FACET_SIZES = new int[]{5, 11};
+//  Real task 0 order
+//    private static final int[][] IMAGE_SIZES = new int[][]{{52, 52}, {143,143}};
+//    private static final int[] DEFORMATION_COUNTS = new int[]{200};
+//    private static final int[] FACET_SIZES = new int[]{17, 25};
 //  Generic task
-    private static final int[] IMAGE_WIDTHS = new int[]{512};
-    private static final int[] DEFORMATION_COUNTS = new int[]{1000};
-    private static final int[] FACET_SIZES = new int[]{15};
+//    private static final int[][] IMAGE_SIZES = new int[][]{{512, 384}};
+//    private static final int[] DEFORMATION_COUNTS = new int[]{1000};
+//    private static final int[] FACET_SIZES = new int[]{15};
 
     public static void computeImageFillTest() throws IOException {
         for (ContextHandler.DeviceType device : HW) {
@@ -78,7 +84,7 @@ public class PerformanceTest {
 
             final List<TestCase> testCases = prepareTestCases();
             int lineCount = 1;
-            lineCount *= IMAGE_WIDTHS.length;
+            lineCount *= IMAGE_SIZES.length;
             lineCount *= FACET_SIZES.length;
             lineCount *= DEFORMATION_COUNTS.length;
             DataStorage.setCounts(lineCount, testCases.size());
@@ -97,14 +103,13 @@ public class PerformanceTest {
                 for (int tci = 0; tci < testCases.size(); tci++) {
                     tc = testCases.get(tci);
 
-                    for (int w : IMAGE_WIDTHS) {
-                        h = (int) Math.round(w * IMAGE_RATIO);
-                        images = tc.generateImages(w, h);
+                    for (int[] dim : IMAGE_SIZES) {                        
+                        images = tc.generateImages(dim[0], dim[1]);
 
                         for (int sz = 0; sz < FACET_SIZES.length; sz++) {
                             s = FACET_SIZES[sz];
 
-                            facetCenters = tc.generateFacetCenters(w, h, s);
+                            facetCenters = tc.generateFacetCenters(dim[0], dim[1], s);
                             facetData = tc.generateFacetData(facetCenters, s);
 
                             for (int d : DEFORMATION_COUNTS) {
@@ -115,8 +120,8 @@ public class PerformanceTest {
                                     sc.reset();
                                     while (sc.hasNext()) {
                                         ps = new ParameterSet();
-                                        ps.addParameter(Parameter.IMAGE_WIDTH, w);
-                                        ps.addParameter(Parameter.IMAGE_HEIGHT, h);
+                                        ps.addParameter(Parameter.IMAGE_WIDTH, dim[0]);
+                                        ps.addParameter(Parameter.IMAGE_HEIGHT, dim[1]);
                                         ps.addParameter(Parameter.FACET_SIZE, s);
                                         ps.addParameter(Parameter.FACET_COUNT, facetData.length / Utils.calculateFacetArraySize(s));
                                         ps.addParameter(Parameter.DEFORMATION_COUNT, d);
