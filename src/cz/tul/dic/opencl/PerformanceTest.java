@@ -114,6 +114,8 @@ public class PerformanceTest {
 
                             for (int d : DEFORMATION_COUNTS) {
                                 deformations = tc.generateDeformations(d);
+                                
+                                System.gc();
 
                                 for (int sci = 0; sci < scenarios.size(); sci++) {
                                     sc = scenarios.get(sci);
