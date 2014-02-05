@@ -9,14 +9,15 @@ ANALYZED_TIME = TIME_TOTAL;
 % Find best curves (fastest) for each variant
 bestCurves = NaN(2,variantCount, graphCount);
 for graph=1:graphCount
-    for var=1:variantCount
-        m = squeeze(allCurves(ANALYZED_TIME,:,:,var,ANALYZED_TEST_CASE,graph));        
+    for v=1:variantCount
+        m = squeeze(allCurves(ANALYZED_TIME,:,:,v,ANALYZED_TEST_CASE,graph));        
         m(m == 0) = NaN;
         [minVal, index] = min(m(:));        
         [minLws1, minLws0] = ind2sub(size(m), index);
 
-        bestCurves(1, var, graph) = allCurves(TIME_KERNEL,minLws1,minLws0,var,ANALYZED_TEST_CASE,graph);
-        bestCurves(1, v, graph)
+        bestCurves(1, v, graph) = allCurves(TIME_KERNEL,minLws1,minLws0,v,ANALYZED_TEST_CASE,graph);
+        bestCurves(3, v, graph) = allCurves(TIME_TOTAL,minLws1,minLws0,v,ANALYZED_TEST_CASE,graph);
+        bestCurves(2, v, graph) = bestCurves(3, v, graph) - bestCurves(1, v, graph);
     end;
 end;
 % Plot graphs
