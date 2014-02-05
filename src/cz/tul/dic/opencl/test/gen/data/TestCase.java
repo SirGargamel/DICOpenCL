@@ -31,11 +31,12 @@ public class TestCase {
 
         Random rnd = new Random();
         int centerX, centerY, baseIndex;
-        int offset = (int) (Utils.DEFORMATION_ABS_MAX_0 * 4);
+        final double s_2 = Math.ceil(size / 2.0);
+        final int offset = (int) (s_2 + Utils.DEFORMATION_ABS_MAX_0 + (2 * Utils.DEFORMATION_ABS_MAX_1 * s_2));
         for (int i = 0; i < count; i++) {
             baseIndex = i * 2;
-            centerX = rnd.nextInt(width - (2 * offset) - size) + offset;
-            centerY = rnd.nextInt(height - (2 * offset) - size) + offset;
+            centerX = rnd.nextInt(width - (2 * offset)) + offset;
+            centerY = rnd.nextInt(height - (2 * offset)) + offset;
             result[baseIndex] = centerX;
             result[baseIndex + 1] = centerY;
         }
