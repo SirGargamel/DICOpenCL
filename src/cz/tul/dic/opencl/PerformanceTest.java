@@ -4,7 +4,6 @@ import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLException;
 import com.jogamp.opencl.CLPlatform;
 import cz.tul.dic.opencl.test.gen.ContextHandler;
-import cz.tul.dic.opencl.test.gen.CustomMath;
 import cz.tul.dic.opencl.test.gen.DataStorage;
 import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
@@ -39,27 +38,33 @@ import java.util.List;
  * @author Petr Jecmen
  */
 public class PerformanceTest {
-//  static data
 
+//  Static data
     private static final double IMAGE_RATIO = 3 / (double) 4;
-    private static final int IMAGE_WIDTH_MIN = 128;
-    private static final int DEFORMATION_COUNT_MIN = 100;
 //  Devices for computation
 //    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.iGPU};
 //    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.CPU, ContextHandler.DeviceType.iGPU};
     private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU, ContextHandler.DeviceType.iGPU, ContextHandler.DeviceType.CPU};
-//  Large task    
-//    private static final int IMAGE_WIDTH_MAX = 1024;
-//    private static final int[] FACET_SIZES = new int[]{9, 21, 35};
-//    private static final int DEFORMATION_COUNT_MAX = 800;
-// Medium task
-    private static final int IMAGE_WIDTH_MAX = 512;
-    private static final int[] FACET_SIZES = new int[]{9, 21};
-    private static final int DEFORMATION_COUNT_MAX = 400;
+//  Large task
+//    private static final int[] IMAGE_WIDTHS = new int[]{1024};
+//    private static final int[] DEFORMATION_COUNTS = new int[]{800};
+//    private static final int[] FACET_SIZES = new int[]{35};
+//  Medium task
+//    private static final int[] IMAGE_WIDTHS = new int[]{512};
+//    private static final int[] DEFORMATION_COUNTS = new int[]{400};
+//    private static final int[] FACET_SIZES = new int[]{21};
 //  Small task
-//    private static final int IMAGE_WIDTH_MAX = 128;
+//    private static final int[] IMAGE_WIDTHS = new int[]{128};
+//    private static final int[] DEFORMATION_COUNTS = new int[]{100};
 //    private static final int[] FACET_SIZES = new int[]{9};
-//    private static final int DEFORMATION_COUNT_MAX = 100;
+//  Full task
+//    private static final int[] IMAGE_WIDTHS = new int[]{128, 256, 512, 1024};
+//    private static final int[] DEFORMATION_COUNTS = new int[]{100, 200, 400, 800};
+//    private static final int[] FACET_SIZES = new int[]{9, 21, 35};
+//  Generic task
+    private static final int[] IMAGE_WIDTHS = new int[]{512};
+    private static final int[] DEFORMATION_COUNTS = new int[]{1000};
+    private static final int[] FACET_SIZES = new int[]{15};
 
     public static void computeImageFillTest() throws IOException {
         for (ContextHandler.DeviceType device : HW) {
@@ -73,9 +78,9 @@ public class PerformanceTest {
 
             final List<TestCase> testCases = prepareTestCases();
             int lineCount = 1;
-            lineCount *= CustomMath.power2(IMAGE_WIDTH_MAX / IMAGE_WIDTH_MIN) + 1;
+            lineCount *= IMAGE_WIDTHS.length;
             lineCount *= FACET_SIZES.length;
-            lineCount *= CustomMath.power2(DEFORMATION_COUNT_MAX / DEFORMATION_COUNT_MIN) + 1;
+            lineCount *= DEFORMATION_COUNTS.length;
             DataStorage.setCounts(lineCount, testCases.size());
 
             int[][] images;
@@ -92,7 +97,7 @@ public class PerformanceTest {
                 for (int tci = 0; tci < testCases.size(); tci++) {
                     tc = testCases.get(tci);
 
-                    for (int w = IMAGE_WIDTH_MIN; w <= IMAGE_WIDTH_MAX; w *= 2) {
+                    for (int w : IMAGE_WIDTHS) {
                         h = (int) Math.round(w * IMAGE_RATIO);
                         images = tc.generateImages(w, h);
 
@@ -102,7 +107,7 @@ public class PerformanceTest {
                             facetCenters = tc.generateFacetCenters(w, h, s);
                             facetData = tc.generateFacetData(facetCenters, s);
 
-                            for (int d = DEFORMATION_COUNT_MIN; d <= DEFORMATION_COUNT_MAX; d *= 2) {
+                            for (int d : DEFORMATION_COUNTS) {
                                 deformations = tc.generateDeformations(d);
 
                                 for (int sci = 0; sci < scenarios.size(); sci++) {
@@ -117,7 +122,7 @@ public class PerformanceTest {
                                         ps.addParameter(Parameter.DEFORMATION_COUNT, d);
                                         ps.addParameter(Parameter.VARIANT, sci);
                                         ps.addParameter(Parameter.TEST_CASE, tci);
-                                        
+
                                         sc.prepare(ps);
 
                                         time = System.nanoTime();
