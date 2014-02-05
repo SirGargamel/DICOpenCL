@@ -31,7 +31,7 @@ public abstract class Scenario1D extends ScenarioOpenCL {
         float[] result = null;
         try {
             result = computeScenario(imageA, imageB, facetData, facetCenters, deformations, params);
-        } catch (Exception ex) {
+        } catch (Exception | Error ex) {
             throw ex;
         } finally {
             currentVariant++;
