@@ -32,6 +32,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -39,6 +41,7 @@ import java.util.List;
  */
 public class PerformanceTest {
 
+    private static final Logger log = Logger.getGlobal();
 //  Devices for computation
 //    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.iGPU};
 //    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.CPU, ContextHandler.DeviceType.iGPU};
@@ -142,29 +145,29 @@ public class PerformanceTest {
                                                 tc.checkResult(result, ps.getValue(Parameter.FACET_COUNT));
                                             }
                                         } catch (CLException ex) {
-                                            result = new ScenarioResult(-1, true);
-                                            System.err.println("CL error - " + ex.getLocalizedMessage());
+                                            result = new ScenarioResult(-1, true);                                            
+                                            log.log(Level.SEVERE, "CL error - {0}", ex.getLocalizedMessage());
                                         } catch (Exception | Error ex) {
                                             result = new ScenarioResult(-1, true);
-                                            System.err.println("Error - " + ex.getLocalizedMessage());
+                                            log.log(Level.SEVERE, "Error - {0}", ex.getLocalizedMessage());
                                         }
 
                                         switch (result.getState()) {
                                             case SUCCESS:
-                                                System.out.println("Finished " + sc.getKernelName() + " " + (result.getTotalTime() / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
+                                                log.log(Level.INFO, "Finished {0} {1}ms ({2} ms in kernel) with params {3}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps});
                                                 break;
                                             case WRONG_RESULT_DYNAMIC:
-                                                System.out.println("Wrong dynamic part of result for  " + sc.getKernelName() + " " + (result.getTotalTime() / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
+                                                log.log(Level.INFO, "Wrong dynamic part of result for  {0} {1}ms ({2} ms in kernel) with params {3}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps});
                                                 break;
                                             case WRONG_RESULT_FIXED:
-                                                System.out.println("Wrong fixed part of result for  " + sc.getKernelName() + " " + (result.getTotalTime() / 1000000) + "ms (" + (result.getKernelExecutionTime() / 1000000) + " ms in kernel) with params " + ps);
+                                                log.log(Level.INFO, "Wrong fixed part of result for  {0} {1}ms ({2} ms in kernel) with params {3}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps});
                                                 break;
                                             case FAIL:
-                                                System.out.println("Failed " + sc.getKernelName() + " with params " + ps);
+                                                log.log(Level.INFO, "Failed {0} with params {1}", new Object[]{sc.getKernelName(), ps});
                                                 ch.reset();
                                                 break;
                                             case INVALID_PARAMS:
-                                                System.out.println("Invalid params for " + sc.getKernelName() + " - " + ps);
+                                                log.log(Level.INFO, "Invalid params for {0} - {1}", new Object[]{sc.getKernelName(), ps});
                                         }
 
                                         DataStorage.storeData(ps, result);
@@ -217,7 +220,7 @@ public class PerformanceTest {
         scenarios.add(new CL1DImageLpF(contextHandler));
         scenarios.add(new CL1DImageLpF_LWS(contextHandler));
         scenarios.add(new CL2DImage_MC_V(contextHandler));
-        scenarios.add(new CL2DImage_MC_V_C(contextHandler));        
+//        scenarios.add(new CL2DImage_MC_V_C(contextHandler));        
 
         return scenarios;
     }
