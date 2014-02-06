@@ -9,10 +9,9 @@ import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
 import cz.tul.dic.opencl.test.gen.Utils;
 import cz.tul.dic.opencl.test.gen.data.TestCase;
-import cz.tul.dic.opencl.test.gen.scenario.java.JavaPerDeformation;
-import cz.tul.dic.opencl.test.gen.scenario.java.JavaPerFacet;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
+import cz.tul.dic.opencl.test.gen.scenario.comb.CL2DImage_MC_V;
 import cz.tul.dic.opencl.test.gen.scenario.d1.CL1DIntPerDeformationSingle;
 import cz.tul.dic.opencl.test.gen.scenario.d1.CL1DIntPerFacetSingle;
 import cz.tul.dic.opencl.test.gen.scenario.d1.opt.CL1DImageLpF;
@@ -25,7 +24,8 @@ import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageC;
 import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageFtoA;
 import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageMC;
 import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageV;
-import cz.tul.dic.opencl.test.gen.scenario.comb.CL2DImage_MC_V;
+import cz.tul.dic.opencl.test.gen.scenario.java.JavaPerDeformation;
+import cz.tul.dic.opencl.test.gen.scenario.java.JavaPerFacet;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -105,7 +105,7 @@ public class PerformanceTest {
                 for (int tci = 0; tci < testCases.size(); tci++) {
                     tc = testCases.get(tci);
 
-                    for (int[] dim : IMAGE_SIZES) {                        
+                    for (int[] dim : IMAGE_SIZES) {
                         images = tc.generateImages(dim[0], dim[1]);
 
                         for (int sz = 0; sz < FACET_SIZES.length; sz++) {
@@ -116,8 +116,6 @@ public class PerformanceTest {
 
                             for (int d : DEFORMATION_COUNTS) {
                                 deformations = tc.generateDeformations(d);
-                                
-                                System.gc();
 
                                 for (int sci = 0; sci < scenarios.size(); sci++) {
                                     sc = scenarios.get(sci);
@@ -144,11 +142,11 @@ public class PerformanceTest {
                                                 tc.checkResult(result, ps.getValue(Parameter.FACET_COUNT));
                                             }
                                         } catch (CLException ex) {
-                                            result = new ScenarioResult(-1, true);                                            
-                                            log.log(Level.SEVERE, "CL error - ex.getLocalizedMessage()", ex);                                            
+                                            result = new ScenarioResult(-1, true);
+                                            log.log(Level.SEVERE, "CL error - " + ex.getLocalizedMessage(), ex);
                                         } catch (Exception | Error ex) {
                                             result = new ScenarioResult(-1, true);
-                                            log.log(Level.SEVERE, "Error - ex.getLocalizedMessage()", ex);
+                                            log.log(Level.SEVERE, "Error - " + ex.getLocalizedMessage(), ex);
                                         }
 
                                         switch (result.getState()) {
@@ -218,7 +216,7 @@ public class PerformanceTest {
         scenarios.add(new CL2DImageC(contextHandler));
         scenarios.add(new CL1DImageLpF(contextHandler));
         scenarios.add(new CL1DImageLpF_LWS(contextHandler));
-        scenarios.add(new CL2DImage_MC_V(contextHandler));            
+        scenarios.add(new CL2DImage_MC_V(contextHandler));
 
         return scenarios;
     }
