@@ -25,7 +25,7 @@ import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageC;
 import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageFtoA;
 import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageMC;
 import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageV;
-import cz.tul.dic.opencl.test.gen.scenario.d2.comb.CL2DImage_MC_V;
+import cz.tul.dic.opencl.test.gen.scenario.comb.CL2DImage_MC_V;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
