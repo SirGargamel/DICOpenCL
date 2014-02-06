@@ -46,22 +46,22 @@ public class PerformanceTest {
 //    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.iGPU};
 //    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.CPU, ContextHandler.DeviceType.iGPU};
     private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU, ContextHandler.DeviceType.iGPU, ContextHandler.DeviceType.CPU};
+//  Full task
+//    private static final int[][] IMAGE_SIZES = new int[][]{{128, 96}, {384, 256}, {768, 576}, {1280, 960}};
+//    private static final int[] DEFORMATION_COUNTS = new int[]{100, 200, 500, 1000};
+//    private static final int[] FACET_SIZES = new int[]{51, 35, 21, 9};
 //  Large task
-//    private static final int[][] IMAGE_SIZES = new int[][]{{1024, 768}};
-//    private static final int[] DEFORMATION_COUNTS = new int[]{800};
-//    private static final int[] FACET_SIZES = new int[]{21};
+//    private static final int[][] IMAGE_SIZES = new int[][]{{128, 96}, {384, 256}, {768, 576}};
+//    private static final int[] DEFORMATION_COUNTS = new int[]{100, 400, 100};
+//    private static final int[] FACET_SIZES = new int[]{51, 21, 9};
 //  Medium task
-//    private static final int[][] IMAGE_SIZES = new int[][]{{512, 384}};
-//    private static final int[] DEFORMATION_COUNTS = new int[]{400};
-//    private static final int[] FACET_SIZES = new int[]{21};
+//    private static final int[][] IMAGE_SIZES = new int[][]{{128, 96}, {384, 256}};
+//    private static final int[] DEFORMATION_COUNTS = new int[]{100, 400};
+//    private static final int[] FACET_SIZES = new int[]{35, 9};
 //  Small task
 //    private static final int[][] IMAGE_SIZES = new int[][]{{128, 96}};
 //    private static final int[] DEFORMATION_COUNTS = new int[]{100};
-//    private static final int[] FACET_SIZES = new int[]{9};
-//  Full task
-//    private static final int[][] IMAGE_SIZES = new int[][]{{128, 96}, {512, 384}, {1024, 768}};
-//    private static final int[] DEFORMATION_COUNTS = new int[]{100, 200, 400, 800};
-//    private static final int[] FACET_SIZES = new int[]{9, 21, 35};
+//    private static final int[] FACET_SIZES = new int[]{21};
 //  Real task 1st order
     private static final int[][] IMAGE_SIZES = new int[][]{{44, 240}, {110, 712}};
     private static final int[] DEFORMATION_COUNTS = new int[]{500, 1000};
