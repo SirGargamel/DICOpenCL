@@ -47,9 +47,9 @@ public class PerformanceTest {
 //    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.CPU, ContextHandler.DeviceType.iGPU};
     private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU, ContextHandler.DeviceType.iGPU, ContextHandler.DeviceType.CPU};
 //  Large task
-//    private static final int[][] IMAGE_SIZES = new int[]{{1024, 768}};
-//    private static final int[] DEFORMATION_COUNTS = new int[]{800};
-//    private static final int[] FACET_SIZES = new int[]{35};
+    private static final int[][] IMAGE_SIZES = new int[][]{{1024, 768}};
+    private static final int[] DEFORMATION_COUNTS = new int[]{800};
+    private static final int[] FACET_SIZES = new int[]{21};
 //  Medium task
 //    private static final int[][] IMAGE_SIZES = new int[][]{{512, 384}};
 //    private static final int[] DEFORMATION_COUNTS = new int[]{400};
@@ -63,9 +63,9 @@ public class PerformanceTest {
 //    private static final int[] DEFORMATION_COUNTS = new int[]{100, 200, 400, 800};
 //    private static final int[] FACET_SIZES = new int[]{9, 21, 35};
 //  Real task 1st order
-    private static final int[][] IMAGE_SIZES = new int[][]{{44, 240}, {110, 712}};
-    private static final int[] DEFORMATION_COUNTS = new int[]{500};
-    private static final int[] FACET_SIZES = new int[]{5, 11};
+//    private static final int[][] IMAGE_SIZES = new int[][]{{44, 240}, {110, 712}};
+//    private static final int[] DEFORMATION_COUNTS = new int[]{500};
+//    private static final int[] FACET_SIZES = new int[]{5, 11};
 //  Real task 0 order
 //    private static final int[][] IMAGE_SIZES = new int[][]{{52, 52}, {143,143}};
 //    private static final int[] DEFORMATION_COUNTS = new int[]{200};
@@ -146,10 +146,10 @@ public class PerformanceTest {
                                             }
                                         } catch (CLException ex) {
                                             result = new ScenarioResult(-1, true);                                            
-                                            log.log(Level.SEVERE, "CL error - {0}", ex.getLocalizedMessage());
+                                            log.log(Level.SEVERE, "CL error - ex.getLocalizedMessage()", ex);                                            
                                         } catch (Exception | Error ex) {
                                             result = new ScenarioResult(-1, true);
-                                            log.log(Level.SEVERE, "Error - {0}", ex.getLocalizedMessage());
+                                            log.log(Level.SEVERE, "Error - ex.getLocalizedMessage()", ex);
                                         }
 
                                         switch (result.getState()) {
