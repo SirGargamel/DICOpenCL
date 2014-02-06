@@ -9,7 +9,11 @@ import java.io.IOException;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+import java.util.logging.StreamHandler;
 import java.util.logging.XMLFormatter;
 
 /**
@@ -20,13 +24,33 @@ public class Main {
 
     public static void main(final String[] args) throws IOException {
         // init logging
+        LogManager.getLogManager().reset();
         final Level lvl = Level.WARNING;
         final Logger l = Logger.getGlobal();
-        final Handler h = new FileHandler("errorLog.log", true);
+
+        Handler h = new FileHandler("errorLog.log", true);
         h.setFormatter(new XMLFormatter());
         h.setLevel(lvl);
         l.addHandler(h);
 
+        h = new HandlerOut();
+        h.setLevel(Level.ALL);
+        l.addHandler(h);
+
         PerformanceTest.computeImageFillTest();
+    }
+
+    private static class HandlerOut extends StreamHandler {
+
+        public HandlerOut() {
+            super(System.out, new SimpleFormatter());            
+        }
+        
+        @Override
+        public void publish(LogRecord record) {
+            super.publish(record);
+            flush();
+        }
+
     }
 }

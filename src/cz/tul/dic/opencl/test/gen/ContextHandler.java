@@ -22,6 +22,7 @@ import java.util.logging.Logger;
  */
 public class ContextHandler {
 
+    private static final Logger log = Logger.getGlobal();
     private static final String CL_EXTENSION = ".cl";
     private static final int MAX_RESET_COUNT_IN_TIME = 3;
     private static final long RESET_TIME = 60000;
@@ -95,7 +96,7 @@ public class ContextHandler {
             if (time > 0) {
                 synchronized (this) {
                     try {
-                        System.out.println("Waiting " + time + "ms before another computation.");
+                        log.log(Level.WARNING, "Waiting {0}ms before another computation.", time);
                         this.wait(time);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(ContextHandler.class.getName()).log(Level.SEVERE, null, ex);
@@ -168,7 +169,7 @@ public class ContextHandler {
         
         context = CLContext.create(device);
         context.addCLErrorHandler(errorHandler);
-        System.out.println("Using " + device + " on " + context);
+        log.log(Level.INFO, "Using {0} on {1}", new Object[]{device, context});
 
         assignScenario(scenario);
     }
