@@ -49,7 +49,7 @@ kernel void CL1DImageLpF_LWS(
     const int baseIndexDeformation = deformationId * 6;        
     // load facet to local memory    
     local int facetLocal[-1*-1*2];    
-    if (groupSize >= deformationCount) {
+    if (groupSize >= facetCoordCount) {
         if (localId < facetCoordCount) {
             facetLocal[localId] = facets[baseIndexFacet + localId];
         }    
