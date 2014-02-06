@@ -40,7 +40,7 @@ kernel void CL2DImageMC(
     // index computation
     const int facetSize2 = facetSize * facetSize;
     const int facetCoordCount = facetSize2 * 2;    
-    const int baseIndexFacet = facetId * facetCoordCount; 
+    const int baseIndex = facetId * 2;
     const int baseIndexFacetCenter = facetId * 2;
     const int baseIndexDeformation = deformationId * 6;
     // deform facet
@@ -48,7 +48,7 @@ kernel void CL2DImageMC(
     int index, i2, dx, dy, x, y;    
     for (int i = 0; i < facetSize2; i++) {        
         i2 = i*2;
-        index = baseIndexFacet + i2;
+        index = i2*facetCount + baseIndex;
         
         x = facets[index];
         y = facets[index+1];
@@ -66,7 +66,7 @@ kernel void CL2DImageMC(
     float meanG = 0; 
     for (int i = 0; i < facetSize2; i++) {
         i2 = i*2;        
-        index = baseIndexFacet + i2;
+        index = i2*facetCount + baseIndex;
         // facet is just array of int coords        
         facetI[i] = read_imageui(imageA, sampler, (int2)(facets[index], facets[index + 1])).x;
         meanF += facetI[i];
