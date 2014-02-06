@@ -7,6 +7,7 @@ package cz.tul.dic.opencl;
 
 import java.io.IOException;
 import java.util.logging.FileHandler;
+import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -43,7 +44,15 @@ public class Main {
     private static class HandlerOut extends StreamHandler {
 
         public HandlerOut() {
-            super(System.out, new SimpleFormatter());            
+            super(System.out, new SimpleFormatter());    
+            setFormatter(new Formatter() {
+
+                @Override
+                public String format(LogRecord record) {
+                    
+                    return formatMessage(record).concat("\n");
+                }
+            });
         }
         
         @Override
