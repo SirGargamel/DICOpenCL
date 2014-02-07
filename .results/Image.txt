@@ -1,2 +1,0 @@
-- nelze pouzivat primo bilinarni (ci jinou) interpolaci - limitace OpenCL
-

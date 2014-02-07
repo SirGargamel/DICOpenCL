@@ -1,7 +1,0 @@
-pristup k datum neni uniformni (deformovany facet muze byt hodne rozlezly)
-
--- Konstantni parametry
--kdyz se prekroci velikost ookalni pameti, vypocet nelze spustit
-
--- Lokalni pamet
--pro 2D kernel to nema absolutne smysl - od vypoctu prumerne hodnoty dale se vypocet nesmirne komplikuje a nic se neziskava, protoze se pracuje s lokalni pameti
