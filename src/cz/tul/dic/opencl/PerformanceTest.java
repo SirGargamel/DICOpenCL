@@ -12,6 +12,7 @@ import cz.tul.dic.opencl.test.gen.data.TestCase;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import cz.tul.dic.opencl.test.gen.scenario.comb.CL1DImage_LL_MC;
+import cz.tul.dic.opencl.test.gen.scenario.comb.CL1DImage_LL_MC_V;
 import cz.tul.dic.opencl.test.gen.scenario.comb.CL1DImage_LL_V;
 import cz.tul.dic.opencl.test.gen.scenario.comb.CL2DImage_MC_V;
 import cz.tul.dic.opencl.test.gen.scenario.d1.CL1DIntPerDeformationSingle;
@@ -225,6 +226,7 @@ public class PerformanceTest {
         scenarios.add(new CL2DImage_MC_V(contextHandler));    // Combined optimizations
         scenarios.add(new CL1DImage_LL_V(contextHandler));
         scenarios.add(new CL1DImage_LL_MC(contextHandler));
+        scenarios.add(new CL1DImage_LL_MC_V(contextHandler));
 
         return scenarios;
     }
