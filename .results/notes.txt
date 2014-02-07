@@ -1,1 +1,3 @@
 - Intel ma daleko agresivnejsi ovladace co se dodrzovani standartu tyce (to, co lze prelozit na GeForce nemusi nutne jit na Intel)
+
+- lokalni pamet je nevyhodna pro maly pocet deformaci - kopirovani se deje nanekolikrat a to nedela dobre
