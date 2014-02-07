@@ -26,12 +26,12 @@ import java.nio.IntBuffer;
  *
  * @author Petr Jecmen
  */
-public final class CL1DImageLpF_MC extends ScenarioOpenCL {
+public final class CL1DImage_LL_MC extends ScenarioOpenCL {
 
     private final int maxVariantCount, lws0base, lws0base2;
     private int currentVariant;
 
-    public CL1DImageLpF_MC(final ContextHandler contextHandler) throws IOException {
+    public CL1DImage_LL_MC(final ContextHandler contextHandler) throws IOException {
         super(contextHandler);
         contextHandler.assignScenario(this);
 

@@ -11,13 +11,13 @@ import cz.tul.dic.opencl.test.gen.Utils;
 import cz.tul.dic.opencl.test.gen.data.TestCase;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
-import cz.tul.dic.opencl.test.gen.scenario.comb.CL1DImageLpF_MC;
-import cz.tul.dic.opencl.test.gen.scenario.comb.CL1DImageLpF_V;
+import cz.tul.dic.opencl.test.gen.scenario.comb.CL1DImage_LL_MC;
+import cz.tul.dic.opencl.test.gen.scenario.comb.CL1DImage_LL_V;
 import cz.tul.dic.opencl.test.gen.scenario.comb.CL2DImage_MC_V;
 import cz.tul.dic.opencl.test.gen.scenario.d1.CL1DIntPerDeformationSingle;
 import cz.tul.dic.opencl.test.gen.scenario.d1.CL1DIntPerFacetSingle;
-import cz.tul.dic.opencl.test.gen.scenario.d1.opt.CL1DImageLpF;
-import cz.tul.dic.opencl.test.gen.scenario.d1.opt.CL1DImageLpF_LWS;
+import cz.tul.dic.opencl.test.gen.scenario.d1.opt.CL1DImageL;
+import cz.tul.dic.opencl.test.gen.scenario.d1.opt.CL1DImageLL;
 import cz.tul.dic.opencl.test.gen.scenario.d15.CL15DIntPerDeformation;
 import cz.tul.dic.opencl.test.gen.scenario.d15.CL15DIntPerFacet;
 import cz.tul.dic.opencl.test.gen.scenario.d2.CL2DImage;
@@ -219,12 +219,12 @@ public class PerformanceTest {
         scenarios.add(new CL2DImageMC(contextHandler));
         scenarios.add(new CL2DImageV(contextHandler));
         scenarios.add(new CL2DImageC(contextHandler));
-        scenarios.add(new CL1DImageLpF(contextHandler));
-        scenarios.add(new CL1DImageLpF_LWS(contextHandler));
+        scenarios.add(new CL1DImageL(contextHandler));
+        scenarios.add(new CL1DImageLL(contextHandler));
         
         scenarios.add(new CL2DImage_MC_V(contextHandler));    // Combined optimizations
-        scenarios.add(new CL1DImageLpF_V(contextHandler));
-        scenarios.add(new CL1DImageLpF_MC(contextHandler));
+        scenarios.add(new CL1DImage_LL_V(contextHandler));
+        scenarios.add(new CL1DImage_LL_MC(contextHandler));
 
         return scenarios;
     }

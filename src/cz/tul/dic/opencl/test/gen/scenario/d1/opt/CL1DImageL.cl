@@ -20,27 +20,22 @@ int interpolate(const float x, const float y, read_only image2d_t image) {
     return intensity;    
 }
 
-kernel void CL1DImageLpF_LWS(
+kernel void CL1DImageL(
     read_only image2d_t imageA, read_only image2d_t imageB, 
     global read_only int * facets, global read_only int * facetCenters,
     global read_only float * deformations,
     global write_only float * result,        
     const int imageWidth, const int deformationCount,
-    const int facetSize, const int facetCount,
-    const int groupCountPerFacet) 
+    const int facetSize, const int facetCount) 
 {        
     //// ID checks    
     // facet
-    const size_t groupId = get_group_id(0);
-    const size_t facetId = groupId / groupCountPerFacet;
+    const size_t facetId = get_group_id(0);   
     if (facetId >= facetCount) {
         return;
     }       
     // deformation    
-    const int groupSubId = groupId % groupCountPerFacet;
-    const size_t localId = get_local_id(0);
-    const size_t groupSize = get_local_size(0);
-    const int deformationId = groupSubId * groupSize + localId;    
+    const int deformationId = get_local_id(0);    
     // index computation
     const int facetSize2 = facetSize * facetSize;
     const int facetCoordCount = facetSize2 * 2;    
@@ -49,23 +44,9 @@ kernel void CL1DImageLpF_LWS(
     const int baseIndexDeformation = deformationId * 6;        
     // load facet to local memory    
     local int facetLocal[-1*-1*2];    
-    if (groupSize >= facetCoordCount) {
-        if (localId < facetCoordCount) {
-            facetLocal[localId] = facets[baseIndexFacet + localId];
-        }    
-    } else {
-        const int runCount = facetCoordCount / groupSize;
-        int index;
-        for (int i = 0; i < runCount; i++) {
-            index = i*groupSize + localId;
-            facetLocal[index] = facets[baseIndexFacet + index];
-        }
-        const int rest = facetCoordCount % groupSize;
-        if (localId < rest) {
-            index = groupSize * runCount + localId;
-            facetLocal[index] = facets[baseIndexFacet + index];
-        }
-    }        
+    if (deformationId < facetCoordCount) {
+        facetLocal[deformationId] = facets[baseIndexFacet + deformationId];  
+    }    
     barrier(CLK_LOCAL_MEM_FENCE);
     if (deformationId >= deformationCount) {
         return;

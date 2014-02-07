@@ -4,12 +4,12 @@ int computeIndex(const float x, const float y, const int width) {
 
 constant sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
 
-int interpolate(const float2 coords, read_only image2d_t image) {
-    const float ix = floor(coords.x);
-    const float dx = coords.x - ix;
+int interpolate(const float x, const float y, read_only image2d_t image) {
+    const float ix = floor(x);
+    const float dx = x - ix;
     
-    const float iy = floor(coords.y);
-    const float dy = coords.y - iy;
+    const float iy = floor(y);
+    const float dy = y - iy;
 
     float intensity = 0;    
     intensity += read_imageui(image, sampler, (float2)(ix, iy)).x * (1 - dx) * (1 - dy);
@@ -20,9 +20,9 @@ int interpolate(const float2 coords, read_only image2d_t image) {
     return intensity;    
 }
 
-kernel void CL1DImageLpF_V(
+kernel void CL1DImageLL(
     read_only image2d_t imageA, read_only image2d_t imageB, 
-    global read_only int2 * facets, global read_only int2 * facetCenters,
+    global read_only int * facets, global read_only int * facetCenters,
     global read_only float * deformations,
     global write_only float * result,        
     const int imageWidth, const int deformationCount,
@@ -42,23 +42,25 @@ kernel void CL1DImageLpF_V(
     const size_t groupSize = get_local_size(0);
     const int deformationId = groupSubId * groupSize + localId;    
     // index computation
-    const int facetSize2 = facetSize * facetSize;    
-    const int baseIndexFacet = facetId * facetSize2;     
+    const int facetSize2 = facetSize * facetSize;
+    const int facetCoordCount = facetSize2 * 2;    
+    const int baseIndexFacet = facetId * facetCoordCount; 
+    const int baseIndexFacetCenter = facetId * 2;
     const int baseIndexDeformation = deformationId * 6;        
     // load facet to local memory    
-    local int2 facetLocal[-1*-1];    
-    if (groupSize >= facetSize2) {
-        if (localId < facetSize2) {
+    local int facetLocal[-1*-1*2];    
+    if (groupSize >= facetCoordCount) {
+        if (localId < facetCoordCount) {
             facetLocal[localId] = facets[baseIndexFacet + localId];
         }    
     } else {
-        const int runCount = facetSize2 / groupSize;
+        const int runCount = facetCoordCount / groupSize;
         int index;
         for (int i = 0; i < runCount; i++) {
             index = i*groupSize + localId;
             facetLocal[index] = facets[baseIndexFacet + index];
         }
-        const int rest = facetSize2 % groupSize;
+        const int rest = facetCoordCount % groupSize;
         if (localId < rest) {
             index = groupSize * runCount + localId;
             facetLocal[index] = facets[baseIndexFacet + index];
@@ -69,29 +71,33 @@ kernel void CL1DImageLpF_V(
         return;
     }
     // deform facet
-    float2 deformedFacet[-1*-1*2];
-    int i2;
-    int2 coords, def;   
+    float deformedFacet[-1*-1*2];
+    int i2, x, y, dx, dy;    
     for (int i = 0; i < facetSize2; i++) {
-        coords = facetLocal[i];       
-
-        def = coords - facetCenters[facetId];
+        i2 = i*2;             
         
-        deformedFacet[i] = (float2)(
-            coords.x + deformations[baseIndexDeformation] + deformations[baseIndexDeformation + 2] * def.x + deformations[baseIndexDeformation + 4] * def.y, 
-            coords.y + deformations[baseIndexDeformation + 1] + deformations[baseIndexDeformation + 3] * def.x + deformations[baseIndexDeformation + 5] * def.y);
+        x = facetLocal[i2];
+        y = facetLocal[i2+1];
+
+        dx = x - facetCenters[baseIndexFacetCenter];
+        dy = y - facetCenters[baseIndexFacetCenter + 1];
+        
+        deformedFacet[i2] = x + deformations[baseIndexDeformation] + deformations[baseIndexDeformation + 2] * dx + deformations[baseIndexDeformation + 4] * dy;                    
+        deformedFacet[i2 + 1] = y + deformations[baseIndexDeformation + 1] + deformations[baseIndexDeformation + 3] * dx + deformations[baseIndexDeformation + 5] * dy; 
     }
     // compute correlation using ZNCC
     float deformedI[-1*-1];
     float facetI[-1*-1];
     float meanF = 0;
     float meanG = 0; 
-    for (int i = 0; i < facetSize2; i++) {                        
-        // facet is just array of int coords                
-        facetI[i] = read_imageui(imageA, sampler, facetLocal[i]).x;
+    for (int i = 0; i < facetSize2; i++) {
+        i2 = i*2;       
+                
+        // facet is just array of int coords        
+        facetI[i] = read_imageui(imageA, sampler, (int2)(facetLocal[i2], facetLocal[i2 + 1])).x;        
         meanF += facetI[i];
         
-        deformedI[i] = interpolate(deformedFacet[i], imageB);
+        deformedI[i] = interpolate(deformedFacet[i2], deformedFacet[i2+1], imageB);        
         meanG += deformedI[i];
     } 
     meanF /= (float) facetSize2;

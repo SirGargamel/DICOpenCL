@@ -1,4 +1,4 @@
-package cz.tul.dic.opencl.test.gen.scenario.d1.opt;
+package cz.tul.dic.opencl.test.gen.scenario.comb;
 
 import com.jogamp.common.nio.Buffers;
 import cz.tul.dic.opencl.test.gen.ContextHandler;
@@ -25,12 +25,12 @@ import java.nio.IntBuffer;
  *
  * @author Petr Jecmen
  */
-public final class CL1DImageLpF_LWS extends ScenarioOpenCL {
+public final class CL1DImage_LL_V extends ScenarioOpenCL {
 
     private final int maxVariantCount, lws0base, lws0base2;
     private int currentVariant;
 
-    public CL1DImageLpF_LWS(final ContextHandler contextHandler) throws IOException {
+    public CL1DImage_LL_V(final ContextHandler contextHandler) throws IOException {
         super(contextHandler);
         contextHandler.assignScenario(this);
 
