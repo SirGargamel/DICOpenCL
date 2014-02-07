@@ -11,6 +11,7 @@ import cz.tul.dic.opencl.test.gen.Utils;
 import cz.tul.dic.opencl.test.gen.data.TestCase;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
+import cz.tul.dic.opencl.test.gen.scenario.comb.CL1DImageLpF_MC;
 import cz.tul.dic.opencl.test.gen.scenario.comb.CL1DImageLpF_V;
 import cz.tul.dic.opencl.test.gen.scenario.comb.CL2DImage_MC_V;
 import cz.tul.dic.opencl.test.gen.scenario.d1.CL1DIntPerDeformationSingle;
@@ -52,7 +53,7 @@ public class PerformanceTest {
 //    private static final int[] FACET_SIZES = new int[]{51, 35, 21, 9};
 //  Large task
 //    private static final int[][] IMAGE_SIZES = new int[][]{{128, 96}, {384, 256}, {768, 576}};
-//    private static final int[] DEFORMATION_COUNTS = new int[]{100, 400, 100};
+//    private static final int[] DEFORMATION_COUNTS = new int[]{100, 400, 1000};
 //    private static final int[] FACET_SIZES = new int[]{51, 21, 9};
 //  Medium task
 //    private static final int[][] IMAGE_SIZES = new int[][]{{128, 96}, {384, 256}};
@@ -202,27 +203,28 @@ public class PerformanceTest {
     private static List<Scenario> prepareScenarios(final ContextHandler contextHandler) throws IOException {
         final List<Scenario> scenarios = new LinkedList<>();
 
-        // Java threads computation
-        scenarios.add(new JavaPerFacet());
+        
+        scenarios.add(new JavaPerFacet());    // Java threads computation
         scenarios.add(new JavaPerDeformation());
-        // OpenCL computation
-        scenarios.add(new CL1DIntPerFacetSingle(contextHandler));
+        
+        scenarios.add(new CL1DIntPerFacetSingle(contextHandler)); // OpenCL computation
         scenarios.add(new CL1DIntPerDeformationSingle(contextHandler));
         scenarios.add(new CL15DIntPerFacet(contextHandler));
         scenarios.add(new CL15DIntPerDeformation(contextHandler));
         scenarios.add(new CL2DInt("CL2DInt", contextHandler));
         scenarios.add(new CL2DInt("CL2DIntOpt", contextHandler));
         scenarios.add(new CL2DImage(contextHandler));
-        // optimizations
-        scenarios.add(new CL2DImageFtoA(contextHandler));
+        
+        scenarios.add(new CL2DImageFtoA(contextHandler)); // Optimizations
         scenarios.add(new CL2DImageMC(contextHandler));
         scenarios.add(new CL2DImageV(contextHandler));
         scenarios.add(new CL2DImageC(contextHandler));
         scenarios.add(new CL1DImageLpF(contextHandler));
         scenarios.add(new CL1DImageLpF_LWS(contextHandler));
-        // combined optimizations
-        scenarios.add(new CL2DImage_MC_V(contextHandler));
+        
+        scenarios.add(new CL2DImage_MC_V(contextHandler));    // Combined optimizations
         scenarios.add(new CL1DImageLpF_V(contextHandler));
+        scenarios.add(new CL1DImageLpF_MC(contextHandler));
 
         return scenarios;
     }
