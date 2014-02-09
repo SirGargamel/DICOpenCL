@@ -11,6 +11,7 @@ public class ScenarioResult {
     private long totalTime;
     private State state;
     private int resultGroup;
+    private double maxDifference;
 
     public ScenarioResult(final long totalTime, final boolean exceptionOccured) {
         if (exceptionOccured) {
@@ -20,6 +21,7 @@ public class ScenarioResult {
         }
         this.totalTime = totalTime;
         this.kernelExecutionTime = -1;
+        maxDifference = 0;
     }
 
     public ScenarioResult(float[] resultData, long kernelExecutionTime) {
@@ -71,6 +73,14 @@ public class ScenarioResult {
 
     public void setResultGroup(int resultGroup) {
         this.resultGroup = resultGroup;
+    }
+
+    public double getMaxDifference() {
+        return maxDifference;
+    }
+
+    public void setMaxDifference(double maxDifference) {
+        this.maxDifference = maxDifference;
     }
 
     public static enum State {

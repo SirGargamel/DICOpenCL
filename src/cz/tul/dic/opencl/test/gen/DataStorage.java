@@ -23,6 +23,7 @@ import java.util.logging.Logger;
  */
 public class DataStorage {
 
+    private static final int CORRECT_RESULT_POS = 0;
     private static final int ILLEGAL_RESULT = 0;
     private static final File runningOut = new File("D:\\DIC_OpenCL_Data_running.csv");
     private static final String DELIMITER_VALUE = ",";
@@ -56,7 +57,7 @@ public class DataStorage {
 
     public static void storeData(final ParameterSet params, final ScenarioResult result) {
         data.put(params, result);
-        
+
         if (State.WRONG_RESULT_FIXED.equals(result.getState())) {
             result.setResultGroup(ILLEGAL_RESULT);
         } else {
@@ -98,7 +99,7 @@ public class DataStorage {
             resultIndex = 1;
         } else {
             float[] res;
-            boolean same;
+            float dif;
             for (int i = 0; i < results.size(); i++) {
                 res = results.get(i);
 
@@ -106,19 +107,14 @@ public class DataStorage {
                     continue;
                 }
 
-                same = true;
-                for (int j = 0; j < coeffs.length; j++) {
-                    if (!CustomMath.areEqual(coeffs[j], res[j], Utils.EPS_NORMAL)) {
-                        same = false;
-                        break;
-                    }
-                }
-
-                if (same) {
+                dif = CustomMath.maxDifferece(coeffs, res);
+                if (dif < Utils.EPS_NORMAL) {
                     resultIndex = -(i + 1);
                     break;
                 }
             }
+
+            result.setMaxDifference(CustomMath.maxDifferece(coeffs, results.get(CORRECT_RESULT_POS)));
 
             if (resultIndex == ILLEGAL_RESULT) {
                 results.add(coeffs);
