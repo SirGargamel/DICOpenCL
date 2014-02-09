@@ -27,24 +27,37 @@ import java.nio.IntBuffer;
  */
 public final class CL1DImage_LL_V extends ScenarioOpenCL {
 
-    private final int maxVariantCount, lws0base, lws0base2;
+    private int maxVariantCount, lws0base, lws0base2;
     private int currentVariant;
+    private boolean inited;
 
     public CL1DImage_LL_V(final ContextHandler contextHandler) throws IOException {
         super(contextHandler);
-        contextHandler.assignScenario(this);
 
-        final IntBuffer val = Buffers.newDirectIntBuffer(2);
-        final CLContext context = contextHandler.getContext();
-        final CL cl = context.getCL();
-        cl.clGetKernelWorkGroupInfo(contextHandler.getKernel().ID, contextHandler.getDevice().ID, CLKernelBinding.CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, Integer.SIZE, val, null);
-        lws0base = val.get(0);
-        lws0base2 = CustomMath.power2(lws0base);
-
-        final int max = contextHandler.getDevice().getMaxWorkGroupSize();
-        maxVariantCount = CustomMath.power2(max / lws0base) + 1;
+        inited = false;
 
         resetInner();
+    }
+
+    @Override
+    public void prepare(ParameterSet ps) {
+        super.prepare(ps);
+
+        if (!inited) {
+            contextHandler.assignScenario(this);
+
+            final IntBuffer val = Buffers.newDirectIntBuffer(2);
+            final CLContext context = contextHandler.getContext();
+            final CL cl = context.getCL();
+            cl.clGetKernelWorkGroupInfo(contextHandler.getKernel().getID(), contextHandler.getDevice().getID(), CLKernelBinding.CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, Integer.SIZE, val, null);
+            lws0base = val.get(0);
+            lws0base2 = CustomMath.power2(lws0base);
+
+            final int max = contextHandler.getDevice().getMaxWorkGroupSize();
+            maxVariantCount = CustomMath.power2(max / lws0base) + 1;
+            
+            inited = true;
+        }
     }
 
     @Override
