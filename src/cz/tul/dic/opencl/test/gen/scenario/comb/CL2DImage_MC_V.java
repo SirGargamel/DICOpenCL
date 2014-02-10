@@ -48,8 +48,8 @@ public class CL2DImage_MC_V extends Scenario2D {
         final int facetArraySize = Utils.calculateFacetArraySize(facetSize);
         final IntBuffer facetDataBuffer = bufferFacetData.getBuffer();
         int index;
-        for (int f = 0; f < facetCount; f++) {
-            for (int i = 0; i < facetArea; i++) {
+        for (int i = 0; i < facetArea; i++) {
+            for (int f = 0; f < facetCount; f++) {
                 index = f * facetArraySize + 2 * i;
                 facetDataBuffer.put(facetData[index]);
                 facetDataBuffer.put(facetData[index + 1]);
