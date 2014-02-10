@@ -39,7 +39,7 @@ kernel void CL2DImage_MC_V(
     }
     // index computation
     const int facetSize2 = facetSize * facetSize;  
-    const int baseIndex = facetId * 2;
+    const int baseIndex = facetId;
     const int baseIndexDeformation = deformationId * 6;
     // deform facet
     float2 deformedFacet[-1*-1];

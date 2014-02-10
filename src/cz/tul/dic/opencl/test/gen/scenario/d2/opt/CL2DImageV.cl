@@ -47,7 +47,7 @@ kernel void CL2DImageV(
     int2 coords, def;
     for (int i = 0; i < facetSize2; i++) {        
         i2 = i*2;
-        indexFacet = baseIndexFacet + i2;
+        indexFacet = baseIndexFacet + i;
         
         coords = facets[indexFacet];       
         
@@ -64,7 +64,7 @@ kernel void CL2DImageV(
     float meanG = 0; 
     for (int i = 0; i < facetSize2; i++) {
         i2 = i*2;
-        indexFacet = baseIndexFacet + i2;
+        indexFacet = baseIndexFacet + i;
                 
         // facet is just array of int coords        
         facetI[i] = read_imageui(imageA, sampler, facets[indexFacet]).x;
