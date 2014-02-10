@@ -44,41 +44,9 @@ import java.util.logging.Logger;
 public class PerformanceTest {
 
     private static final Logger log = Logger.getGlobal();
-//  Devices for computation
-    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU};
-//    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.CPU, ContextHandler.DeviceType.iGPU};
-//    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU, ContextHandler.DeviceType.iGPU, ContextHandler.DeviceType.CPU};
-//  Full task
-//    private static final int[][] IMAGE_SIZES = new int[][]{{128, 96}, {384, 256}, {768, 576}, {1280, 960}};
-//    private static final int[] DEFORMATION_COUNTS = new int[]{100, 200, 500, 1000};
-//    private static final int[] FACET_SIZES = new int[]{51, 35, 21, 9};
-//  Large task
-//    private static final int[][] IMAGE_SIZES = new int[][]{{128, 96}, {384, 256}, {768, 576}};
-//    private static final int[] DEFORMATION_COUNTS = new int[]{100, 400, 1000};
-//    private static final int[] FACET_SIZES = new int[]{51, 21, 9};
-//  Medium task
-//    private static final int[][] IMAGE_SIZES = new int[][]{{128, 96}, {384, 256}};
-//    private static final int[] DEFORMATION_COUNTS = new int[]{100, 400};
-//    private static final int[] FACET_SIZES = new int[]{35, 9};
-//  Small task
-    private static final int[][] IMAGE_SIZES = new int[][]{{128, 96}};
-    private static final int[] DEFORMATION_COUNTS = new int[]{100};
-    private static final int[] FACET_SIZES = new int[]{21};
-//  Real task 1st order
-//    private static final int[][] IMAGE_SIZES = new int[][]{{44, 240}, {110, 712}};
-//    private static final int[] DEFORMATION_COUNTS = new int[]{500, 1000};
-//    private static final int[] FACET_SIZES = new int[]{5, 11, 21};
-//  Real task 0 order
-//    private static final int[][] IMAGE_SIZES = new int[][]{{52, 52}, {143,143}};
-//    private static final int[] DEFORMATION_COUNTS = new int[]{200};
-//    private static final int[] FACET_SIZES = new int[]{17, 25};
-//  Generic task
-//    private static final int[][] IMAGE_SIZES = new int[][]{{512, 384}};
-//    private static final int[] DEFORMATION_COUNTS = new int[]{1000};
-//    private static final int[] FACET_SIZES = new int[]{15};
 
     public static void computeImageFillTest() throws IOException {
-        for (ContextHandler.DeviceType device : HW) {
+        for (ContextHandler.DeviceType device : Constants.HW) {
             CLPlatform.initialize();
             DataStorage.reset();
             final ContextHandler ch = new ContextHandler(device);
@@ -89,9 +57,9 @@ public class PerformanceTest {
 
             final List<TestCase> testCases = prepareTestCases();
             int lineCount = 1;
-            lineCount *= IMAGE_SIZES.length;
-            lineCount *= FACET_SIZES.length;
-            lineCount *= DEFORMATION_COUNTS.length;
+            lineCount *= Constants.IMAGE_SIZES.length;
+            lineCount *= Constants.FACET_SIZES.length;
+            lineCount *= Constants.DEFORMATION_COUNTS.length;
             DataStorage.setCounts(lineCount, testCases.size());
 
             int[][] images;
@@ -108,16 +76,16 @@ public class PerformanceTest {
                 for (int tci = 0; tci < testCases.size(); tci++) {
                     tc = testCases.get(tci);
 
-                    for (int[] dim : IMAGE_SIZES) {
+                    for (int[] dim : Constants.IMAGE_SIZES) {
                         images = tc.generateImages(dim[0], dim[1]);
 
-                        for (int sz = 0; sz < FACET_SIZES.length; sz++) {
-                            s = FACET_SIZES[sz];
+                        for (int sz = 0; sz < Constants.FACET_SIZES.length; sz++) {
+                            s = Constants.FACET_SIZES[sz];
 
                             facetCenters = tc.generateFacetCenters(dim[0], dim[1], s);
                             facetData = tc.generateFacetData(facetCenters, s);
 
-                            for (int d : DEFORMATION_COUNTS) {
+                            for (int d : Constants.DEFORMATION_COUNTS) {
                                 deformations = tc.generateDeformations(d);
 
                                 for (int sci = 0; sci < scenarios.size(); sci++) {
