@@ -45,9 +45,9 @@ public class PerformanceTest {
 
     private static final Logger log = Logger.getGlobal();
 //  Devices for computation
-//    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU};
+    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU};
 //    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.CPU, ContextHandler.DeviceType.iGPU};
-    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU, ContextHandler.DeviceType.iGPU, ContextHandler.DeviceType.CPU};
+//    private static final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU, ContextHandler.DeviceType.iGPU, ContextHandler.DeviceType.CPU};
 //  Full task
 //    private static final int[][] IMAGE_SIZES = new int[][]{{128, 96}, {384, 256}, {768, 576}, {1280, 960}};
 //    private static final int[] DEFORMATION_COUNTS = new int[]{100, 200, 500, 1000};
@@ -61,13 +61,13 @@ public class PerformanceTest {
 //    private static final int[] DEFORMATION_COUNTS = new int[]{100, 400};
 //    private static final int[] FACET_SIZES = new int[]{35, 9};
 //  Small task
-//    private static final int[][] IMAGE_SIZES = new int[][]{{128, 96}};
-//    private static final int[] DEFORMATION_COUNTS = new int[]{100};
-//    private static final int[] FACET_SIZES = new int[]{21};
+    private static final int[][] IMAGE_SIZES = new int[][]{{128, 96}};
+    private static final int[] DEFORMATION_COUNTS = new int[]{100};
+    private static final int[] FACET_SIZES = new int[]{21};
 //  Real task 1st order
-    private static final int[][] IMAGE_SIZES = new int[][]{{44, 240}, {110, 712}};
-    private static final int[] DEFORMATION_COUNTS = new int[]{500, 1000};
-    private static final int[] FACET_SIZES = new int[]{5, 11, 21};
+//    private static final int[][] IMAGE_SIZES = new int[][]{{44, 240}, {110, 712}};
+//    private static final int[] DEFORMATION_COUNTS = new int[]{500, 1000};
+//    private static final int[] FACET_SIZES = new int[]{5, 11, 21};
 //  Real task 0 order
 //    private static final int[][] IMAGE_SIZES = new int[][]{{52, 52}, {143,143}};
 //    private static final int[] DEFORMATION_COUNTS = new int[]{200};
@@ -150,8 +150,10 @@ public class PerformanceTest {
                                         } catch (Exception | Error ex) {
                                             result = new ScenarioResult(-1, true);
                                             log.log(Level.SEVERE, "Error - " + ex.getLocalizedMessage(), ex);
-                                        }
+                                        }                                        
 
+                                        DataStorage.storeData(ps, result);
+                                        
                                         switch (result.getState()) {
                                             case SUCCESS:
                                                 log.log(Level.INFO, "Finished {0} {1}ms ({2} ms in kernel) with params {3}, dif = {4}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps, result.getMaxDifference()});
@@ -169,8 +171,6 @@ public class PerformanceTest {
                                             case INVALID_PARAMS:
                                                 log.log(Level.INFO, "Invalid params for {0} - {1}", new Object[]{sc.getKernelName(), ps});
                                         }
-
-                                        DataStorage.storeData(ps, result);
                                     }
                                 }
                             }
