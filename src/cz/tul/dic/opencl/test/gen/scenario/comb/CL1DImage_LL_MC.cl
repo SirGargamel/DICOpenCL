@@ -52,7 +52,7 @@ kernel void CL1DImage_LL_MC(
     int index;
     if (groupSize >= facetSize2) {
         if (localId < facetSize2) {
-            index = localId*facetCount + baseIndex;
+            index = localId*facetCount*2 + baseIndex;
             
             facetLocal[2*localId] = facets[index];
             facetLocal[2*localId+1] = facets[index+1];
@@ -62,14 +62,14 @@ kernel void CL1DImage_LL_MC(
         int id;
         for (int i = 0; i < runCount; i++) {
             id = i*groupSize + localId;
-            index = id*facetCount + baseIndex;
+            index = id*facetCount*2 + baseIndex;
             facetLocal[2*id] = facets[index];
             facetLocal[2*id+1] = facets[index+1];
         }
         const int rest = facetSize2 % groupSize;
         if (localId < rest) {
             id = groupSize * runCount + localId;
-            index = id*facetCount + baseIndex;
+            index = id*facetCount*2 + baseIndex;
             facetLocal[2*id] = facets[index];
             facetLocal[2*id+1] = facets[index+1];
         }
