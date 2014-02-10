@@ -10,7 +10,6 @@ import com.jogamp.opencl.CLImage2d;
 import com.jogamp.opencl.CLKernel;
 import static com.jogamp.opencl.CLMemory.Mem.READ_ONLY;
 import static com.jogamp.opencl.CLMemory.Mem.WRITE_ONLY;
-import cz.tul.dic.opencl.test.gen.CustomMath;
 import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
 import cz.tul.dic.opencl.test.gen.Utils;
@@ -50,17 +49,7 @@ public final class CL1DImageL extends ScenarioOpenCL {
             final ParameterSet params) throws CLException {
         final int facetSize = params.getValue(Parameter.FACET_SIZE);
         final int facetCount = params.getValue(Parameter.FACET_COUNT);
-        final int deformationCount = params.getValue(Parameter.DEFORMATION_COUNT);
-        // prepare work sizes
-        final int lws0 = (int) Math.pow(2, CustomMath.power2(deformationCount));
-        final int facetGlobalWorkSize = facetCount * lws0;
-        params.addParameter(Parameter.LWS0, lws0);
-        params.addParameter(Parameter.LWS1, 1);
-        final int maxWorkSize = contextHandler.getDevice().getMaxWorkGroupSize();
-        final int facetCoordCount = Utils.calculateFacetArraySize(facetSize);
-        if (maxWorkSize < facetCoordCount) {
-            return null;
-        }
+        final int deformationCount = params.getValue(Parameter.DEFORMATION_COUNT);        
         // prepare buffers        
         final CLImage2d<IntBuffer> imageAcl = createImage(imageA, params.getValue(Parameter.IMAGE_WIDTH));
         final CLImage2d<IntBuffer> imageBcl = createImage(imageB, params.getValue(Parameter.IMAGE_WIDTH));
@@ -71,6 +60,23 @@ public final class CL1DImageL extends ScenarioOpenCL {
         final CLBuffer<FloatBuffer> bufferResult = createFloatBuffer(facetCount * params.getValue(Parameter.DEFORMATION_COUNT), WRITE_ONLY);
         long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
         params.addParameter(Parameter.DATASIZE, (int) (clSize / 1000));
+        // prepare work sizes
+        final int facetCoordCount = Utils.calculateFacetArraySize(facetSize);
+        final int maxWorkSize = contextHandler.getDevice().getMaxWorkGroupSize();        
+        if (maxWorkSize < facetCoordCount) {
+            return null;
+        }
+        
+        final int lws0;
+        if (facetCoordCount < deformationCount) {
+            lws0 = deformationCount;
+        } else {
+            lws0 = facetCoordCount;
+        }
+        final int facetGlobalWorkSize = facetCount * lws0;
+        params.addParameter(Parameter.LWS0, lws0);
+        params.addParameter(Parameter.LWS1, 1);
+        
         // prepare kernel arguments
         final CLKernel kernel = contextHandler.getKernel();
         kernel.putArgs(imageAcl, imageBcl, bufferFacetData, bufferFacetCenters, bufferDeformations, bufferResult)
