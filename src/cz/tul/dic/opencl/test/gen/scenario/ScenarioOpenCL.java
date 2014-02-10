@@ -77,11 +77,11 @@ public abstract class ScenarioOpenCL extends Scenario {
 
     @Override
     public void reset() {
+        super.reset();
+        
         if (contextHandler != null) {
             contextHandler.assignScenario(this);
-        }
-
-        resetInner();
+        }        
     }
 
     protected void fillBuffer(final IntBuffer buffer, final int[] data) {

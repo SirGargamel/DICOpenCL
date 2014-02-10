@@ -135,6 +135,7 @@ public final class CL1DImageLL extends ScenarioOpenCL {
     @Override
     protected void resetInner() {
         currentVariant = 0;
+        inited = false;
     }
 
     @Override
