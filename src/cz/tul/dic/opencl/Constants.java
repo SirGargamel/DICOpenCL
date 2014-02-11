@@ -7,7 +7,10 @@ import cz.tul.dic.opencl.test.gen.ContextHandler;
  * @author Petr Jecmen
  */
 public interface Constants {
-    
+
+    public static final float EPS_PRECISE = 0.01F;
+    public static final float EPS_NORMAL = 0.05F;
+
     //  Devices for computation
 //    public final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU};
 //    public final ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.CPU, ContextHandler.DeviceType.iGPU};
@@ -40,5 +43,5 @@ public interface Constants {
 //    public final int[][] IMAGE_SIZES = new int[][]{{512, 384}};
 //    public final int[] DEFORMATION_COUNTS = new int[]{1000};
 //    public final int[] FACET_SIZES = new int[]{15};
-    
+
 }

@@ -1,5 +1,6 @@
 package cz.tul.dic.opencl.test.gen;
 
+import cz.tul.dic.opencl.Constants;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult.State;
 import java.io.BufferedWriter;
@@ -108,7 +109,7 @@ public class DataStorage {
                 }
 
                 dif = CustomMath.maxDifferece(coeffs, res);
-                if (dif < Utils.EPS_NORMAL) {
+                if (dif < Constants.EPS_NORMAL) {
                     resultIndex = -(i + 1);
                     break;
                 }
