@@ -24,7 +24,7 @@ import java.util.List;
  */
 public abstract class ScenarioOpenCL extends Scenario {
 
-    private static final CLImageFormat IMAGE_FORMAT = new CLImageFormat(CLImageFormat.ChannelOrder.RGBA, CLImageFormat.ChannelType.SIGNED_INT8);
+    private static final CLImageFormat IMAGE_FORMAT = new CLImageFormat(CLImageFormat.ChannelOrder.RGBA, CLImageFormat.ChannelType.UNSIGNED_INT8);
     protected final ContextHandler contextHandler;
     protected final List<CLResource> memoryObjects;
     protected CLEventList eventList;
@@ -78,10 +78,10 @@ public abstract class ScenarioOpenCL extends Scenario {
     @Override
     public void reset() {
         super.reset();
-        
+
         if (contextHandler != null) {
             contextHandler.assignScenario(this);
-        }        
+        }
     }
 
     protected void fillBuffer(final IntBuffer buffer, final int[] data) {
