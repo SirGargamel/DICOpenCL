@@ -1,5 +1,6 @@
 package cz.tul.dic.opencl.test.gen.data;
 
+import cz.tul.dic.opencl.Constants;
 import cz.tul.dic.opencl.test.gen.CustomMath;
 import cz.tul.dic.opencl.test.gen.Utils;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
@@ -19,7 +20,7 @@ public class TestCase {
         int val;
         for (int j = 0; j < length; j++) {
             val = rnd.nextInt(256);
-            result[j] = val + (val << 8) + (val << 16) + (val << 24);
+            result[j] = val;
         }
 
         return new int[][]{result, result};
@@ -119,7 +120,7 @@ public class TestCase {
         } else {
             int oneCount = 0;
             for (int i = 0; i < coeffs.length; i++) {
-                if (CustomMath.areEqual(coeffs[i], 1.0f, Utils.EPS_PRECISE)) {
+                if (CustomMath.areEqual(coeffs[i], 1.0f, Constants.EPS_PRECISE)) {
                     oneCount++;
                 }
             }
