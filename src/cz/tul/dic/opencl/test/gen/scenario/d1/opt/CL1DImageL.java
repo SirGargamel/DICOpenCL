@@ -74,8 +74,9 @@ public final class CL1DImageL extends ScenarioOpenCL {
             lws0 = facetCoordCount;
         }
         final int facetGlobalWorkSize = facetCount * lws0;
-        params.addParameter(Parameter.LWS0, lws0);
+        params.addParameter(Parameter.LWS0, 1);
         params.addParameter(Parameter.LWS1, 1);
+        params.addParameter(Parameter.LWS_SUB, lws0);
         
         // prepare kernel arguments
         final CLKernel kernel = contextHandler.getKernel();
