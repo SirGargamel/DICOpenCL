@@ -9,7 +9,7 @@ import cz.tul.dic.opencl.test.gen.WorkSizeManager;
 import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
 import cz.tul.dic.opencl.test.gen.Utils;
-import cz.tul.dic.opencl.test.gen.data.TestCase;
+import cz.tul.dic.opencl.test.gen.testcase.TestCase;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import cz.tul.dic.opencl.test.gen.scenario.comb.CL1DImage_LL_MC;
