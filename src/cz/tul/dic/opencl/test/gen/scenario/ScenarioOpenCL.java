@@ -45,7 +45,7 @@ public abstract class ScenarioOpenCL extends Scenario {
     }
 
     @Override
-    public final ScenarioResult compute(
+    public ScenarioResult compute(
             final int[] imageA, final int[] imageB,
             final int[] facetData, final int[] facetCenters,
             final float[] deformations,
@@ -54,19 +54,29 @@ public abstract class ScenarioOpenCL extends Scenario {
         params.addParameter(Parameter.LWS1, 1);
 
         float[] result = prepareAndCompute(imageA, imageB, facetData, facetCenters, deformations, params);
+        
+        final long duration = computeTotalKernelTime();
+        
+        resourceCleanup();
+
+        return new ScenarioResult(result, duration);
+    }
+
+    protected long computeTotalKernelTime() {
         long duration = 0;
         for (CLEvent event : eventList) {
             duration += event.getProfilingInfo(CLEvent.ProfilingCommand.END) - event.getProfilingInfo(CLEvent.ProfilingCommand.START);
         }
+        return duration;
+    }
 
+    protected void resourceCleanup() {
         for (CLResource m : memoryObjects) {
             if (!m.isReleased()) {
                 m.release();
             }
         }
-        memoryObjects.clear();
-
-        return new ScenarioResult(result, duration);
+        memoryObjects.clear();        
     }
 
     protected abstract float[] prepareAndCompute(

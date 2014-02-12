@@ -14,6 +14,10 @@ public class ParameterSet implements Comparable<ParameterSet> {
 
     public ParameterSet() {
         parameters = new EnumMap<>(Parameter.class);
+        
+        for (Parameter p : Parameter.values()) {
+            parameters.put(p, 1);
+        }
     }
 
     public void addParameter(final Parameter param, final int value) {

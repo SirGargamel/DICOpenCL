@@ -5,6 +5,7 @@ import com.jogamp.opencl.CLException;
 import com.jogamp.opencl.CLPlatform;
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import cz.tul.dic.opencl.test.gen.DataStorage;
+import cz.tul.dic.opencl.test.gen.WorkSizeManager;
 import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
 import cz.tul.dic.opencl.test.gen.Utils;
@@ -27,6 +28,7 @@ import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageC;
 import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageFtoA;
 import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageMC;
 import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageV;
+import cz.tul.dic.opencl.test.gen.scenario.driven.CL2D_I_Dr;
 import cz.tul.dic.opencl.test.gen.scenario.java.JavaPerDeformation;
 import cz.tul.dic.opencl.test.gen.scenario.java.JavaPerFacet;
 import java.io.File;
@@ -50,17 +52,11 @@ public class PerformanceTest {
             CLPlatform.initialize();
             DataStorage.reset();
             final ContextHandler ch = new ContextHandler(device);
-            final List<Scenario> scenarios = prepareScenarios(ch);
-            for (Scenario sc : scenarios) {
-                DataStorage.addVariantCount(sc.getVariantCount());
-            }
-
+            final WorkSizeManager wsm = new WorkSizeManager();
+            final List<Scenario> scenarios = prepareScenarios(ch, wsm);
             final List<TestCase> testCases = prepareTestCases();
-            int lineCount = 1;
-            lineCount *= Constants.IMAGE_SIZES.length;
-            lineCount *= Constants.FACET_SIZES.length;
-            lineCount *= Constants.DEFORMATION_COUNTS.length;
-            DataStorage.setCounts(lineCount, testCases.size());
+
+            initializeDataStorage(scenarios, testCases.size());
 
             int[][] images;
             int[] facetData, facetCenters;
@@ -118,10 +114,10 @@ public class PerformanceTest {
                                         } catch (Exception | Error ex) {
                                             result = new ScenarioResult(-1, true);
                                             log.log(Level.SEVERE, "Error - " + ex.getLocalizedMessage(), ex);
-                                        }                                        
+                                        }
 
                                         DataStorage.storeData(ps, result);
-                                        
+
                                         switch (result.getState()) {
                                             case SUCCESS:
                                                 log.log(Level.INFO, "Finished {0} {1}ms ({2} ms in kernel) with params {3}, dif = {4}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps, result.getMaxDifference()});
@@ -154,10 +150,24 @@ public class PerformanceTest {
                     context.release();
                 }
             }
+
+            initializeDataStorage(scenarios, testCases.size());
             String fileName = "D:\\DIC_OpenCL_Data_" + device + ".csv";
             DataStorage.exportData(new File(fileName));
             DataStorage.exportResultGroups(new File("D:\\DIC_OpenCL_Results_" + device + ".csv"));
         }
+    }
+
+    private static void initializeDataStorage(final List<Scenario> scenarios, final int testCaseCount) {
+        DataStorage.clearVariantCounts();
+        for (Scenario sc : scenarios) {
+            DataStorage.addVariantCount(sc.getVariantCount());
+        }
+        int lineCount = 1;
+        lineCount *= Constants.IMAGE_SIZES.length;
+        lineCount *= Constants.FACET_SIZES.length;
+        lineCount *= Constants.DEFORMATION_COUNTS.length;
+        DataStorage.setCounts(lineCount, testCaseCount);
     }
 
     private static List<TestCase> prepareTestCases() {
@@ -169,7 +179,7 @@ public class PerformanceTest {
         return result;
     }
 
-    private static List<Scenario> prepareScenarios(final ContextHandler contextHandler) throws IOException {
+    private static List<Scenario> prepareScenarios(final ContextHandler contextHandler, final WorkSizeManager fcm) throws IOException {
         final List<Scenario> scenarios = new LinkedList<>();
 
         scenarios.add(new JavaPerFacet());    // Java threads computation
@@ -194,6 +204,8 @@ public class PerformanceTest {
         scenarios.add(new CL1DImage_LL_V(contextHandler));
         scenarios.add(new CL1DImage_LL_MC(contextHandler));
         scenarios.add(new CL1DImage_LL_MC_V(contextHandler));
+
+        scenarios.add(new CL2D_I_Dr(contextHandler, fcm));
 
         return scenarios;
     }

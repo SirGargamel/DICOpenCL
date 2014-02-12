@@ -14,6 +14,7 @@ public enum Parameter {
     VARIANT,    
     LWS0,
     LWS1,
+    LWS_SUB,
     FACET_COUNT,
     DATASIZE,
 

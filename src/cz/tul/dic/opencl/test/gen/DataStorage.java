@@ -134,6 +134,10 @@ public class DataStorage {
     public static void addVariantCount(final int count) {
         variantCount.add(count);
     }
+    
+    public static void clearVariantCounts() {
+        variantCount.clear();
+    }
 
     private static void initTarget(final File out) throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(out, false))) {
