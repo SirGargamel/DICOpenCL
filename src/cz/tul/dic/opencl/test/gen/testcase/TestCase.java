@@ -84,14 +84,14 @@ public class TestCase {
             for (int j = 0; j < 2; j++) {
                 val = rnd.nextFloat() * Utils.DEFORMATION_ABS_MAX_0 - (Utils.DEFORMATION_ABS_MAX_0 / 2);
                 if (val == 0) {
-                    val++;
+                    val = Utils.DEFORMATION_ABS_MAX_0 * 0.25f;
                 }
                 deformations[base + j] = val;
             }
             for (int j = 2; j < Utils.DEFORMATION_DIM; j++) {
                 val = (rnd.nextFloat() * Utils.DEFORMATION_ABS_MAX_1) - (Utils.DEFORMATION_ABS_MAX_1 * 0.5f);
                 if (val == 0) {
-                    val = Utils.DEFORMATION_ABS_MAX_1 * 0.01f;
+                    val = Utils.DEFORMATION_ABS_MAX_1 * 0.25f;
                 }
                 deformations[base + j] = val;
             }
