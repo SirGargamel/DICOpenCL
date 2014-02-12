@@ -23,7 +23,7 @@ import java.nio.IntBuffer;
  */
 public class CL2D_I_Dr extends ScenarioDrivenOpenCL {
 
-    private static final int ARGUMENT_INDEX = 10;
+    private static final int ARGUMENT_INDEX = 11;
     private static final int OPTIMAL_LWS1 = 128;
 
     public CL2D_I_Dr(final ContextHandler contextHandler, final WorkSizeManager fcm) throws IOException {
@@ -56,9 +56,9 @@ public class CL2D_I_Dr extends ScenarioDrivenOpenCL {
                 .putArg(params.getValue(Parameter.IMAGE_WIDTH))
                 .putArg(params.getValue(Parameter.DEFORMATION_COUNT))
                 .putArg(facetSize)
-                .putArg(facetCount)
-                .putArg(0)
+                .putArg(facetCount)                
                 .putArg(facetSubCount)
+                .putArg(0)
                 .rewind();
         // prepare work sizes
         final int lws0 = 1;

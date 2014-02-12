@@ -27,11 +27,11 @@ kernel void CL2D_I_Dr(
     global write_only float * result,    
     const int imageWidth, const int deformationCount,
     const int facetSize, const int facetCount,
-    const int facetBase, const int facetSubCount) 
+    const int facetSubCount, const int facetBase)
 {    
     // id checks    
     const size_t facetId = facetBase + get_global_id(0);
-    if (facetId >= facetBase + facetSubCount) {
+    if (facetId >= facetBase + facetSubCount || facetId >= facetCount) {
         return;
     }        
     const size_t deformationId = get_global_id(1);
