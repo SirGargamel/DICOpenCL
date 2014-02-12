@@ -8,7 +8,7 @@ import cz.tul.dic.opencl.test.gen.ContextHandler;
  */
 public interface Constants {
 
-    public static final float EPS_PRECISE = 0.01F;
+    public static final float EPS_PRECISE = 0.001F;
     public static final float EPS_NORMAL = 0.05F;
 
     //  Devices for computation
