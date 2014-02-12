@@ -4,9 +4,11 @@ import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLDevice;
 import com.jogamp.opencl.CLDevice.Type;
 import com.jogamp.opencl.CLErrorHandler;
+import com.jogamp.opencl.CLException;
 import com.jogamp.opencl.CLKernel;
 import com.jogamp.opencl.CLMemory;
 import com.jogamp.opencl.CLPlatform;
+import com.jogamp.opencl.CLProgram;
 import com.jogamp.opencl.util.Filter;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
 import java.io.BufferedReader;
@@ -67,6 +69,7 @@ public class ContextHandler {
         scenario = sc;
         if (context != null && scenario != null) {
             final String name = scenario.getKernelName();
+            CLProgram program = null;
             try {
                 Class cls = sc.getClass();
                 InputStream in = cls.getResourceAsStream(name.concat(CL_EXTENSION));
@@ -76,11 +79,16 @@ public class ContextHandler {
                     sb.append(bin.readLine());
                     sb.append("\n");
                 }
-                String source = sb.toString().replaceAll("-1", Integer.toString(facetSize));
-                kernel = context.createProgram(source).build().createCLKernel(name);
+                final String source = sb.toString().replaceAll("-1", Integer.toString(facetSize));
+                program = context.createProgram(source).build();                
+                kernel = program.createCLKernel(name);
             } catch (IOException ex) {
                 // should not happen
                 ex.printStackTrace(System.err);
+            } catch (CLException ex) {
+                if (program != null) {
+                    System.err.println(program.getBuildLog());
+                }
             }
         }
     }
