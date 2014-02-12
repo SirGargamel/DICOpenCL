@@ -14,6 +14,7 @@ import java.io.IOException;
  */
 public abstract class ScenarioDrivenOpenCL extends ScenarioOpenCL {
 
+    private static final int PUBLIC_VARIANT_COUNT = 1;
     private int currentVariant, maxVariantCount;
     private final WorkSizeManager wsm;
 
@@ -77,7 +78,7 @@ public abstract class ScenarioDrivenOpenCL extends ScenarioOpenCL {
 
     @Override
     public int getVariantCount() {
-        return maxVariantCount;
+        return PUBLIC_VARIANT_COUNT;
     }
 
 }

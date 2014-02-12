@@ -11,7 +11,9 @@ import cz.tul.dic.opencl.test.gen.ParameterSet;
 import cz.tul.dic.opencl.test.gen.Utils;
 import cz.tul.dic.opencl.test.gen.testcase.TestCase;
 import cz.tul.dic.opencl.test.gen.scenario.Scenario;
+import cz.tul.dic.opencl.test.gen.scenario.ScenarioDrivenOpenCL;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
+import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult.State;
 import cz.tul.dic.opencl.test.gen.scenario.comb.CL1DImage_LL_MC;
 import cz.tul.dic.opencl.test.gen.scenario.comb.CL1DImage_LL_MC_V;
 import cz.tul.dic.opencl.test.gen.scenario.comb.CL1DImage_LL_V;
@@ -61,12 +63,12 @@ public class PerformanceTest {
             int[][] images;
             int[] facetData, facetCenters;
             float[] deformations;
-            long time;
+            long time, minTime;
             ParameterSet ps;
-            ScenarioResult result;
+            ScenarioResult result, tempResult;
             Scenario sc;
             TestCase tc;
-            int s, h;
+            int s;
             try {
                 // execute scenarios
                 for (int tci = 0; tci < testCases.size(); tci++) {
@@ -99,14 +101,40 @@ public class PerformanceTest {
 
                                         sc.prepare(ps);
 
-                                        time = System.nanoTime();
                                         try {
-                                            result = sc.compute(images[0], images[1], facetData, facetCenters, deformations, ps);
-                                            if (result == null) {
-                                                result = new ScenarioResult(-1, false);
+                                            result = null;
+                                            if (sc instanceof ScenarioDrivenOpenCL) {
+                                                // driven kernel
+                                                minTime = Long.MAX_VALUE;
+                                                while (sc.hasNext()) {
+                                                    time = System.nanoTime();
+                                                    tempResult = sc.compute(images[0], images[1], facetData, facetCenters, deformations, ps);
+                                                    time = System.nanoTime() - time;
+
+                                                    if (tempResult != null && time < minTime) {
+                                                        tc.checkResult(tempResult, ps.getValue(Parameter.FACET_COUNT));
+
+                                                        if (tempResult.getState() == State.SUCCESS) {
+                                                            result = tempResult;
+                                                            minTime = time;
+                                                            result.setTotalTime(minTime);                                                            
+                                                        }
+                                                    }
+                                                }
+
+                                                if (result == null) {
+                                                    result = new ScenarioResult(-1, false);
+                                                }
                                             } else {
-                                                result.setTotalTime(System.nanoTime() - time);
-                                                tc.checkResult(result, ps.getValue(Parameter.FACET_COUNT));
+                                                // not driven kernel 
+                                                time = System.nanoTime();
+                                                result = sc.compute(images[0], images[1], facetData, facetCenters, deformations, ps);
+                                                if (result == null) {
+                                                    result = new ScenarioResult(-1, false);
+                                                } else {
+                                                    result.setTotalTime(System.nanoTime() - time);
+                                                    tc.checkResult(result, ps.getValue(Parameter.FACET_COUNT));
+                                                }
                                             }
                                         } catch (CLException ex) {
                                             result = new ScenarioResult(-1, true);
