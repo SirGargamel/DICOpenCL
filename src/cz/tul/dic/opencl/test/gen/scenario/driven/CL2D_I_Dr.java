@@ -36,17 +36,15 @@ public class CL2D_I_Dr extends ScenarioDrivenOpenCL {
             final int[] facetData, final int[] facetCenters,
             final float[] deformations,
             final ParameterSet params) throws CLException {
-        final int facetSize = params.getValue(Parameter.FACET_SIZE);
-        final int facetCount = params.getValue(Parameter.FACET_COUNT);
         // prepare buffers
+        final int facetCount = params.getValue(Parameter.FACET_COUNT);
         final CLImage2d<IntBuffer> imageAcl = createImage(imageA, params.getValue(Parameter.IMAGE_WIDTH));
         final CLImage2d<IntBuffer> imageBcl = createImage(imageB, params.getValue(Parameter.IMAGE_WIDTH));
-
         final CLBuffer<IntBuffer> bufferFacetData = createIntBuffer(facetData, READ_ONLY);
         final CLBuffer<IntBuffer> bufferFacetCenters = createIntBuffer(facetCenters, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferDeformations = createFloatBuffer(deformations, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferResult = createFloatBuffer(facetCount * params.getValue(Parameter.DEFORMATION_COUNT), WRITE_ONLY);
-        long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
+        final long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
         params.addParameter(Parameter.DATASIZE, (int) (clSize / 1000));
         // prepare kernel arguments
         int facetSubCount = getFacetCount();
@@ -55,8 +53,8 @@ public class CL2D_I_Dr extends ScenarioDrivenOpenCL {
         kernel.putArgs(imageAcl, imageBcl, bufferFacetData, bufferFacetCenters, bufferDeformations, bufferResult)
                 .putArg(params.getValue(Parameter.IMAGE_WIDTH))
                 .putArg(params.getValue(Parameter.DEFORMATION_COUNT))
-                .putArg(facetSize)
-                .putArg(facetCount)                
+                .putArg(params.getValue(Parameter.FACET_SIZE))
+                .putArg(facetCount)
                 .putArg(facetSubCount)
                 .putArg(0)
                 .rewind();
@@ -70,22 +68,19 @@ public class CL2D_I_Dr extends ScenarioDrivenOpenCL {
         // execute kernel        
         prepareEventList(roundCount);
         final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(Mode.PROFILING_MODE);
-
         queue.putWriteImage(imageAcl, false);
         queue.putWriteImage(imageBcl, false);
         queue.putWriteBuffer(bufferFacetData, false);
         queue.putWriteBuffer(bufferFacetCenters, false);
         queue.putWriteBuffer(bufferDeformations, false);
-
         for (int i = 0; i < roundCount; i++) {
             kernel.setArg(ARGUMENT_INDEX, i * facetSubCount);
             queue.put2DRangeKernel(kernel, 0, 0, facetGlobalWorkSize, deformationsGlobalWorkSize, lws0, lws1, eventList);
         }
-
         queue.putReadBuffer(bufferResult, true);
         queue.finish();
+        // create result
         final float[] result = readBuffer(bufferResult.getBuffer());
-
         return result;
     }
 

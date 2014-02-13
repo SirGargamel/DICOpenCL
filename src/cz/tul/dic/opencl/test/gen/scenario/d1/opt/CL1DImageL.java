@@ -4,7 +4,6 @@ import cz.tul.dic.opencl.test.gen.ContextHandler;
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;
 import com.jogamp.opencl.CLCommandQueue.Mode;
-import com.jogamp.opencl.CLEvent.ProfilingCommand;
 import com.jogamp.opencl.CLException;
 import com.jogamp.opencl.CLImage2d;
 import com.jogamp.opencl.CLKernel;
@@ -47,26 +46,24 @@ public final class CL1DImageL extends ScenarioOpenCL {
             final int[] facetData, final int[] facetCenters,
             final float[] deformations,
             final ParameterSet params) throws CLException {
-        final int facetSize = params.getValue(Parameter.FACET_SIZE);
-        final int facetCount = params.getValue(Parameter.FACET_COUNT);
-        final int deformationCount = params.getValue(Parameter.DEFORMATION_COUNT);        
         // prepare buffers        
+        final int facetCount = params.getValue(Parameter.FACET_COUNT);
         final CLImage2d<IntBuffer> imageAcl = createImage(imageA, params.getValue(Parameter.IMAGE_WIDTH));
         final CLImage2d<IntBuffer> imageBcl = createImage(imageB, params.getValue(Parameter.IMAGE_WIDTH));
-
         final CLBuffer<IntBuffer> bufferFacetData = createIntBuffer(facetData, READ_ONLY);
         final CLBuffer<IntBuffer> bufferFacetCenters = createIntBuffer(facetCenters, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferDeformations = createFloatBuffer(deformations, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferResult = createFloatBuffer(facetCount * params.getValue(Parameter.DEFORMATION_COUNT), WRITE_ONLY);
-        long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
+        final long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
         params.addParameter(Parameter.DATASIZE, (int) (clSize / 1000));
         // prepare work sizes
+        final int facetSize = params.getValue(Parameter.FACET_SIZE);
+        final int deformationCount = params.getValue(Parameter.DEFORMATION_COUNT);
         final int facetCoordCount = Utils.calculateFacetArraySize(facetSize);
-        final int maxWorkSize = contextHandler.getDevice().getMaxWorkGroupSize();        
+        final int maxWorkSize = contextHandler.getDevice().getMaxWorkGroupSize();
         if (maxWorkSize < facetCoordCount) {
             return null;
         }
-        
         final int lws0;
         if (facetCoordCount < deformationCount) {
             lws0 = deformationCount;
@@ -74,10 +71,7 @@ public final class CL1DImageL extends ScenarioOpenCL {
             lws0 = facetCoordCount;
         }
         final int facetGlobalWorkSize = facetCount * lws0;
-        params.addParameter(Parameter.LWS0, 1);
-        params.addParameter(Parameter.LWS1, 1);
         params.addParameter(Parameter.LWS_SUB, lws0);
-        
         // prepare kernel arguments
         final CLKernel kernel = contextHandler.getKernel();
         kernel.putArgs(imageAcl, imageBcl, bufferFacetData, bufferFacetCenters, bufferDeformations, bufferResult)
@@ -89,7 +83,6 @@ public final class CL1DImageL extends ScenarioOpenCL {
         // execute kernel         
         prepareEventList(1);
         final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(Mode.PROFILING_MODE);
-
         queue.putWriteImage(imageAcl, false);
         queue.putWriteImage(imageBcl, false);
         queue.putWriteBuffer(bufferFacetData, false);
@@ -98,10 +91,8 @@ public final class CL1DImageL extends ScenarioOpenCL {
         queue.put1DRangeKernel(kernel, 0, facetGlobalWorkSize, lws0, eventList);
         queue.putReadBuffer(bufferResult, true);
         queue.finish();
-
+        // create result
         final float[] result = readBuffer(bufferResult.getBuffer());
-        final long duration = eventList.getEvent(0).getProfilingInfo(ProfilingCommand.END) - eventList.getEvent(0).getProfilingInfo(ProfilingCommand.START);
-
         return result;
     }
 

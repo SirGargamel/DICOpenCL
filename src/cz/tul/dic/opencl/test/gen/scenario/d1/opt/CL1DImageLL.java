@@ -55,7 +55,7 @@ public final class CL1DImageLL extends ScenarioOpenCL {
 
             final int max = contextHandler.getDevice().getMaxWorkGroupSize();
             maxVariantCount = CustomMath.power2(max / lws0base) + 1;
-            
+
             inited = true;
         }
     }
@@ -79,20 +79,18 @@ public final class CL1DImageLL extends ScenarioOpenCL {
             final int[] facetData, final int[] facetCenters,
             final float[] deformations,
             final ParameterSet params) throws CLException {
-        final int facetSize = params.getValue(Parameter.FACET_SIZE);
-        final int facetCount = params.getValue(Parameter.FACET_COUNT);
-        final int deformationCount = params.getValue(Parameter.DEFORMATION_COUNT);
         // prepare buffers
+        final int facetCount = params.getValue(Parameter.FACET_COUNT);
         final CLImage2d<IntBuffer> imageAcl = createImage(imageA, params.getValue(Parameter.IMAGE_WIDTH));
         final CLImage2d<IntBuffer> imageBcl = createImage(imageB, params.getValue(Parameter.IMAGE_WIDTH));
-
         final CLBuffer<IntBuffer> bufferFacetData = createIntBuffer(facetData, READ_ONLY);
         final CLBuffer<IntBuffer> bufferFacetCenters = createIntBuffer(facetCenters, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferDeformations = createFloatBuffer(deformations, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferResult = createFloatBuffer(facetCount * params.getValue(Parameter.DEFORMATION_COUNT), WRITE_ONLY);
-        long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
+        final long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
         params.addParameter(Parameter.DATASIZE, (int) (clSize / 1000));
         // prepare work sizes        
+        final int deformationCount = params.getValue(Parameter.DEFORMATION_COUNT);
         final int lws0 = (int) Math.pow(2, currentVariant + lws0base2);
         final int facetGlobalWorkSize = roundUp(lws0, deformationCount) * facetCount;
         params.addParameter(Parameter.LWS0, lws0);
@@ -106,14 +104,13 @@ public final class CL1DImageLL extends ScenarioOpenCL {
         kernel.putArgs(imageAcl, imageBcl, bufferFacetData, bufferFacetCenters, bufferDeformations, bufferResult)
                 .putArg(params.getValue(Parameter.IMAGE_WIDTH))
                 .putArg(deformationCount)
-                .putArg(facetSize)
+                .putArg(params.getValue(Parameter.FACET_SIZE))
                 .putArg(facetCount)
                 .putArg(groupCountPerFacet)
                 .rewind();
         // execute kernel         
         prepareEventList(1);
         final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(Mode.PROFILING_MODE);
-
         queue.putWriteImage(imageAcl, false);
         queue.putWriteImage(imageBcl, false);
         queue.putWriteBuffer(bufferFacetData, false);
@@ -122,7 +119,7 @@ public final class CL1DImageLL extends ScenarioOpenCL {
         queue.put1DRangeKernel(kernel, 0, facetGlobalWorkSize, lws0, eventList);
         queue.putReadBuffer(bufferResult, true);
         queue.finish();
-
+        // create result
         final float[] result = readBuffer(bufferResult.getBuffer());
         return result;
     }

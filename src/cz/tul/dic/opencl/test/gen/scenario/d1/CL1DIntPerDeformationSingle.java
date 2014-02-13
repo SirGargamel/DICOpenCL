@@ -2,6 +2,7 @@ package cz.tul.dic.opencl.test.gen.scenario.d1;
 
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;
+import com.jogamp.opencl.CLCommandQueue.Mode;
 import com.jogamp.opencl.CLException;
 import com.jogamp.opencl.CLKernel;
 import static com.jogamp.opencl.CLMemory.Mem.READ_ONLY;
@@ -26,7 +27,6 @@ public class CL1DIntPerDeformationSingle extends Scenario1D {
 
     @Override
     protected float[] computeScenario(int[] imageA, int[] imageB, int[] facetData, int[] facetCenters, float[] deformations, ParameterSet params) throws CLException {
-        final int facetSize = params.getValue(Parameter.FACET_SIZE);
         final int facetCount = params.getValue(Parameter.FACET_COUNT);
         final int deformationCount = deformations.length / Utils.DEFORMATION_DIM;
         final float[] result = new float[facetCount * deformationCount];
@@ -37,14 +37,14 @@ public class CL1DIntPerDeformationSingle extends Scenario1D {
         final CLBuffer<IntBuffer> bufferFacetCenters = createIntBuffer(facetCenters, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferDeformation = createFloatBuffer(Utils.DEFORMATION_DIM, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferResult = createFloatBuffer(facetCount, WRITE_ONLY);
-        long clSize = bufferImageA.getCLSize() + bufferImageB.getCLSize() + bufferFacetData.getCLSize() + bufferDeformation.getCLSize() + bufferResult.getCLSize();
+        final long clSize = bufferImageA.getCLSize() + bufferImageB.getCLSize() + bufferFacetData.getCLSize() + bufferDeformation.getCLSize() + bufferResult.getCLSize();
         params.addParameter(Parameter.DATASIZE, (int) (clSize / 1000));
         // prepare kernel arguments
         final CLKernel kernel = contextHandler.getKernel();
         kernel.putArgs(bufferImageA, bufferImageB, bufferFacetData, bufferFacetCenters, bufferDeformation, bufferResult)
                 .putArg(params.getValue(Parameter.IMAGE_WIDTH))
                 .putArg(facetCount)
-                .putArg(facetSize)
+                .putArg(params.getValue(Parameter.FACET_SIZE))
                 .rewind();
         // prepare work sizes
         final int lws0 = getLWS0();
@@ -52,9 +52,8 @@ public class CL1DIntPerDeformationSingle extends Scenario1D {
         params.addParameter(Parameter.LWS0, lws0);
         // execute kernel                
         float[] oneResult;
-
         prepareEventList(deformationCount);
-        final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(CLCommandQueue.Mode.PROFILING_MODE);
+        final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(Mode.PROFILING_MODE);
         // copy static data
         queue.putWriteBuffer(bufferImageA, false);
         queue.putWriteBuffer(bufferImageB, false);
@@ -65,7 +64,6 @@ public class CL1DIntPerDeformationSingle extends Scenario1D {
             fillBuffer(bufferDeformation.getBuffer(), deformations, i * Utils.DEFORMATION_DIM, Utils.DEFORMATION_DIM);
             // write new data and run kernel
             queue.putWriteBuffer(bufferDeformation, false);
-
             queue.put1DRangeKernel(kernel, 0, facetGlobalWorkSize, lws0, eventList);
             queue.putReadBuffer(bufferResult, true);
             oneResult = readBuffer(bufferResult.getBuffer());

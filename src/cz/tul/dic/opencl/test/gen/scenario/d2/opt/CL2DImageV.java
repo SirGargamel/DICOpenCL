@@ -32,24 +32,22 @@ public class CL2DImageV extends Scenario2D {
             final int[] facetData, final int[] facetCenters,
             final float[] deformations,
             final ParameterSet params) throws CLException {
-        final int facetSize = params.getValue(Parameter.FACET_SIZE);
-        final int facetCount = params.getValue(Parameter.FACET_COUNT);
         // prepare buffers
+        final int facetCount = params.getValue(Parameter.FACET_COUNT);
         final CLImage2d<IntBuffer> imageAcl = createImage(imageA, params.getValue(Parameter.IMAGE_WIDTH));
         final CLImage2d<IntBuffer> imageBcl = createImage(imageB, params.getValue(Parameter.IMAGE_WIDTH));
-
         final CLBuffer<IntBuffer> bufferFacetData = createIntBuffer(facetData, READ_ONLY);
         final CLBuffer<IntBuffer> bufferFacetCenters = createIntBuffer(facetCenters, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferDeformations = createFloatBuffer(deformations, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferResult = createFloatBuffer(facetCount * params.getValue(Parameter.DEFORMATION_COUNT), WRITE_ONLY);
-        long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
+        final long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
         params.addParameter(Parameter.DATASIZE, (int) (clSize / 1000));
         // prepare kernel arguments
         final CLKernel kernel = contextHandler.getKernel();
         kernel.putArgs(imageAcl, imageBcl, bufferFacetData, bufferFacetCenters, bufferDeformations, bufferResult)
                 .putArg(params.getValue(Parameter.IMAGE_WIDTH))
                 .putArg(params.getValue(Parameter.DEFORMATION_COUNT))
-                .putArg(facetSize)
+                .putArg(params.getValue(Parameter.FACET_SIZE))
                 .putArg(facetCount)
                 .rewind();
         // prepare work sizes
@@ -62,7 +60,6 @@ public class CL2DImageV extends Scenario2D {
         // execute kernel        
         prepareEventList(1);
         final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(Mode.PROFILING_MODE);
-
         queue.putWriteImage(imageAcl, false);
         queue.putWriteImage(imageBcl, false);
         queue.putWriteBuffer(bufferFacetData, false);
@@ -71,8 +68,8 @@ public class CL2DImageV extends Scenario2D {
         queue.put2DRangeKernel(kernel, 0, 0, facetGlobalWorkSize, deformationsGlobalWorkSize, lws0, lws1, eventList);
         queue.putReadBuffer(bufferResult, true);
         queue.finish();
+        // create result
         final float[] result = readBuffer(bufferResult.getBuffer());
-
         return result;
     }
 

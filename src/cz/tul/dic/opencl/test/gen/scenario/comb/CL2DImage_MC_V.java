@@ -2,6 +2,7 @@ package cz.tul.dic.opencl.test.gen.scenario.comb;
 
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;
+import com.jogamp.opencl.CLCommandQueue.Mode;
 import com.jogamp.opencl.CLImage2d;
 import com.jogamp.opencl.CLKernel;
 import static com.jogamp.opencl.CLMemory.Mem.READ_ONLY;
@@ -31,19 +32,18 @@ public class CL2DImage_MC_V extends Scenario2D {
             final int[] facetData, final int[] facetCenters,
             final float[] deformations,
             final ParameterSet params) {
-        final int facetSize = params.getValue(Parameter.FACET_SIZE);
-        final int facetCount = params.getValue(Parameter.FACET_COUNT);
         // prepare buffers
+        final int facetCount = params.getValue(Parameter.FACET_COUNT);
         final CLImage2d<IntBuffer> imageAcl = createImage(imageA, params.getValue(Parameter.IMAGE_WIDTH));
         final CLImage2d<IntBuffer> imageBcl = createImage(imageB, params.getValue(Parameter.IMAGE_WIDTH));
-
         final CLBuffer<IntBuffer> bufferFacetData = createIntBuffer(facetData.length, READ_ONLY);
         final CLBuffer<IntBuffer> bufferFacetCenters = createIntBuffer(facetCenters, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferDeformations = createFloatBuffer(deformations, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferResult = createFloatBuffer(facetCount * params.getValue(Parameter.DEFORMATION_COUNT), WRITE_ONLY);
-        long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
+        final long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
         params.addParameter(Parameter.DATASIZE, (int) (clSize / 1000));
         // facet data filled mannually, taking advantage of memory coalescing
+        final int facetSize = params.getValue(Parameter.FACET_SIZE);
         final int facetArea = Utils.calculateFacetArea(facetSize);
         final int facetArraySize = Utils.calculateFacetArraySize(facetSize);
         final IntBuffer facetDataBuffer = bufferFacetData.getBuffer();
@@ -73,8 +73,7 @@ public class CL2DImage_MC_V extends Scenario2D {
         params.addParameter(Parameter.LWS1, lws1);
         // execute kernel        
         prepareEventList(1);
-        final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(CLCommandQueue.Mode.PROFILING_MODE);
-
+        final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(Mode.PROFILING_MODE);
         queue.putWriteImage(imageAcl, false);
         queue.putWriteImage(imageBcl, false);
         queue.putWriteBuffer(bufferFacetData, false);
@@ -83,8 +82,8 @@ public class CL2DImage_MC_V extends Scenario2D {
         queue.put2DRangeKernel(kernel, 0, 0, facetGlobalWorkSize, deformationsGlobalWorkSize, lws0, lws1, eventList);
         queue.putReadBuffer(bufferResult, true);
         queue.finish();
+        // create result
         final float[] result = readBuffer(bufferResult.getBuffer());
-
         return result;
     }
 
