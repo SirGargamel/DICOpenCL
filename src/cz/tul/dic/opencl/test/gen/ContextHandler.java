@@ -80,7 +80,8 @@ public class ContextHandler {
                     sb.append("\n");
                 }
                 final String source = sb.toString().replaceAll("-1", Integer.toString(facetSize));
-                program = context.createProgram(source).build();                
+                program = context.createProgram(source);
+                program.build();                
                 kernel = program.createCLKernel(name);
             } catch (IOException ex) {
                 // should not happen
