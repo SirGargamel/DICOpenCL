@@ -18,17 +18,18 @@ inline int interpolate(const float x, const float y, global read_only int * imag
     return intensity;    
 }
 
-kernel void CL2DIntOpt(
+kernel void CL2D_Int_D(
     global read_only int * imageA, global read_only int * imageB, 
     global read_only int * facets, global read_only int * facetCenters,
     global read_only float * deformations,
     global write_only float * result,    
     const int imageWidth, const int deformationCount,
-    const int facetSize, const int facetCount) 
+    const int facetSize, const int facetCount,
+    const int facetSubCount, const int facetBase) 
 {        
     // id checks    
-    const size_t facetId = get_global_id(0);
-    if (facetId >= facetCount) {
+    const size_t facetId = facetBase + get_global_id(0);
+    if (facetId >= facetBase + facetSubCount || facetId >= facetCount) {
         return;
     }        
     const size_t deformationId = get_global_id(1);
