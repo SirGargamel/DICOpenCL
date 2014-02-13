@@ -134,6 +134,9 @@ public class PerformanceTest {
                                                 } else {
                                                     result.setTotalTime(System.nanoTime() - time);
                                                     tc.checkResult(result, ps.getValue(Parameter.FACET_COUNT));
+                                                    if (!State.SUCCESS.equals(result.getState())) {
+                                                        result.setTotalTime(-1);
+                                                    }
                                                 }
                                             }
                                         } catch (CLException ex) {
