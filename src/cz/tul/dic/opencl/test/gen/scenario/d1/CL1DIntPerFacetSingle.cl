@@ -40,7 +40,7 @@ kernel void CL1DIntPerFacetSingle(
     const int baseIndexDeformation = deformationId * 6;
     // deform facet
     float deformedFacet[-1*-1*2];    
-    int indexFacet, i2, x, y, dx, dy;   
+    int i2, x, y, dx, dy;   
     for (int i = 0; i < facetSize2; i++) {
         i2 = i*2;          
         
@@ -84,15 +84,14 @@ kernel void CL1DIntPerFacetSingle(
         val = deformedI[i] - meanG;
         deformedI[i] = val;
         deltaG += val * val;
-    }    
-    const float deltaFs = sqrt(deltaF);
-    const float deltaGs = sqrt(deltaG);    
+    }  
     
     val = 0;
     for (int i = 0; i < facetSize2; i++) {                    
         val += facetI[i] * deformedI[i];
     }    
+    val /= sqrt(deltaF) * sqrt(deltaG);
     
     //store result    
-    result[deformationId] = val / (deltaFs * deltaGs);
+    result[deformationId] = val;
 }

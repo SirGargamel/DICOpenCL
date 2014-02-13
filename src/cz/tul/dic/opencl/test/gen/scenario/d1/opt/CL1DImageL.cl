@@ -35,13 +35,12 @@ kernel void CL1DImageL(
     // index computation
     const int facetSize2 = facetSize * facetSize;
     const int facetCoordCount = facetSize2 * 2;    
-    const int baseIndexFacet = facetId * facetCoordCount; 
     const int baseIndexFacetCenter = facetId * 2;
     const int baseIndexDeformation = deformationId * 6;        
     // load facet to local memory    
     local int facetLocal[-1*-1*2];    
     if (deformationId < facetCoordCount) {
-        facetLocal[deformationId] = facets[baseIndexFacet + deformationId];  
+        facetLocal[deformationId] = facets[(facetId * facetCoordCount) + deformationId];  
     }    
     barrier(CLK_LOCAL_MEM_FENCE);
     if (deformationId >= deformationCount) {
@@ -89,14 +88,12 @@ kernel void CL1DImageL(
         deformedI[i] -= meanG;
         deltaG += deformedI[i] * deformedI[i];
     }    
-    const float deltaFs = sqrt(deltaF);
-    const float deltaGs = sqrt(deltaG);    
     
     float resultVal = 0;           
     for (int i = 0; i < facetSize2; i++) {              
         resultVal += facetI[i] * deformedI[i];
     }
-    resultVal /= deltaFs * deltaGs;    
+    resultVal /= sqrt(deltaF) * sqrt(deltaG);
     
     //store result    
     result[facetId * deformationCount + deformationId] = resultVal;    

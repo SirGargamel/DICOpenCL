@@ -43,13 +43,13 @@ kernel void CL2DInt(
     const int baseIndexDeformation = deformationId * 6;
     // deform facet
     float deformedFacet[-1*-1*2];    
-    int indexFacet, i2, x, y, dx, dy;   
+    int index, i2, x, y, dx, dy;   
     for (int i = 0; i < facetSize2; i++) {
         i2 = i*2;
-        indexFacet = baseIndexFacet + i2;        
+        index = baseIndexFacet + i2;        
         
-        x = facets[indexFacet];
-        y = facets[indexFacet+1];
+        x = facets[index];
+        y = facets[index+1];
 
         dx = x - facetCenters[baseIndexFacetCenter];
         dy = y - facetCenters[baseIndexFacetCenter + 1];
@@ -64,10 +64,10 @@ kernel void CL2DInt(
     float meanG = 0; 
     for (int i = 0; i < facetSize2; i++) {
         i2 = i*2;
-        indexFacet = baseIndexFacet + i2;
+        index = baseIndexFacet + i2;
                 
         // facet is just array of int coords        
-        facetI[i] = imageA[computeIndex(facets[indexFacet], facets[indexFacet + 1], imageWidth)];        
+        facetI[i] = imageA[computeIndex(facets[index], facets[index + 1], imageWidth)];        
         meanF += facetI[i];
         
         deformedI[i] = interpolate(deformedFacet[i2], deformedFacet[i2 + 1], imageB, imageWidth);                        
@@ -81,7 +81,7 @@ kernel void CL2DInt(
     float val;
     for (int i = 0; i < facetSize2; i++) {
         i2 = i*2;
-        indexFacet = baseIndexFacet + i2;
+        index = baseIndexFacet + i2;
                                      
         val = facetI[i] - meanF;        
         deltaF += val * val;
@@ -95,7 +95,7 @@ kernel void CL2DInt(
     
     float resultVal = 0;                  
     for (int i = 0; i < facetSize2; i++) {        
-        indexFacet = baseIndexFacet + i*2;
+        index = baseIndexFacet + i*2;
         
         val = (facetI[i] - meanF) * (deformedI[i] - meanG);
         val /= delta;
@@ -103,6 +103,6 @@ kernel void CL2DInt(
     }   
     
     //store result
-    indexFacet = facetId * deformationCount + deformationId;
-    result[indexFacet] = resultVal;    
+    index = facetId * deformationCount + deformationId;
+    result[index] = resultVal;    
 }

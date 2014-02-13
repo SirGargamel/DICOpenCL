@@ -39,13 +39,12 @@ kernel void CL2DImageV(
     const int baseIndexDeformation = deformationId * 6;
     // deform facet
     float2 deformedFacet[-1*-1];
-    int indexFacet, i2;
+    int index;
     int2 coords, def;
-    for (int i = 0; i < facetSize2; i++) {        
-        i2 = i*2;
-        indexFacet = baseIndexFacet + i;
+    for (int i = 0; i < facetSize2; i++) {                
+        index = baseIndexFacet + i;
         
-        coords = facets[indexFacet];       
+        coords = facets[index];       
         
         def = coords - facetCenters[facetId];        
         
@@ -58,12 +57,11 @@ kernel void CL2DImageV(
     float facetI[-1*-1];
     float meanF = 0;
     float meanG = 0; 
-    for (int i = 0; i < facetSize2; i++) {
-        i2 = i*2;
-        indexFacet = baseIndexFacet + i;
+    for (int i = 0; i < facetSize2; i++) {        
+        index = baseIndexFacet + i;
                 
         // facet is just array of int coords        
-        facetI[i] = read_imageui(imageA, sampler, facets[indexFacet]).x;
+        facetI[i] = read_imageui(imageA, sampler, facets[index]).x;
         meanF += facetI[i];
         
         deformedI[i] = interpolate(deformedFacet[i], imageB);        
@@ -74,27 +72,21 @@ kernel void CL2DImageV(
     
     float deltaF = 0;
     float deltaG = 0;   
-    for (int i = 0; i < facetSize2; i++) {
-        i2 = i*2;
-        indexFacet = baseIndexFacet + i2;
-                             
+    for (int i = 0; i < facetSize2; i++) {                             
         facetI[i] -= meanF;
         deltaF += facetI[i] * facetI[i];
                         
         deformedI[i] -= meanG;
         deltaG += deformedI[i] * deformedI[i];
-    }    
-    const float deltaFs = sqrt(deltaF);
-    const float deltaGs = sqrt(deltaG);    
+    }
     
     float resultVal = 0;           
-    for (int i = 0; i < facetSize2; i++) {
-        indexFacet = baseIndexFacet + i*2;        
+    for (int i = 0; i < facetSize2; i++) {              
         resultVal += facetI[i] * deformedI[i];
     }
-    resultVal /= deltaFs * deltaGs;    
+    resultVal /= sqrt(deltaF) * sqrt(deltaG);
     
     //store result
-    indexFacet = facetId * deformationCount + deformationId;
-    result[indexFacet] = resultVal;    
+    index = facetId * deformationCount + deformationId;
+    result[index] = resultVal;    
 }

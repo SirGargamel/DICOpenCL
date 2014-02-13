@@ -42,13 +42,13 @@ kernel void CL2DImageFtoA(
     // deform facet
     float deformedFacet[-1*-1*2];
     int facet[-1*-1*2];
-    int indexFacet, i2, dx, dy;    
+    int index, i2, dx, dy;    
     for (int i = 0; i < facetSize2; i++) {                
         i2 = i*2;
-        indexFacet = baseIndexFacet + i2;        
+        index = baseIndexFacet + i2;        
         
-        facet[i2] = facets[indexFacet];
-        facet[i2 + 1] = facets[indexFacet+1];
+        facet[i2] = facets[index];
+        facet[i2 + 1] = facets[index+1];
 
         dx = facet[i2] - facetCenters[baseIndexFacetCenter];
         dy = facet[i2 + 1] - facetCenters[baseIndexFacetCenter + 1];
@@ -77,25 +77,23 @@ kernel void CL2DImageFtoA(
     float deltaG = 0;   
     for (int i = 0; i < facetSize2; i++) {
         i2 = i*2;
-        indexFacet = baseIndexFacet + i2;
+        index = baseIndexFacet + i2;
                              
         facetI[i] -= meanF;
         deltaF += facetI[i] * facetI[i];
                         
         deformedI[i] -= meanG;
         deltaG += deformedI[i] * deformedI[i];
-    }    
-    const float deltaFs = sqrt(deltaF);
-    const float deltaGs = sqrt(deltaG);    
+    }  
     
     float resultVal = 0;           
     for (int i = 0; i < facetSize2; i++) {
-        indexFacet = baseIndexFacet + i*2;        
+        index = baseIndexFacet + i*2;        
         resultVal += facetI[i] * deformedI[i];
     }
-    resultVal /= deltaFs * deltaGs;    
+    resultVal /= sqrt(deltaF) * sqrt(deltaG);  
     
     //store result
-    indexFacet = facetId * deformationCount + deformationId;
-    result[indexFacet] = resultVal;    
+    index = facetId * deformationCount + deformationId;
+    result[index] = resultVal;    
 }

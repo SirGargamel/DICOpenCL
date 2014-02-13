@@ -81,15 +81,13 @@ kernel void CL2DImageMC(
                         
         deformedI[i] -= meanG;
         deltaG += deformedI[i] * deformedI[i];
-    }    
-    const float deltaFs = sqrt(deltaF);
-    const float deltaGs = sqrt(deltaG);    
+    }   
     
     float resultVal = 0;           
     for (int i = 0; i < facetSize2; i++) {            
         resultVal += facetI[i] * deformedI[i];
     }
-    resultVal /= deltaFs * deltaGs;    
+    resultVal /= sqrt(deltaF) * sqrt(deltaG); 
     
     //store result
     index = facetId * deformationCount + deformationId;

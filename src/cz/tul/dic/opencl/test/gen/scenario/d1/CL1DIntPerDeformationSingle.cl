@@ -40,13 +40,13 @@ kernel void CL1DIntPerDeformationSingle(
     const int baseIndexFacetCenter = facetId * 2;
     // deform facet
     float deformedFacet[-1*-1*2];    
-    int indexFacet, i2, x, y, dx, dy;   
+    int index, i2, x, y, dx, dy;   
     for (int i = 0; i < facetSize2; i++) {
         i2 = i*2;
-        indexFacet = baseIndexFacet + i2; 
+        index = baseIndexFacet + i2; 
         
-        x = facets[indexFacet];
-        y = facets[indexFacet + 1];
+        x = facets[index];
+        y = facets[index + 1];
 
         dx = x - facetCenters[baseIndexFacetCenter];
         dy = y - facetCenters[baseIndexFacetCenter + 1];
@@ -62,10 +62,10 @@ kernel void CL1DIntPerDeformationSingle(
     float val;
     for (int i = 0; i < facetSize2; i++) {
         i2 = i*2;
-        indexFacet = baseIndexFacet + i2;
+        index = baseIndexFacet + i2;
                 
         // facet is just array of int coords        
-        val = imageA[computeIndex(facets[indexFacet], facets[indexFacet + 1], imageWidth)];        
+        val = imageA[computeIndex(facets[index], facets[index + 1], imageWidth)];        
         facetI[i] = val;
         meanF += val;
         
@@ -86,15 +86,14 @@ kernel void CL1DIntPerDeformationSingle(
         val = deformedI[i] - meanG;
         deformedI[i] = val;
         deltaG += val * val;
-    }    
-    const float deltaFs = sqrt(deltaF);
-    const float deltaGs = sqrt(deltaG);    
+    }   
     
     val = 0;                 
     for (int i = 0; i < facetSize2; i++) {                    
         val += facetI[i] * deformedI[i];
     }    
+    val /= sqrt(deltaF) * sqrt(deltaG);
     
     //store result    
-    result[facetId] = val / (deltaFs * deltaGs);    
+    result[facetId] = val;
 }
