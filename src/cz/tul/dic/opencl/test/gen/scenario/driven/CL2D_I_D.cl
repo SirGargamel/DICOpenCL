@@ -16,7 +16,7 @@ inline int interpolate(const float x, const float y, read_only image2d_t image) 
     return intensity;    
 }
 
-kernel void CL2D_I_Dr(
+kernel void CL2D_I_D(
     read_only image2d_t imageA, read_only image2d_t imageB, 
     global read_only int * facets, global read_only int * facetCenters,
     global read_only float * deformations,
