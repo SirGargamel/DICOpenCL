@@ -11,11 +11,11 @@ int interpolate(const float x, const float y, read_only image2d_t image) {
     const float iy = floor(y);
     const float dy = y - iy;
 
-    float intensity = 0;    
-    intensity += read_imageui(image, sampler, (float2)(ix, iy)).x * (1 - dx) * (1 - dy);
-    intensity += read_imageui(image, sampler, (float2)(ix+1, iy)).x * dx * (1 - dy);
-    intensity += read_imageui(image, sampler, (float2)(ix, iy+1)).x * (1 - dx) * dy;
-    intensity += read_imageui(image, sampler, (float2)(ix+1, iy+1)).x * dx * dy;            
+    const float intensity = 
+        read_imageui(image, sampler, (float2)(ix, iy)).x * (1 - dx) * (1 - dy);
+        + read_imageui(image, sampler, (float2)(ix+1, iy)).x * dx * (1 - dy);
+        + read_imageui(image, sampler, (float2)(ix, iy+1)).x * (1 - dx) * dy;
+        + read_imageui(image, sampler, (float2)(ix+1, iy+1)).x * dx * dy;            
 
     return intensity;    
 }
