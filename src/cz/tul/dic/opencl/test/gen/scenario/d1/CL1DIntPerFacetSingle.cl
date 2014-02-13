@@ -88,11 +88,11 @@ kernel void CL1DIntPerFacetSingle(
     const float deltaFs = sqrt(deltaF);
     const float deltaGs = sqrt(deltaG);    
     
-    float resultVal = 0;                  
+    val = 0;
     for (int i = 0; i < facetSize2; i++) {                    
-        resultVal += facetI[i] * deformedI[i];
+        val += facetI[i] * deformedI[i];
     }    
     
     //store result    
-    result[deformationId] = resultVal / (deltaFs * deltaGs);
+    result[deformationId] = val / (deltaFs * deltaGs);
 }

@@ -32,8 +32,7 @@ kernel void CL1DIntPerDeformationSingle(
     const size_t facetId = get_global_id(0);
     if (facetId >= facetCount) {
         return;
-    }
-    
+    }    
     // index computation
     const int facetSize2 = facetSize * facetSize;
     const int facetCoordCount = facetSize2 * 2;   
@@ -47,7 +46,7 @@ kernel void CL1DIntPerDeformationSingle(
         indexFacet = baseIndexFacet + i2; 
         
         x = facets[indexFacet];
-        y = facets[indexFacet+1];
+        y = facets[indexFacet + 1];
 
         dx = x - facetCenters[baseIndexFacetCenter];
         dy = y - facetCenters[baseIndexFacetCenter + 1];
@@ -91,11 +90,11 @@ kernel void CL1DIntPerDeformationSingle(
     const float deltaFs = sqrt(deltaF);
     const float deltaGs = sqrt(deltaG);    
     
-    float resultVal = 0;                  
+    val = 0;                 
     for (int i = 0; i < facetSize2; i++) {                    
-        resultVal += facetI[i] * deformedI[i];
+        val += facetI[i] * deformedI[i];
     }    
     
     //store result    
-    result[facetId] = resultVal / (deltaFs * deltaGs);    
+    result[facetId] = val / (deltaFs * deltaGs);    
 }
