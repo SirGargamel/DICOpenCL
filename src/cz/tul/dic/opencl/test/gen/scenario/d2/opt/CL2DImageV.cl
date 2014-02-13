@@ -1,7 +1,3 @@
-inline int computeIndex(const float x, const float y, const int width) {
-    return (int)((y * width) + x);
-}
-
 constant sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
 
 inline int interpolate(const float2 coords, read_only image2d_t image) {
