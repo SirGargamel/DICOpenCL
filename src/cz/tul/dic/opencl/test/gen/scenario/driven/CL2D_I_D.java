@@ -21,12 +21,12 @@ import java.nio.IntBuffer;
  *
  * @author Petr Jecmen
  */
-public class CL2D_I_Dr extends ScenarioDrivenOpenCL {
+public class CL2D_I_D extends ScenarioDrivenOpenCL {
 
     private static final int ARGUMENT_INDEX = 11;
     private static final int OPTIMAL_LWS1 = 128;
 
-    public CL2D_I_Dr(final ContextHandler contextHandler, final WorkSizeManager fcm) throws IOException {
+    public CL2D_I_D(final ContextHandler contextHandler, final WorkSizeManager fcm) throws IOException {
         super(contextHandler, fcm);
     }
 
