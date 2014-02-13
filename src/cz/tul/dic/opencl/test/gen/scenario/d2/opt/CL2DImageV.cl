@@ -1,10 +1,10 @@
-int computeIndex(const float x, const float y, const int width) {
+inline int computeIndex(const float x, const float y, const int width) {
     return (int)((y * width) + x);
 }
 
 constant sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
 
-int interpolate(const float2 coords, read_only image2d_t image) {
+inline int interpolate(const float2 coords, read_only image2d_t image) {
     const float ix = floor(coords.x);
     const float dx = coords.x - ix;
     
