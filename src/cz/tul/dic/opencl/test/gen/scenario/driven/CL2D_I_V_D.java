@@ -66,7 +66,7 @@ public class CL2D_I_V_D extends ScenarioDrivenOpenCL {
         params.addParameter(Parameter.LWS0, lws0);
         params.addParameter(Parameter.LWS1, lws1);
         // execute kernel        
-        prepareEventList(1);
+        prepareEventList(facetSubCount);
         final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(Mode.PROFILING_MODE);
         queue.putWriteImage(imageAcl, false);
         queue.putWriteImage(imageBcl, false);
