@@ -8,9 +8,9 @@ inline int interpolate(const float2 coords, read_only image2d_t image) {
     const float dy = coords.y - iy;
 
     const float intensity = 
-        read_imageui(image, sampler, (float2)(ix, iy)).x * (1 - dx) * (1 - dy);
-        + read_imageui(image, sampler, (float2)(ix+1, iy)).x * dx * (1 - dy);
-        + read_imageui(image, sampler, (float2)(ix, iy+1)).x * (1 - dx) * dy;
+        read_imageui(image, sampler, (float2)(ix, iy)).x * (1 - dx) * (1 - dy)
+        + read_imageui(image, sampler, (float2)(ix+1, iy)).x * dx * (1 - dy)
+        + read_imageui(image, sampler, (float2)(ix, iy+1)).x * (1 - dx) * dy
         + read_imageui(image, sampler, (float2)(ix+1, iy+1)).x * dx * dy;               
 
     return intensity;    
@@ -27,7 +27,7 @@ kernel void CL2D_I_V_D(
 {    
     // id checks    
     const size_t facetId = facetBase + get_global_id(0);
-    if (facetId >= facetBase + facetSubCount || facetId >= facetCount) { {
+    if (facetId >= facetBase + facetSubCount || facetId >= facetCount) {
         return;
     }        
     const size_t deformationId = get_global_id(1);
