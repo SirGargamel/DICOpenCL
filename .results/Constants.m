@@ -8,7 +8,7 @@ FILE_HEADER_LINE_COUNT = 2;
 FILE_NAME_GPU = 'D:\\DIC_OpenCL_Data_GPU.csv';
 FILE_NAME_iGPU = 'D:\\DIC_OpenCL_Data_iGPU.csv';
 FILE_NAME_CPU = 'D:\\DIC_OpenCL_Data_CPU.csv';
-% FILE_NAME = 'DIC_OpenCL_Data.csv';
+% FILE_NAME = 'DIC_OpenCL_Data_GPU_NV_LT.csv';
 FILE_NAME = FILE_NAME_GPU;
 INDEX_DEFORMATION_COUNT = 4;
 INDEX_FACET_SIZE = 3;
@@ -21,7 +21,14 @@ INDEX_TEST_CASE = 5;
 INDEX_TIME_KERNEL = 13;
 INDEX_TIME_TOTAL = 12;
 INDEX_VARIANT = 6;
-NAMES_VARIANTS = {'TpF' 'TpD' '1D pF' '1D pD' '1.5D pF' '1.5D pD' '2D Naive' '2D Int[]' '2D I' '2D I FtoA' '2D I MC' '2D I Vec' '2D I C' '1D I L' '1D I LL' '2D I V + MC' '2D I LL + V' '2D I LL + MC' '2D I LL + MC + V' '2D I Dr'};
+NAMES_VARIANTS = { ...
+    'TpF' 'TpD' ...
+    '1D pF' '1D pD' '1.5D pF' '1.5D pD' ...
+    '2D Naive' '2D Int[]' '2D I' ...
+    '2D I FtoA' '2D I MC' '2D I V' '2D I C' ...
+    '1D I L' '1D I LL' ...
+    '2D I V + MC' '2D I LL + V' '2D I LL + MC' '2D I LL + MC + V' ...
+    '2D Int D' '2D I D' '2D I V D' '2D I V MC D' '2D I V LL D' '2D I V LL MC D'};
 TEST_CASE_RANDOM = 1;
 TEST_CASE_SHIFT = 2;
 TIME_KERNEL = 1;

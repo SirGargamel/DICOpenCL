@@ -30,7 +30,11 @@ import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageC;
 import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageFtoA;
 import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageMC;
 import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageV;
+import cz.tul.dic.opencl.test.gen.scenario.driven.CL1D_I_V_LL_D;
+import cz.tul.dic.opencl.test.gen.scenario.driven.CL1D_I_V_LL_MC_D;
 import cz.tul.dic.opencl.test.gen.scenario.driven.CL2D_I_D;
+import cz.tul.dic.opencl.test.gen.scenario.driven.CL2D_I_V_D;
+import cz.tul.dic.opencl.test.gen.scenario.driven.CL2D_I_V_MC_D;
 import cz.tul.dic.opencl.test.gen.scenario.driven.CL2D_Int_D;
 import cz.tul.dic.opencl.test.gen.scenario.java.JavaPerDeformation;
 import cz.tul.dic.opencl.test.gen.scenario.java.JavaPerFacet;
@@ -239,6 +243,10 @@ public class PerformanceTest {
 
         scenarios.add(new CL2D_Int_D(contextHandler, fcm));
         scenarios.add(new CL2D_I_D(contextHandler, fcm));
+        scenarios.add(new CL2D_I_V_D(contextHandler, fcm));
+        scenarios.add(new CL2D_I_V_MC_D(contextHandler, fcm));
+        scenarios.add(new CL1D_I_V_LL_D(contextHandler, fcm));
+        scenarios.add(new CL1D_I_V_LL_MC_D(contextHandler, fcm));
 
         return scenarios;
     }
