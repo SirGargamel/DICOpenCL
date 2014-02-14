@@ -29,12 +29,13 @@ import java.nio.IntBuffer;
 public final class CL1D_I_V_LL_D extends ScenarioDrivenOpenCL {
 
     private static final int ARGUMENT_INDEX = 12;
-    private static final int OPTIMAL_LWS0 = 128;
     private int lws0base;
     private boolean inited;
 
     public CL1D_I_V_LL_D(final ContextHandler contextHandler, final WorkSizeManager wsm) throws IOException {
         super(contextHandler, wsm);
+
+        inited = false;
     }
 
     @Override
@@ -71,10 +72,8 @@ public final class CL1D_I_V_LL_D extends ScenarioDrivenOpenCL {
         final long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
         params.addParameter(Parameter.DATASIZE, (int) (clSize / 1000));
         // prepare work sizes      
-        final int facetSubCount = getFacetCount();
-        final int roundCount = (int) Math.ceil(facetCount / (double) facetSubCount);
+        final int facetSubCount = getFacetCount();        
         final int deformationCount = params.getValue(Parameter.DEFORMATION_COUNT);
-
         final int facetArea = Utils.calculateFacetArea(params.getValue(Parameter.FACET_SIZE));
         final int lws0;
         if (deformationCount > facetArea) {
@@ -82,7 +81,6 @@ public final class CL1D_I_V_LL_D extends ScenarioDrivenOpenCL {
         } else {
             lws0 = roundUp(lws0base, deformationCount);
         }
-        
         final int facetGlobalWorkSize = roundUp(lws0, deformationCount) * facetSubCount;
         params.addParameter(Parameter.LWS0, lws0);
         int groupCountPerFacet = deformationCount / lws0;
@@ -100,7 +98,8 @@ public final class CL1D_I_V_LL_D extends ScenarioDrivenOpenCL {
                 .putArg(facetSubCount)
                 .putArg(0)
                 .rewind();
-        // execute kernel         
+        // execute kernel 
+        final int roundCount = (int) Math.ceil(facetCount / (double) facetSubCount);
         prepareEventList(roundCount);
         final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(Mode.PROFILING_MODE);
         queue.putWriteImage(imageAcl, false);
