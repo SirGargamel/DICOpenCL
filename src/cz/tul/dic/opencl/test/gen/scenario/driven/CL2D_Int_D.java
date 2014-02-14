@@ -60,7 +60,7 @@ public class CL2D_Int_D extends ScenarioDrivenOpenCL {
         // prepare work sizes
         final int lws0 = 1;
         final int lws1 = OPTIMAL_LWS1;
-        final int facetGlobalWorkSize = facetSubCount;
+        final int facetGlobalWorkSize = roundUp(lws0, facetSubCount);
         final int deformationsGlobalWorkSize = roundUp(lws1, params.getValue(Parameter.DEFORMATION_COUNT));
         params.addParameter(Parameter.LWS0, lws0);
         params.addParameter(Parameter.LWS1, lws1);
