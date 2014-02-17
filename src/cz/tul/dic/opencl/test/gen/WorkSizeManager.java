@@ -11,11 +11,23 @@ import java.util.TreeMap;
  */
 public class WorkSizeManager {
 
-    private static final double MAX_TIME = 2 * 1000000000;  // 2s
+    private static final double MAX_TIME_WIN = 2;
+    private static final double MAX_TIME_LIN = 5;
+    private static final int MAX_TIME_BASE = 1000000000;
+    private static final double MAX_TIME;
     private static final int INITIAL_WORK_SIZE = 16;
     private final Map<Class, Map<Integer, Double>> timeData;
     private final Map<Class, Integer> workSize;
     private int baseWorkSize;
+
+    static {
+        final String os = System.getProperty("os.name").toLowerCase();
+        if (os.indexOf("win") >= 0) {
+            MAX_TIME = MAX_TIME_WIN * MAX_TIME_BASE;
+        } else {
+            MAX_TIME = MAX_TIME_LIN * MAX_TIME_BASE;
+        }
+    }
 
     public WorkSizeManager() {
         timeData = new HashMap<>();
