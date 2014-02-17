@@ -4,7 +4,6 @@ import com.jogamp.common.nio.Buffers;
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;
-import com.jogamp.opencl.CLCommandQueue.Mode;
 import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLException;
 import com.jogamp.opencl.CLImage2d;
@@ -101,7 +100,7 @@ public final class CL1D_I_V_LL_D extends ScenarioDrivenOpenCL {
         // execute kernel 
         final int roundCount = (int) Math.ceil(facetCount / (double) facetSubCount);
         prepareEventList(roundCount);
-        final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(Mode.PROFILING_MODE);
+        final CLCommandQueue queue = createCommandQueue();
         queue.putWriteImage(imageAcl, false);
         queue.putWriteImage(imageBcl, false);
         queue.putWriteBuffer(bufferFacetData, false);

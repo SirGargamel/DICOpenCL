@@ -3,7 +3,6 @@ package cz.tul.dic.opencl.test.gen.scenario.d2;
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;
-import com.jogamp.opencl.CLCommandQueue.Mode;
 import com.jogamp.opencl.CLException;
 import com.jogamp.opencl.CLImage2d;
 import com.jogamp.opencl.CLKernel;
@@ -58,7 +57,7 @@ public class CL2DImage extends Scenario2D {
         params.addParameter(Parameter.LWS1, lws1);
         // execute kernel        
         prepareEventList(1);
-        final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(Mode.PROFILING_MODE);
+        final CLCommandQueue queue = createCommandQueue();
         queue.putWriteImage(imageAcl, false);
         queue.putWriteImage(imageBcl, false);
         queue.putWriteBuffer(bufferFacetData, false);

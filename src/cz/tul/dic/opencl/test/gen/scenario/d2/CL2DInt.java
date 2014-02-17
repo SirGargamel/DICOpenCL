@@ -2,7 +2,6 @@ package cz.tul.dic.opencl.test.gen.scenario.d2;
 
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;
-import com.jogamp.opencl.CLCommandQueue.Mode;
 import com.jogamp.opencl.CLException;
 import com.jogamp.opencl.CLKernel;
 import static com.jogamp.opencl.CLMemory.Mem.READ_ONLY;
@@ -66,7 +65,7 @@ public class CL2DInt extends Scenario2D {
         params.addParameter(Parameter.LWS1, lws1);
         // execute kernel        
         prepareEventList(1);
-        final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(Mode.PROFILING_MODE);
+        final CLCommandQueue queue = createCommandQueue();
         queue.putWriteBuffer(bufferImageA, false);
         queue.putWriteBuffer(bufferImageB, false);
         queue.putWriteBuffer(bufferFacetData, false);

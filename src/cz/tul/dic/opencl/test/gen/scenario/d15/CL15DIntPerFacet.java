@@ -2,7 +2,6 @@ package cz.tul.dic.opencl.test.gen.scenario.d15;
 
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;
-import com.jogamp.opencl.CLCommandQueue.Mode;
 import com.jogamp.opencl.CLException;
 import com.jogamp.opencl.CLKernel;
 import static com.jogamp.opencl.CLMemory.Mem.READ_ONLY;
@@ -59,7 +58,7 @@ public class CL15DIntPerFacet extends Scenario15D {
         params.addParameter(Parameter.LWS0, lws0);
         // execute kernel
         prepareEventList(facetCount);
-        final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(Mode.PROFILING_MODE);
+        final CLCommandQueue queue = createCommandQueue();
         queue.putWriteBuffer(bufferImageA, false);
         queue.putWriteBuffer(bufferImageB, false);
         queue.putWriteBuffer(bufferFacetData, false);

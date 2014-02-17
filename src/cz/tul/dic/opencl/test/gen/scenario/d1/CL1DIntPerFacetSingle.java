@@ -2,7 +2,6 @@ package cz.tul.dic.opencl.test.gen.scenario.d1;
 
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;
-import com.jogamp.opencl.CLCommandQueue.Mode;
 import com.jogamp.opencl.CLException;
 import com.jogamp.opencl.CLKernel;
 import static com.jogamp.opencl.CLMemory.Mem.READ_ONLY;
@@ -57,7 +56,7 @@ public class CL1DIntPerFacetSingle extends Scenario1D {
         // execute kernel                
         float[] oneResult;
         prepareEventList(facetCount);
-        final CLCommandQueue queue = contextHandler.getDevice().createCommandQueue(Mode.PROFILING_MODE);
+        final CLCommandQueue queue = createCommandQueue();
         // copy static data
         queue.putWriteBuffer(bufferImageA, false);
         queue.putWriteBuffer(bufferImageB, false);

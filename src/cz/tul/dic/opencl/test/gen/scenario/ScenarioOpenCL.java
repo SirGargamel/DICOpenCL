@@ -2,6 +2,7 @@ package cz.tul.dic.opencl.test.gen.scenario;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opencl.CLBuffer;
+import com.jogamp.opencl.CLCommandQueue;
 import com.jogamp.opencl.CLEvent;
 import com.jogamp.opencl.CLEventList;
 import com.jogamp.opencl.CLImage2d;
@@ -168,6 +169,12 @@ public abstract class ScenarioOpenCL extends Scenario {
     protected void prepareEventList(final int size) {
         eventList = new CLEventList(size);
         memoryObjects.add(eventList);
+    }
+
+    protected CLCommandQueue createCommandQueue() {
+        final CLCommandQueue result = contextHandler.getDevice().createCommandQueue(CLCommandQueue.Mode.PROFILING_MODE);
+        memoryObjects.add(result);
+        return result;
     }
 
 }
