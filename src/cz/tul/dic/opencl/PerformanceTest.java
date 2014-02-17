@@ -74,7 +74,7 @@ public class PerformanceTest {
             ScenarioResult result, tempResult;
             Scenario sc;
             TestCase tc;
-            int s;
+            int s, bestLwsSub = 1;
             try {
                 // execute scenarios
                 for (int tci = 0; tci < testCases.size(); tci++) {
@@ -123,6 +123,7 @@ public class PerformanceTest {
                                                         if (tempResult.getState() == State.SUCCESS) {
                                                             result = tempResult;
                                                             minTime = time;
+                                                            bestLwsSub = ps.getValue(Parameter.LWS_SUB);
                                                             result.setTotalTime(minTime);                                                            
                                                         }
                                                     }
@@ -130,6 +131,8 @@ public class PerformanceTest {
 
                                                 if (result == null) {
                                                     result = new ScenarioResult(-1, false);
+                                                } else {
+                                                    ps.addParameter(Parameter.LWS_SUB, bestLwsSub);
                                                 }
                                             } else {
                                                 // not driven kernel 
