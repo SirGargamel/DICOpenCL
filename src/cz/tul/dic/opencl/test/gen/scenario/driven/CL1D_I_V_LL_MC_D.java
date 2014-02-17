@@ -58,7 +58,7 @@ public final class CL1D_I_V_LL_MC_D extends ScenarioDrivenOpenCL {
     @Override
     public float[] prepareAndCompute(
             final int[] imageA, final int[] imageB,
-            final int[] facetData, final int[] facetCenters,
+            final int[] facetData, final float[] facetCenters,
             final float[] deformations,
             final ParameterSet params) throws CLException {
         // prepare buffers
@@ -66,7 +66,7 @@ public final class CL1D_I_V_LL_MC_D extends ScenarioDrivenOpenCL {
         final CLImage2d<IntBuffer> imageAcl = createImage(imageA, params.getValue(Parameter.IMAGE_WIDTH));
         final CLImage2d<IntBuffer> imageBcl = createImage(imageB, params.getValue(Parameter.IMAGE_WIDTH));
         final CLBuffer<IntBuffer> bufferFacetData = createIntBuffer(facetData.length, READ_ONLY);
-        final CLBuffer<IntBuffer> bufferFacetCenters = createIntBuffer(facetCenters, READ_ONLY);
+        final CLBuffer<FloatBuffer> bufferFacetCenters = createFloatBuffer(facetCenters, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferDeformations = createFloatBuffer(deformations, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferResult = createFloatBuffer(facetCount * params.getValue(Parameter.DEFORMATION_COUNT), WRITE_ONLY);
         final long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();

@@ -31,7 +31,7 @@ public abstract class ScenarioDrivenOpenCL extends ScenarioOpenCL {
     @Override
     public ScenarioResult compute(
             final int[] imageA, final int[] imageB,
-            final int[] facetData, final int[] facetCenters,
+            final int[] facetData, final float[] facetCenters,
             final float[] deformations,
             final ParameterSet params) throws CLException {
         currentVariant++;

@@ -26,9 +26,9 @@ public class TestCase {
         return new int[][]{result, result};
     }
 
-    public int[] generateFacetCenters(final int width, final int height, final int size) {
+    public float[] generateFacetCenters(final int width, final int height, final int size) {
         final int count = (width / size) * (height / size);
-        final int[] result = new int[count * 2];
+        final float[] result = new float[count * 2];
 
         Random rnd = new Random();
         int centerX, centerY, baseIndex;
@@ -45,7 +45,7 @@ public class TestCase {
         return result;
     }
 
-    public int[] generateFacetData(final int[] facetCenters, final int size) {
+    public int[] generateFacetData(final float[] facetCenters, final int size) {
         final int facetArraySize = Utils.calculateFacetArraySize(size);
         final int count = facetCenters.length / 2;
         final int[] result = new int[count * facetArraySize];
@@ -56,8 +56,8 @@ public class TestCase {
         for (int i = 0; i < count; i++) {
             baseIndex = i * facetArraySize;
 
-            centerX = facetCenters[i * 2];
-            centerY = facetCenters[i * 2 + 1];
+            centerX = (int) Math.round(facetCenters[i * 2]);
+            centerY = (int) Math.round(facetCenters[i * 2 + 1]);
 
             // generate points
             index = 0;

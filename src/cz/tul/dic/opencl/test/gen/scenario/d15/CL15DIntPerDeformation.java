@@ -30,7 +30,7 @@ public class CL15DIntPerDeformation extends Scenario15D {
     @Override
     protected float[] computeScenario(
             final int[] imageA, final int[] imageB,
-            final int[] facetData, final int[] facetCenters,
+            final int[] facetData, final float[] facetCenters,
             final float[] deformations,
             final ParameterSet params) throws CLException {
         // prepare buffers    
@@ -38,7 +38,7 @@ public class CL15DIntPerDeformation extends Scenario15D {
         final CLBuffer<IntBuffer> bufferImageA = createIntBuffer(imageA, READ_ONLY);
         final CLBuffer<IntBuffer> bufferImageB = createIntBuffer(imageB, READ_ONLY);
         final CLBuffer<IntBuffer> bufferFacetData = createIntBuffer(facetData, READ_ONLY);
-        final CLBuffer<IntBuffer> bufferFacetCenters = createIntBuffer(facetCenters, READ_ONLY);
+        final CLBuffer<FloatBuffer> bufferFacetCenters = createFloatBuffer(facetCenters, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferDeformations = createFloatBuffer(deformations, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferResult = createFloatBuffer(facetCount * params.getValue(Parameter.DEFORMATION_COUNT), WRITE_ONLY);
         final long clSize = bufferImageA.getCLSize() + bufferImageB.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();

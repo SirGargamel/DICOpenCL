@@ -66,7 +66,8 @@ public class PerformanceTest {
             initializeDataStorage(scenarios, testCases.size());
 
             int[][] images;
-            int[] facetData, facetCenters;
+            int[] facetData; 
+            float[] facetCenters;
             float[] deformations;
             long time, minTime;
             ParameterSet ps;
@@ -134,7 +135,7 @@ public class PerformanceTest {
                                                 // not driven kernel 
                                                 time = System.nanoTime();
                                                 result = sc.compute(images[0], images[1], facetData, facetCenters, deformations, ps);
-                                                if (result == null) {
+                                                if (result == null || result.getResultData() == null) {
                                                     result = new ScenarioResult(-1, false);
                                                 } else {
                                                     result.setTotalTime(System.nanoTime() - time);

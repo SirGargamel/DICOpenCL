@@ -28,7 +28,7 @@ public class CL1DIntPerFacetSingle extends Scenario1D {
     }
 
     @Override
-    protected float[] computeScenario(int[] imageA, int[] imageB, int[] facetData, int[] facetCenters, float[] deformations, ParameterSet params) throws CLException {
+    protected float[] computeScenario(int[] imageA, int[] imageB, int[] facetData, final float[] facetCenters, float[] deformations, ParameterSet params) throws CLException {
         final int facetSize = params.getValue(Parameter.FACET_SIZE);
         final int facetDataSize = Utils.calculateFacetArraySize(facetSize);
         final int deformationCount = deformations.length / Utils.DEFORMATION_DIM;
@@ -38,7 +38,7 @@ public class CL1DIntPerFacetSingle extends Scenario1D {
         final CLBuffer<IntBuffer> bufferImageA = createIntBuffer(imageA, READ_ONLY);
         final CLBuffer<IntBuffer> bufferImageB = createIntBuffer(imageB, READ_ONLY);
         final CLBuffer<IntBuffer> bufferFacetData = createIntBuffer(facetDataSize, READ_ONLY);
-        final CLBuffer<IntBuffer> bufferFacetCenter = createIntBuffer(FACET_DIMENSION, READ_ONLY);
+        final CLBuffer<FloatBuffer> bufferFacetCenter = createFloatBuffer(FACET_DIMENSION, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferDeformations = createFloatBuffer(deformations, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferResult = createFloatBuffer(deformationCount, WRITE_ONLY);
         final long clSize = bufferImageA.getCLSize() + bufferImageB.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
@@ -82,6 +82,14 @@ public class CL1DIntPerFacetSingle extends Scenario1D {
     }
 
     private static void fillBuffer(IntBuffer buffer, int[] data, int offset, int length) {
+        buffer.clear();
+        for (int i = offset; i < offset + length; i++) {
+            buffer.put(data[i]);
+        }
+        buffer.rewind();
+    }
+    
+    private static void fillBuffer(FloatBuffer buffer, float[] data, int offset, int length) {
         buffer.clear();
         for (int i = offset; i < offset + length; i++) {
             buffer.put(data[i]);

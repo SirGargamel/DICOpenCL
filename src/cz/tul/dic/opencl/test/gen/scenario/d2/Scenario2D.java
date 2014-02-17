@@ -35,7 +35,7 @@ public abstract class Scenario2D extends ScenarioOpenCL {
     @Override
     public float[] prepareAndCompute(
             final int[] imageA, final int[] imageB,
-            final int[] facetData, final int[] facetCenters,
+            final int[] facetData, final float[] facetCenters,
             final float[] deformations,
             final ParameterSet params) {
         float[] result = null;
@@ -51,7 +51,7 @@ public abstract class Scenario2D extends ScenarioOpenCL {
 
     protected abstract float[] computeScenario(
             final int[] imageA, final int[] imageB,
-            final int[] facetData, final int[] facetCenters,
+            final int[] facetData, final float[] facetCenters,
             final float[] deformations,
             final ParameterSet params);
 

@@ -20,7 +20,7 @@ inline int interpolate(const float x, const float y, global read_only int * imag
 
 kernel void CL15DIntPerDeformation(
     global read_only int * imageA, global read_only int * imageB, 
-    global read_only int * facets, global read_only int * facetCenters,
+    global read_only int * facets, global read_only float * facetCenters,
     global read_only float * deformations,
     global write_only float * result,
     const int deformationIndex,
@@ -40,7 +40,8 @@ kernel void CL15DIntPerDeformation(
     const int baseIndexDeformation = deformationIndex * 6;
     // deform facet
     float deformedFacet[-1*-1*2];    
-    int index, i2, x, y, dx, dy;   
+    int index, i2, x, y;
+    float dx, dy;
     for (int i = 0; i < facetSize2; i++) {
         i2 = i*2;
         index = baseIndexFacet + i2;        

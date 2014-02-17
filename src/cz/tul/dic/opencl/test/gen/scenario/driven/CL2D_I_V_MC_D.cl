@@ -22,7 +22,7 @@ int interpolate(const float2 coords, read_only image2d_t image) {
 
 kernel void CL2D_I_V_MC_D(
     read_only image2d_t imageA, read_only image2d_t imageB, 
-    global read_only int2 * facets, global read_only int2 * facetCenters,
+    global read_only int2 * facets, global read_only float2 * facetCenters,
     global read_only float * deformations,
     global write_only float * result,    
     const int imageWidth, const int deformationCount,
@@ -46,11 +46,11 @@ kernel void CL2D_I_V_MC_D(
     // deform facet
     float2 deformedFacet[-1*-1];
     int index;
-    int2 coords, def;
+    float2 coords, def;
     for (int i = 0; i < facetSize2; i++) {                
         index = i*facetCount + baseIndex;
         
-        coords = facets[index];
+        coords = convert_float2(facets[index]);
 
         def = coords - facetCenters[facetId];        
         

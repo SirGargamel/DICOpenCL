@@ -18,7 +18,7 @@ inline int interpolate(const float x, const float y, read_only image2d_t image) 
 
 kernel void CL2DImageC(
     read_only image2d_t imageA, read_only image2d_t imageB, 
-    constant int * facets, constant int * facetCenters,
+    constant int * facets, constant float * facetCenters,
     constant float * deformations,
     global write_only float * result,    
     const int imageWidth, const int deformationCount,
@@ -41,7 +41,8 @@ kernel void CL2DImageC(
     const int baseIndexDeformation = deformationId * 6;
     // deform facet
     float deformedFacet[-1*-1*2];
-    int index, i2, x, y, dx, dy;    
+    int index, i2, x, y;
+    float dx, dy;
     for (int i = 0; i < facetSize2; i++) {                
         i2 = i*2;
         index = baseIndexFacet + i2;        

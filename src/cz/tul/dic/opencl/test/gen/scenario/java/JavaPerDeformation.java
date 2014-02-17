@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  * @author Petr Jecmen
  */
 public class JavaPerDeformation extends Scenario {
-    
+
     private static final int COUNT_THREADS = Runtime.getRuntime().availableProcessors();
     private ExecutorService exec;
     private int currentVariant;
@@ -31,7 +31,7 @@ public class JavaPerDeformation extends Scenario {
     }
 
     @Override
-    public ScenarioResult compute(int[] imageA, int[] imageB, int[] facetData, int[] facetCenters, float[] deformations, ParameterSet params) {
+    public ScenarioResult compute(int[] imageA, int[] imageB, int[] facetData, final float[] facetCenters, float[] deformations, ParameterSet params) {
         final int threadCount = currentVariant + 1;
         // preparation
         exec = Executors.newFixedThreadPool(threadCount);
@@ -105,12 +105,12 @@ public class JavaPerDeformation extends Scenario {
         protected final int startIndex, endIndex;
         protected final int[] imageA, imageB;
         protected final int imageWidth;
-        protected final int[] facetData, facetCenters;
-        protected final float[] deformations;
+        protected final int[] facetData;
+        protected final float[] deformations, facetCenters;
         protected final int facetSize;
         protected final float[] results;
 
-        public Worker(int startIndex, int endIndex, int[] imageA, int[] imageB, int imageWidth, int[] facetData, int[] facetCenters, float[] deformations, int facetSize, float[] results) {
+        public Worker(int startIndex, int endIndex, int[] imageA, int[] imageB, int imageWidth, int[] facetData, final float[] facetCenters, float[] deformations, int facetSize, float[] results) {
             this.startIndex = startIndex;
             this.endIndex = endIndex;
             this.imageA = imageA;
@@ -127,7 +127,7 @@ public class JavaPerDeformation extends Scenario {
 
     private static class WorkerPerDeformation extends Worker {
 
-        public WorkerPerDeformation(int startIndex, int endIndex, int[] imageA, int[] imageB, int imageWidth, int[] facetData, int[] facetCenters, float[] deformations, int facetSize, float[] results) {
+        public WorkerPerDeformation(int startIndex, int endIndex, int[] imageA, int[] imageB, int imageWidth, int[] facetData, final float[] facetCenters, float[] deformations, int facetSize, float[] results) {
             super(startIndex, endIndex, imageA, imageB, imageWidth, facetData, facetCenters, deformations, facetSize, results);
         }
 
@@ -158,15 +158,16 @@ public class JavaPerDeformation extends Scenario {
         }
     }
 
-    private static void deform(final int[] facets, final int facetSize, final int[] facetCenters, final int facetIndex, final float[] deformedFacet, final float[] deformations, final int deformationIndex) {
+    private static void deform(final int[] facets, final int facetSize, final float[] facetCenters, final int facetIndex, final float[] deformedFacet, final float[] deformations, final int deformationIndex) {
         final int di = deformationIndex * Utils.DEFORMATION_DIM;
         final int facetBase = facetIndex * Utils.calculateFacetArraySize(facetSize);
         final int facetArea = Utils.calculateFacetArea(facetSize);
 
-        final int cx = facetCenters[facetIndex * 2];
-        final int cy = facetCenters[facetIndex * 2 + 1];
+        final float cx = facetCenters[facetIndex * 2];
+        final float cy = facetCenters[facetIndex * 2 + 1];
 
-        int x, y, dx, dy;
+        int x, y;
+        float dx, dy;
         int baseIndex;
         float val;
         for (int i = 0; i < facetArea; i++) {

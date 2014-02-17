@@ -14,7 +14,7 @@ public abstract class Scenario {
 
     public abstract ScenarioResult compute(
             final int[] imageA, final int[] imageB,
-            final int[] facetData, final int[] facetCenters,
+            final int[] facetData, final float[] facetCenters,
             final float[] deformations,
             final ParameterSet params);
 
