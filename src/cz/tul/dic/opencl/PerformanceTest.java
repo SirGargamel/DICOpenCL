@@ -14,10 +14,10 @@ import cz.tul.dic.opencl.test.gen.scenario.Scenario;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioDrivenOpenCL;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult.State;
-import cz.tul.dic.opencl.test.gen.scenario.comb.CL1DImage_LL_MC;
-import cz.tul.dic.opencl.test.gen.scenario.comb.CL1DImage_LL_MC_V;
-import cz.tul.dic.opencl.test.gen.scenario.comb.CL1DImage_LL_V;
-import cz.tul.dic.opencl.test.gen.scenario.comb.CL2DImage_MC_V;
+import cz.tul.dic.opencl.test.gen.scenario.comb.CL1D_I_LL_MC;
+import cz.tul.dic.opencl.test.gen.scenario.comb.CL1D_I_V_LL_MC;
+import cz.tul.dic.opencl.test.gen.scenario.comb.CL1D_I_V_LL;
+import cz.tul.dic.opencl.test.gen.scenario.comb.CL2D_I_V_MC;
 import cz.tul.dic.opencl.test.gen.scenario.d1.CL1DIntPerDeformationSingle;
 import cz.tul.dic.opencl.test.gen.scenario.d1.CL1DIntPerFacetSingle;
 import cz.tul.dic.opencl.test.gen.scenario.d1.opt.CL1DImageL;
@@ -66,7 +66,7 @@ public class PerformanceTest {
             initializeDataStorage(scenarios, testCases.size());
 
             int[][] images;
-            int[] facetData; 
+            int[] facetData;
             float[] facetCenters;
             float[] deformations;
             long time, minTime;
@@ -124,7 +124,7 @@ public class PerformanceTest {
                                                             result = tempResult;
                                                             minTime = time;
                                                             bestLwsSub = ps.getValue(Parameter.LWS_SUB);
-                                                            result.setTotalTime(minTime);                                                            
+                                                            result.setTotalTime(minTime);
                                                         }
                                                     }
                                                 }
@@ -240,10 +240,10 @@ public class PerformanceTest {
         scenarios.add(new CL1DImageL(contextHandler));
         scenarios.add(new CL1DImageLL(contextHandler));
 
-        scenarios.add(new CL2DImage_MC_V(contextHandler));    // Combined optimizations
-        scenarios.add(new CL1DImage_LL_V(contextHandler));
-        scenarios.add(new CL1DImage_LL_MC(contextHandler));
-        scenarios.add(new CL1DImage_LL_MC_V(contextHandler));
+        scenarios.add(new CL2D_I_V_MC(contextHandler));    // Combined optimizations
+        scenarios.add(new CL1D_I_V_LL(contextHandler));
+        scenarios.add(new CL1D_I_LL_MC(contextHandler));
+        scenarios.add(new CL1D_I_V_LL_MC(contextHandler));
 
         scenarios.add(new CL2D_Int_D(contextHandler, fcm));
         scenarios.add(new CL2D_I_D(contextHandler, fcm));
