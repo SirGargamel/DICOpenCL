@@ -12,6 +12,7 @@ import static com.jogamp.opencl.CLMemory.Mem.READ_ONLY;
 import static com.jogamp.opencl.CLMemory.Mem.WRITE_ONLY;
 import com.jogamp.opencl.llb.CL;
 import com.jogamp.opencl.llb.CLKernelBinding;
+import cz.tul.dic.opencl.test.gen.CustomMath;
 import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
 import cz.tul.dic.opencl.test.gen.Utils;
@@ -94,7 +95,7 @@ public final class CL1D_I_V_LL_MC_D extends ScenarioDrivenOpenCL {
             lws0 = roundUp(lws0base, deformationCount);
         }
         final int facetGlobalWorkSize = roundUp(lws0, deformationCount) * facetSubCount;
-        params.addParameter(Parameter.LWS_SUB, lws0);
+        params.addParameter(Parameter.LWS0, (int) Math.pow(2, CustomMath.power2(lws0)));
         int groupCountPerFacet = deformationCount / lws0;
         if (deformationCount % lws0 > 0) {
             groupCountPerFacet++;
