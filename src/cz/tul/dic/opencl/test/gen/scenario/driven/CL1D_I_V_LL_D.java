@@ -81,7 +81,7 @@ public final class CL1D_I_V_LL_D extends ScenarioDrivenOpenCL {
             lws0 = roundUp(lws0base, deformationCount);
         }
         final int facetGlobalWorkSize = roundUp(lws0, deformationCount) * facetSubCount;
-        params.addParameter(Parameter.LWS0, lws0);
+        params.addParameter(Parameter.LWS_SUB, lws0);
         int groupCountPerFacet = deformationCount / lws0;
         if (deformationCount % lws0 > 0) {
             groupCountPerFacet++;
