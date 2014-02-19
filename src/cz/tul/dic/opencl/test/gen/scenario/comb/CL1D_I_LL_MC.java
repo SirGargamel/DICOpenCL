@@ -15,6 +15,7 @@ import com.jogamp.opencl.llb.CLKernelBinding;
 import cz.tul.dic.opencl.test.gen.CustomMath;
 import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
+import cz.tul.dic.opencl.test.gen.Utils;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioOpenCL;
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -24,13 +25,13 @@ import java.nio.IntBuffer;
  *
  * @author Petr Jecmen
  */
-public final class CL1DImage_LL_V extends ScenarioOpenCL {
+public final class CL1D_I_LL_MC extends ScenarioOpenCL {
 
     private int maxVariantCount, lws0base, lws0base2;
     private int currentVariant;
     private boolean inited;
 
-    public CL1DImage_LL_V(final ContextHandler contextHandler) throws IOException {
+    public CL1D_I_LL_MC(final ContextHandler contextHandler) throws IOException {
         super(contextHandler);
 
         inited = false;
@@ -82,12 +83,26 @@ public final class CL1DImage_LL_V extends ScenarioOpenCL {
         final int facetCount = params.getValue(Parameter.FACET_COUNT);
         final CLImage2d<IntBuffer> imageAcl = createImage(imageA, params.getValue(Parameter.IMAGE_WIDTH));
         final CLImage2d<IntBuffer> imageBcl = createImage(imageB, params.getValue(Parameter.IMAGE_WIDTH));
-        final CLBuffer<IntBuffer> bufferFacetData = createIntBuffer(facetData, READ_ONLY);
+        final CLBuffer<IntBuffer> bufferFacetData = createIntBuffer(facetData.length, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferFacetCenters = createFloatBuffer(facetCenters, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferDeformations = createFloatBuffer(deformations, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferResult = createFloatBuffer(facetCount * params.getValue(Parameter.DEFORMATION_COUNT), WRITE_ONLY);
         final long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
         params.addParameter(Parameter.DATASIZE, (int) (clSize / 1000));
+        // facet data filled mannually, taking advantage of memory coalescing
+        final int facetSize = params.getValue(Parameter.FACET_SIZE);
+        final int facetArea = Utils.calculateFacetArea(facetSize);
+        final int facetArraySize = Utils.calculateFacetArraySize(facetSize);
+        final IntBuffer facetDataBuffer = bufferFacetData.getBuffer();
+        int index;
+        for (int i = 0; i < facetArea; i++) {
+            for (int f = 0; f < facetCount; f++) {
+                index = f * facetArraySize + 2 * i;
+                facetDataBuffer.put(facetData[index]);
+                facetDataBuffer.put(facetData[index + 1]);
+            }
+        }
+        facetDataBuffer.rewind();
         // prepare work sizes        
         final int deformationCount = params.getValue(Parameter.DEFORMATION_COUNT);
         final int lws0 = (int) Math.pow(2, currentVariant + lws0base2);
@@ -103,7 +118,7 @@ public final class CL1DImage_LL_V extends ScenarioOpenCL {
         kernel.putArgs(imageAcl, imageBcl, bufferFacetData, bufferFacetCenters, bufferDeformations, bufferResult)
                 .putArg(params.getValue(Parameter.IMAGE_WIDTH))
                 .putArg(deformationCount)
-                .putArg(params.getValue(Parameter.FACET_SIZE))
+                .putArg(facetSize)
                 .putArg(facetCount)
                 .putArg(groupCountPerFacet)
                 .rewind();
