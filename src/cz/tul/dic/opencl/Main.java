@@ -1,8 +1,5 @@
 package cz.tul.dic.opencl;
 
-import cz.tul.dic.opencl.test.gen.DataStorage;
-import cz.tul.dic.opencl.test.gen.ParameterSet;
-import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.logging.FileHandler;
@@ -37,28 +34,36 @@ public class Main {
         h.setLevel(Level.ALL);
         l.addHandler(h);
 
-//        PerformanceTest.computeImageFillTest();
+        PerformanceTest.computeImageFillTest();
         
-        final ParameterSet ps = new ParameterSet();
-        final ScenarioResult sr = new ScenarioResult(new float[] {1}, 1000);
-        final String device = "GPU";
-        DataStorage.storeData(ps, sr, device);
+        // DB testing
+//        ParameterSet ps = new ParameterSet();
+//        ScenarioResult sr = new ScenarioResult(new float[]{1}, 1000);
+//        String device = "GPU";
+//        DataStorage.storeData(ps, sr, device);
+//
+//        sr = new ScenarioResult(new float[]{1}, 1500);
+//        DataStorage.storeData(ps, sr, device);
+//        
+//        sr = new ScenarioResult(new float[]{2}, 3000);
+//        ps.addParameter(Parameter.LWS0, 10);
+//        DataStorage.storeData(ps, sr, device);
     }
 
     private static class HandlerOut extends StreamHandler {
 
         public HandlerOut() {
-            super(System.out, new SimpleFormatter());    
+            super(System.out, new SimpleFormatter());
             setFormatter(new Formatter() {
 
                 @Override
                 public String format(LogRecord record) {
-                    
+
                     return formatMessage(record).concat("\n");
                 }
             });
         }
-        
+
         @Override
         public void publish(LogRecord record) {
             super.publish(record);
