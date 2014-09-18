@@ -184,21 +184,7 @@ public class ContextHandler {
     }
 
     public final String getDeviceName() {
-        final String innerName = device.getName().toLowerCase();
-
-        StringBuilder sb = new StringBuilder();
-        sb.append(type.toString());
-        sb.append("-");
-
-        if (innerName.contains("intel")) {
-            sb.append("Intel");
-        } else if (innerName.contains("geforce")) {
-            sb.append("GeForce");
-        } else if (innerName.contains("amd") || innerName.contains("ati")) {
-            sb.append("AMD");
-        }
-
-        return sb.toString();
+        return device.getName();
     }
 
     public enum DeviceType {
