@@ -39,6 +39,7 @@ import cz.tul.dic.opencl.test.gen.scenario.driven.CL2D_I_V_MC_D;
 import cz.tul.dic.opencl.test.gen.scenario.driven.CL2D_Int_D;
 import cz.tul.dic.opencl.test.gen.scenario.java.JavaPerDeformation;
 import cz.tul.dic.opencl.test.gen.scenario.java.JavaPerFacet;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -62,6 +63,8 @@ public class PerformanceTest {
             final WorkSizeManager wsm = new WorkSizeManager();
             final List<Scenario> scenarios = prepareScenarios(ch, wsm);
             final List<TestCase> testCases = prepareTestCases();
+            
+            initializeDataStorage(scenarios, testCases.size());
 
             int[][] images;
             int[] facetData;
@@ -188,7 +191,24 @@ public class PerformanceTest {
                     context.release();
                 }
             }
+
+            initializeDataStorage(scenarios, testCases.size());
+            String fileName = "D:\\DIC_OpenCL_Data_" + device + ".csv";
+            DataStorage.exportData(new File(fileName));
+            DataStorage.exportResultGroups(new File("D:\\DIC_OpenCL_Results_" + device + ".csv"));
         }
+    }
+
+    private static void initializeDataStorage(final List<Scenario> scenarios, final int testCaseCount) {
+        DataStorage.clearVariantCounts();
+        for (Scenario sc : scenarios) {
+            DataStorage.addVariantCount(sc.getVariantCount());
+        }
+        int lineCount = 1;
+        lineCount *= Constants.IMAGE_SIZES.length;
+        lineCount *= Constants.FACET_SIZES.length;
+        lineCount *= Constants.DEFORMATION_COUNTS.length;
+        DataStorage.setCounts(lineCount, testCaseCount);
     }
 
     private static List<TestCase> prepareTestCases() {
