@@ -9,7 +9,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DecimalFormat;
@@ -295,37 +294,36 @@ public class DataStorage {
         }
         sb.setLength(sb.length() - DELIMITER_SQL_AND.length());
 
-        final Statement stm = conn.createStatement();
-        stm.execute(sb.toString());
-        if (stm.getUpdateCount() == 0) {
-            // INSERT
-            sb = new StringBuilder("INSERT INTO APP.DATA VALUES (");
-            sb.append("\'");
-            sb.append(device);
-            sb.append("\'");
-            sb.append(DELIMITER_VALUE);
-            for (Parameter p : Parameter.values()) {
-                if (ps.contains(p)) {
-                    sb.append(Integer.toString(ps.getValue(p)));
-                } else {
-                    sb.append(-1);
-                }
+        try (Statement stm = conn.createStatement()) {
+            if (stm.executeUpdate(sb.toString()) == 0) {
+                // INSERT
+                sb = new StringBuilder("INSERT INTO APP.DATA VALUES (");
+                sb.append("\'");
+                sb.append(device);
+                sb.append("\'");
                 sb.append(DELIMITER_VALUE);
-            }
-            sb.append(Double.toString(result.getTotalTime() / (double) 1000000));
-            sb.append(DELIMITER_VALUE);
-            sb.append(Double.toString(result.getKernelExecutionTime() / (double) 1000000));
-            sb.append(DELIMITER_VALUE);
-            sb.append("\'");
-            sb.append(result.getState().toString());
-            sb.append("\'");
-            sb.append(DELIMITER_VALUE);
-            sb.append(Integer.toString(result.getResultGroup()));
-            sb.append(")");
+                for (Parameter p : Parameter.values()) {
+                    if (ps.contains(p)) {
+                        sb.append(Integer.toString(ps.getValue(p)));
+                    } else {
+                        sb.append(-1);
+                    }
+                    sb.append(DELIMITER_VALUE);
+                }
+                sb.append(Double.toString(result.getTotalTime() / (double) 1000000));
+                sb.append(DELIMITER_VALUE);
+                sb.append(Double.toString(result.getKernelExecutionTime() / (double) 1000000));
+                sb.append(DELIMITER_VALUE);
+                sb.append("\'");
+                sb.append(result.getState().toString());
+                sb.append("\'");
+                sb.append(DELIMITER_VALUE);
+                sb.append(Integer.toString(result.getResultGroup()));
+                sb.append(")");
 
-            stm.execute(sb.toString());
+                stm.execute(sb.toString());
+            }
         }
-        stm.close();
     }
 
     public static void exportResultGroups(final File out) throws IOException {
