@@ -1,11 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.tul.dic.opencl;
 
+import cz.tul.dic.opencl.test.gen.DataStorage;
+import cz.tul.dic.opencl.test.gen.ParameterSet;
+import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
@@ -23,7 +22,7 @@ import java.util.logging.XMLFormatter;
  */
 public class Main {
 
-    public static void main(final String[] args) throws IOException {
+    public static void main(final String[] args) throws IOException, SQLException {
         // init logging
         LogManager.getLogManager().reset();
         final Level lvl = Level.WARNING;
@@ -38,7 +37,12 @@ public class Main {
         h.setLevel(Level.ALL);
         l.addHandler(h);
 
-        PerformanceTest.computeImageFillTest();
+//        PerformanceTest.computeImageFillTest();
+        
+        final ParameterSet ps = new ParameterSet();
+        final ScenarioResult sr = new ScenarioResult(new float[] {1}, 1000);
+        final String device = "GPU";
+        DataStorage.storeData(ps, sr, device);
     }
 
     private static class HandlerOut extends StreamHandler {

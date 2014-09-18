@@ -4,6 +4,7 @@ import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLException;
 import com.jogamp.opencl.CLPlatform;
 import cz.tul.dic.opencl.test.gen.ContextHandler;
+import cz.tul.dic.opencl.test.gen.ContextHandler.DeviceType;
 import cz.tul.dic.opencl.test.gen.DataStorage;
 import cz.tul.dic.opencl.test.gen.WorkSizeManager;
 import cz.tul.dic.opencl.test.gen.Parameter;
@@ -38,7 +39,6 @@ import cz.tul.dic.opencl.test.gen.scenario.driven.CL2D_I_V_MC_D;
 import cz.tul.dic.opencl.test.gen.scenario.driven.CL2D_Int_D;
 import cz.tul.dic.opencl.test.gen.scenario.java.JavaPerDeformation;
 import cz.tul.dic.opencl.test.gen.scenario.java.JavaPerFacet;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -55,15 +55,13 @@ public class PerformanceTest {
     private static final Logger log = Logger.getGlobal();
 
     public static void computeImageFillTest() throws IOException {
-        for (ContextHandler.DeviceType device : Constants.HW) {
+        for (DeviceType device : Constants.HW) {
             CLPlatform.initialize();
             DataStorage.reset();
             final ContextHandler ch = new ContextHandler(device);
             final WorkSizeManager wsm = new WorkSizeManager();
             final List<Scenario> scenarios = prepareScenarios(ch, wsm);
             final List<TestCase> testCases = prepareTestCases();
-
-            initializeDataStorage(scenarios, testCases.size());
 
             int[][] images;
             int[] facetData;
@@ -156,7 +154,7 @@ public class PerformanceTest {
                                             log.log(Level.SEVERE, "Error - " + ex.getLocalizedMessage(), ex);
                                         }
 
-                                        DataStorage.storeData(ps, result);
+                                        DataStorage.storeData(ps, result, ch.getDeviceName());
 
                                         switch (result.getState()) {
                                             case SUCCESS:
@@ -190,24 +188,7 @@ public class PerformanceTest {
                     context.release();
                 }
             }
-
-            initializeDataStorage(scenarios, testCases.size());
-            String fileName = "D:\\DIC_OpenCL_Data_" + device + ".csv";
-            DataStorage.exportData(new File(fileName));
-            DataStorage.exportResultGroups(new File("D:\\DIC_OpenCL_Results_" + device + ".csv"));
         }
-    }
-
-    private static void initializeDataStorage(final List<Scenario> scenarios, final int testCaseCount) {
-        DataStorage.clearVariantCounts();
-        for (Scenario sc : scenarios) {
-            DataStorage.addVariantCount(sc.getVariantCount());
-        }
-        int lineCount = 1;
-        lineCount *= Constants.IMAGE_SIZES.length;
-        lineCount *= Constants.FACET_SIZES.length;
-        lineCount *= Constants.DEFORMATION_COUNTS.length;
-        DataStorage.setCounts(lineCount, testCaseCount);
     }
 
     private static List<TestCase> prepareTestCases() {

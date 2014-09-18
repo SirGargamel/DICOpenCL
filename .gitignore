@@ -3,4 +3,5 @@
 /build.xml
 /dataPlot.asv
 /dist/
+/data/
 /*.log*

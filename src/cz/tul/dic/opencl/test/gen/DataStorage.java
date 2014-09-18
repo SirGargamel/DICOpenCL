@@ -7,6 +7,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.LinkedHashMap;
@@ -24,17 +29,31 @@ import java.util.logging.Logger;
  */
 public class DataStorage {
 
+    private static final Parameter[] SQL_UPDATE_SET = new Parameter[]{
+        Parameter.FACET_COUNT,
+        Parameter.DATASIZE};
+    private static final Parameter[] SQL_UPDATE_WHERE = new Parameter[]{
+        Parameter.IMAGE_WIDTH, Parameter.IMAGE_HEIGHT, Parameter.FACET_SIZE,
+        Parameter.DEFORMATION_COUNT, Parameter.TEST_CASE, Parameter.VARIANT,
+        Parameter.LWS0, Parameter.LWS1, Parameter.LWS_SUB};
     private static final int CORRECT_RESULT_POS = 0;
     private static final int ILLEGAL_RESULT = 0;
     private static final File runningOut = new File("D:\\DIC_OpenCL_Data_running.csv");
     private static final String DELIMITER_VALUE = ",";
     private static final String DELIMITER_LINE = "\n";
+    private static final String DELIMITER_SQL_AND = " AND ";
     private static final DecimalFormat df;
     private static final Map<ParameterSet, ScenarioResult> data;
     private static final Map<ParameterSet, List<float[]>> resultGroups;
     private static final List<Integer> variantCount;
     private static int lineCount, testCaseCount;
     private static boolean runningInited;
+    // DB
+    private static final String JDBC_DRIVER = "org.apache.derby.jdbc.EmbeddedDriver";
+    private static final String DB_URL = "jdbc:derby://localhost:1527/d:\\Dropbox\\TUL\\DIC\\DIC_OpenCL\\data\\OpenCLdata\\";
+    private static final String USER = "username";
+    private static final String PASS = "password";
+    private static Connection conn;
 
     static {
         data = new TreeMap<>();
@@ -47,6 +66,14 @@ public class DataStorage {
         df.setDecimalFormatSymbols(dfs);
 
         runningInited = false;
+
+        try {
+            Class.forName(JDBC_DRIVER);
+            System.out.println("Connecting to database...");
+            conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        } catch (ClassNotFoundException | SQLException ex) {
+            System.err.println("Error connecting to DB - " + ex.getLocalizedMessage());
+        }
     }
 
     public static void reset() {
@@ -56,7 +83,7 @@ public class DataStorage {
         runningInited = false;
     }
 
-    public static void storeData(final ParameterSet params, final ScenarioResult result) {
+    public static void storeData(final ParameterSet params, final ScenarioResult result, final String device) throws SQLException {
         data.put(params, result);
 
         if (State.WRONG_RESULT_FIXED.equals(result.getState())) {
@@ -74,6 +101,8 @@ public class DataStorage {
         } catch (IOException ex) {
             Logger.getLogger(DataStorage.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        writeDataResultLineToDB(params, result, device);
 
         result.markAsStored();
     }
@@ -134,7 +163,7 @@ public class DataStorage {
     public static void addVariantCount(final int count) {
         variantCount.add(count);
     }
-    
+
     public static void clearVariantCounts() {
         variantCount.clear();
     }
@@ -219,6 +248,84 @@ public class DataStorage {
         bw.write(Integer.toString(result.getResultGroup()));
 
         bw.write(DELIMITER_LINE);
+    }
+
+    private static void writeDataResultLineToDB(ParameterSet ps, ScenarioResult result, final String device) throws SQLException {
+        // UPDATE
+        StringBuilder sb = new StringBuilder("UPDATE APP.DATA SET ");
+        for (Parameter p : SQL_UPDATE_SET) {
+            sb.append(p.toString());
+            sb.append("=");
+            if (ps.contains(p)) {
+                sb.append(Integer.toString(ps.getValue(p)));
+            } else {
+                sb.append(-1);
+            }
+            sb.append(DELIMITER_VALUE);
+        }
+        sb.append("TIME_TOTAL=");
+        sb.append(Double.toString(result.getTotalTime() / (double) 1000000));
+        sb.append(DELIMITER_VALUE);
+        sb.append("TIME_KERNEL=");
+        sb.append(Double.toString(result.getKernelExecutionTime() / (double) 1000000));
+        sb.append(DELIMITER_VALUE);
+        sb.append("STATE=");
+        sb.append("\'");
+        sb.append(result.getState().toString());
+        sb.append("\'");
+        sb.append(DELIMITER_VALUE);
+        sb.append("RESULT_GROUP=");
+        sb.append(Integer.toString(result.getResultGroup()));
+
+        sb.append(" WHERE ");
+
+        sb.append("DEVICE=\'");
+        sb.append(device);
+        sb.append("\'");
+        sb.append(DELIMITER_SQL_AND);
+        for (Parameter p : SQL_UPDATE_WHERE) {
+            sb.append(p.toString());
+            sb.append("=");
+            if (ps.contains(p)) {
+                sb.append(Integer.toString(ps.getValue(p)));
+            } else {
+                sb.append(-1);
+            }
+            sb.append(DELIMITER_SQL_AND);
+        }
+        sb.setLength(sb.length() - DELIMITER_SQL_AND.length());
+
+        final Statement stm = conn.createStatement();
+        stm.execute(sb.toString());
+        if (stm.getUpdateCount() == 0) {
+            // INSERT
+            sb = new StringBuilder("INSERT INTO APP.DATA VALUES (");
+            sb.append("\'");
+            sb.append(device);
+            sb.append("\'");
+            sb.append(DELIMITER_VALUE);
+            for (Parameter p : Parameter.values()) {
+                if (ps.contains(p)) {
+                    sb.append(Integer.toString(ps.getValue(p)));
+                } else {
+                    sb.append(-1);
+                }
+                sb.append(DELIMITER_VALUE);
+            }
+            sb.append(Double.toString(result.getTotalTime() / (double) 1000000));
+            sb.append(DELIMITER_VALUE);
+            sb.append(Double.toString(result.getKernelExecutionTime() / (double) 1000000));
+            sb.append(DELIMITER_VALUE);
+            sb.append("\'");
+            sb.append(result.getState().toString());
+            sb.append("\'");
+            sb.append(DELIMITER_VALUE);
+            sb.append(Integer.toString(result.getResultGroup()));
+            sb.append(")");
+
+            stm.execute(sb.toString());
+        }
+        stm.close();
     }
 
     public static void exportResultGroups(final File out) throws IOException {
