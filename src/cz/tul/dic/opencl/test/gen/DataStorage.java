@@ -101,7 +101,9 @@ public class DataStorage {
             Logger.getLogger(DataStorage.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        writeDataResultLineToDB(params, result, device);
+        if (conn != null) {
+            writeDataResultLineToDB(params, result, device);
+        }
 
         result.markAsStored();
     }
