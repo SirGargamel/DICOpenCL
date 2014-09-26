@@ -7,7 +7,7 @@ package cz.tul.dic.opencl.test.gen;
 public abstract class Utils {
 
     public static final int DEFORMATION_DIM = 6;
-    public static final float DEFORMATION_ABS_MAX_0 = 5;
+    public static final float DEFORMATION_ABS_MAX_0 = 1;
     public static final float DEFORMATION_ABS_MAX_1 = 0.1f; 
 
     public static int calculateFacetArraySize(final int facetSize) {
