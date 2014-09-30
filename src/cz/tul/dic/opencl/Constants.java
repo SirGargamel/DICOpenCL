@@ -31,10 +31,10 @@ public interface Constants {
 //    public final int[][] IMAGE_SIZES = new int[][]{{128, 96}};
 //    public final int[] DEFORMATION_COUNTS = new int[]{100};
 //    public final int[] FACET_SIZES = new int[]{21};
-//  Real task 1st order
-    public final int[][] IMAGE_SIZES = new int[][]{{35, 90}, {50, 120}, {88, 240}};
+//  Test task
+    public final int[][] IMAGE_SIZES = new int[][]{{88, 240}};
     public final int[] DEFORMATION_COUNTS = new int[]{100, 10000, 500000};
-    public final int[] FACET_SIZES = new int[]{10, 15, 25};
+    public final int[] FACET_SIZES = new int[]{10, 20, 40};
 //  Real task 0 order
 //    public final int[][] IMAGE_SIZES = new int[][]{{52, 52}, {143,143}};
 //    public final int[] DEFORMATION_COUNTS = new int[]{200, 10000};
