@@ -34,7 +34,7 @@ public interface Constants {
 //  Test task
     public final int[][] IMAGE_SIZES = new int[][]{{88, 240}};
     public final int[] DEFORMATION_COUNTS = new int[]{100, 10000, 500000};
-    public final int[] FACET_SIZES = new int[]{10, 20, 40};
+    public final int[] FACET_SIZES = new int[]{40, 20, 7};
 //  Real task 0 order
 //    public final int[][] IMAGE_SIZES = new int[][]{{52, 52}, {143,143}};
 //    public final int[] DEFORMATION_COUNTS = new int[]{200, 10000};
