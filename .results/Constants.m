@@ -2,14 +2,15 @@ COLORS = [[0 0 0];[1 0 0 ];[0 1 0];[0 0 1];[1 1 0];[1 0 1];[0 1 1];[1 1 1];[0 0 
 COUNT_LWS0 = log2(1024) + 1;
 COUNT_LWS1 = log2(1024) + 1;
 FILE_DELIMITER = ',';
-FILE_FORMAT = '%f %f %f %f %f %f %f %f %f %f %f %f %f %s %f';
-% FILE_FORMAT = '%f %f %f %f %f %f %f %f %f %f %f %f %f %s %f %f %f %f %f %f %f';
+% FILE_FORMAT = '%f %f %f %f %f %f %f %f %f %f %f %f %f %s %f';
+FILE_FORMAT = '%f %f %f %f %f %f %f %f %f %f %f %f %f %s %f %f %f %f %f %f %f %f %f %f %f %f %f';
 FILE_HEADER_LINE_COUNT = 2;
 FILE_NAME_GPU = 'D:\\DIC_OpenCL_Data_GPU.csv';
-FILE_NAME_iGPU = 'D:\\DIC_OpenCL_Data_iGPU.csv';
-FILE_NAME_CPU = 'D:\\DIC_OpenCL_Data_CPU.csv';
-% FILE_NAME = 'DIC_OpenCL_Data_GPU_NV_LT.csv';
-FILE_NAME = FILE_NAME_GPU;
+FILE_NAME_GT650 = 'DIC_OpenCL_Data_GPU_GT650_FT.csv';
+FILE_NAME_i7_3610 = 'DIC_OpenCL_Data_CPU_i7-3610QM_FT.csv';
+FILE_NAME_HD4000 = 'DIC_OpenCL_Data_iGPU_HD4000_ST.csv';
+FILE_NAME = FILE_NAME_GT650;
+
 INDEX_DEFORMATION_COUNT = 4;
 INDEX_FACET_SIZE = 3;
 INDEX_LWS0 = 7;
@@ -28,7 +29,7 @@ NAMES_VARIANTS = { ...
     '2D I FtoA' '2D I MC' '2D I V' '2D I C' ...
     '1D I L' '1D I LL' ...
     '2D I V + MC' '2D I LL + V' '2D I LL + MC' '2D I LL + MC + V' ...
-    '2D Int D' '2D I D' '2D I V D' '2D I V MC D' '2D I V LL D' '2D I V LL MC D'};
+    '2D Int D' '2D I D' '2D I V D' '2D I V MC D' '1D I V LL D' '1D I V LL MC D'};
 TEST_CASE_RANDOM = 1;
 TEST_CASE_SHIFT = 2;
 TIME_KERNEL = 1;
@@ -45,12 +46,27 @@ VARIANT_2D_IMAGE = 9;
 VARIANT_2D_IMAGE_FA = 10;
 VARIANT_2D_IMAGE_MC = 11;
 VARIANT_2D_IMAGE_VEC = 12;
-VARIANT_2D_IMAGE_V_MC = 13;
+VARIANT_2D_IMAGE_C = 13;
+VARIANT_2D_IMAGE_L = 14;
+VARIANT_2D_IMAGE_LL = 15;
+VARIANT_2D_IMAGE_V_MC = 16;
+VARIANT_2D_IMAGE_V_LL = 17;
+VARIANT_2D_IMAGE_LL_MC = 18;
+VARIANT_2D_IMAGE_V_LL_MC = 19;
+VARIANT_2D_INT_D = 20;
+VARIANT_2D_IMAGE_D = 21;
+VARIANT_2D_IMAGE_VEC_D = 22;
+VARIANT_2D_IMAGE_V_MC_D = 23;
+VARIANT_2D_IMAGE_V_LL_D = 24;
+VARIANT_2D_IMAGE_V_LL_MC_D = 25;
 X = 1 : COUNT_LWS1;
+% X = 1 : 8;
 X_LABELS = cell(COUNT_LWS1,1);
 for i=1:COUNT_LWS1
     X_LABELS(i) = cellstr(int2str(2^(i-1)));
+%     X_LABELS(i) = cellstr(int2str(i));
 end;
+
 % which time will be used in graphs
 ANALYZED_TIME = TIME_TOTAL;
 % which case will be analyzed in graphs
