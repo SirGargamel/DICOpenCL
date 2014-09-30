@@ -246,7 +246,7 @@ public class PerformanceTest {
         scenarios.add(new CL1D_I_LL_MC(contextHandler));
         scenarios.add(new CL1D_I_V_LL_MC(contextHandler));
 
-        scenarios.add(new CL2D_Int_D(contextHandler, fcm));
+        scenarios.add(new CL2D_Int_D(contextHandler, fcm)); // driven variants
         scenarios.add(new CL2D_I_D(contextHandler, fcm));
         scenarios.add(new CL2D_I_V_D(contextHandler, fcm));
         scenarios.add(new CL2D_I_V_MC_D(contextHandler, fcm));
