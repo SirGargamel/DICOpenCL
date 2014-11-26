@@ -1,5 +1,5 @@
 clear all;
-close all;
+% close all;
 clc;
 % best times of each variant comparison
 % Data format specification can be found in Constants.m and LoadData.m
@@ -23,7 +23,7 @@ end;
 % Plot graphs
 % Main plot, create multiple windows
 % split graphs to multiple windows
-graphCountX = 2;
+graphCountX = 1;
 graphCountY = 3;
 graphsPerWindowCount = graphCountX * graphCountY;
 windowCount = ceil(graphCount / graphsPerWindowCount);

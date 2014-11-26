@@ -35,9 +35,9 @@ plotData = bestVariantData(2:3, :);
 % Plot graphs
 % Main plot, create multiple windows
 % split graphs to multiple windows
-columnsPerGraph = 4;
-graphCountX = 2;
-graphCountY = 3;
+columnsPerGraph = 9;
+graphCountX = 1;
+graphCountY = 1;
 graphsPerWindowCount = graphCountX * graphCountY * columnsPerGraph;
 windowCount = ceil(graphCount / graphsPerWindowCount);
 titles = cell(columnsPerGraph,1);

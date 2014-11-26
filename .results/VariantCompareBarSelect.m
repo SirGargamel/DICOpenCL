@@ -1,13 +1,19 @@
 clear all;
-close all;
+% close all;
 clc;
 % best times of each variant comparison
 % Data format specification can be found in Constants.m and LoadData.m
 Constants;
 LoadData;
 ANALYZED_TIME = TIME_TOTAL;
-% ANALYZED_VARIANTS = [VARIANT_2D_IMAGE VARIANT_2D_IMAGE_MC VARIANT_2D_IMAGE_VEC VARIANT_2D_IMAGE_V_MC];
-ANALYZED_VARIANTS = [1 2];
+% ANALYZED_VARIANTS = [VARIANT_2D_IMAGE VARIANT_2D_IMAGE_VEC VARIANT_2D_IMAGE_LL VARIANT_2D_IMAGE_MC VARIANT_2D_IMAGE_V_LL_MC];
+% ANALYZED_VARIANTS = [VARIANT_2D_INT VARIANT_2D_INT_D VARIANT_2D_IMAGE VARIANT_2D_IMAGE_D VARIANT_2D_IMAGE_VEC VARIANT_2D_IMAGE_VEC_D VARIANT_2D_IMAGE_V_MC VARIANT_2D_IMAGE_V_MC_D VARIANT_2D_IMAGE_V_LL VARIANT_2D_IMAGE_V_LL_D VARIANT_2D_IMAGE_V_LL_MC VARIANT_2D_IMAGE_V_LL_MC_D];
+% ANALYZED_VARIANTS = [VARIANT_JAVA_FACET VARIANT_JAVA_DEFORMATION];
+
+% ANALYZED_VARIANTS = [8 9 11:13 15:25];
+ANALYZED_VARIANTS = [1:3 5 7:13 15:25];
+% ANALYZED_VARIANTS = [9 15];
+% ANALYZED_VARIANTS = [8:9];
 varCount = size(ANALYZED_VARIANTS, 2);
 NAMES_VARIANTS_INNER = cell(varCount);
 for i=1:varCount
@@ -31,11 +37,15 @@ end;
 % Plot graphs
 % Main plot, create multiple windows
 % split graphs to multiple windows
-graphCountX = 2;
+graphCountX = 1;
 graphCountY = 3;
 graphsPerWindowCount = graphCountX * graphCountY;
 windowCount = ceil(graphCount / graphsPerWindowCount);
 for win=1:windowCount
+%     if (~(win == 1 || win == 3 || win == 5 || win == 7 || win == 9))
+%         continue;
+%     end;
+    
     index = (win-1) * graphsPerWindowCount * pointCount + 1;
     name = 'Kernel running time';
     figure('units','normalized','outerposition',[0 0.05 1 0.95],'name',name)    

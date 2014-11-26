@@ -5,14 +5,18 @@ clc;
 % Data format specification can be found in Constants.m and LoadData.m
 Constants;
 LoadData;
-ANALYZED_VARIANT = VARIANT_2D_IMAGE;
+ANALYZED_VARIANT = VARIANT_2D_IMAGE_FA;
 % Plot graphs
 % Main plot, create multiple windows
-graphCountX = 2;
-graphCountY = 3;
+graphCountX = 1;
+graphCountY = 1;
 graphsPerWindowCount = graphCountX * graphCountY;
 windowCount = ceil(graphCount / graphsPerWindowCount);
 for win=1:windowCount
+    if (~(win == 1 || win == 3 || win == 5 || win == 7 || win == 9))
+        continue;
+    end;
+    
     index = (win-1) * graphsPerWindowCount * pointCount + 1;
     name = ['Kernel running time, Resolution  ' int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY))];
     figure('units','normalized','outerposition',[0 0.05 1 0.95],'name',name)    
