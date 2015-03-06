@@ -10,7 +10,7 @@ import com.jogamp.opencl.CLMemory;
 import com.jogamp.opencl.CLPlatform;
 import com.jogamp.opencl.CLProgram;
 import com.jogamp.opencl.util.Filter;
-import cz.tul.dic.opencl.test.gen.scenario.Scenario;
+import cz.tul.dic.opencl.test.gen.scenario.fulldata.ScenarioFullData;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +31,7 @@ public class ContextHandler {
     private final DeviceType type;
     private final CLErrorHandler errorHandler;
     private CLPlatform platform;
-    private Scenario scenario;
+    private ScenarioFullData scenario;
     private CLContext context;
     private CLDevice device;
     private CLKernel kernel;
@@ -65,7 +65,7 @@ public class ContextHandler {
         }
     }
 
-    public void assignScenario(final Scenario sc) {
+    public void assignScenario(final ScenarioFullData sc) {
         scenario = sc;
         if (context != null && scenario != null) {
             final String name = scenario.getKernelName();

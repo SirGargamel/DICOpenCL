@@ -3,7 +3,7 @@ package cz.tul.dic.opencl.test.gen.scenario.java;
 import cz.tul.dic.opencl.test.gen.Utils;
 import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
-import cz.tul.dic.opencl.test.gen.scenario.Scenario;
+import cz.tul.dic.opencl.test.gen.scenario.fulldata.ScenarioFullData;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  *
  * @author Petr Jecmen
  */
-public class JavaPerDeformation extends Scenario {
+public class JavaPerDeformation extends ScenarioFullData {
 
     private static final int COUNT_THREADS = Runtime.getRuntime().availableProcessors();
     private ExecutorService exec;

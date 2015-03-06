@@ -11,11 +11,10 @@ import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
 import cz.tul.dic.opencl.test.gen.Utils;
 import cz.tul.dic.opencl.test.gen.testcase.TestCase;
-import cz.tul.dic.opencl.test.gen.scenario.Scenario;
-import cz.tul.dic.opencl.test.gen.scenario.ScenarioDrivenOpenCL;
+import cz.tul.dic.opencl.test.gen.scenario.fulldata.ScenarioFullData;
+import cz.tul.dic.opencl.test.gen.scenario.fulldata.ScenarioDrivenOpenCL;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult.State;
-import cz.tul.dic.opencl.test.gen.scenario.comb.CL1D_I_LL_MC;
 import cz.tul.dic.opencl.test.gen.scenario.comb.CL1D_I_V_LL_MC;
 import cz.tul.dic.opencl.test.gen.scenario.comb.CL1D_I_V_LL;
 import cz.tul.dic.opencl.test.gen.scenario.comb.CL2D_I_V_MC;
@@ -27,16 +26,17 @@ import cz.tul.dic.opencl.test.gen.scenario.d15.CL15DIntPerDeformation;
 import cz.tul.dic.opencl.test.gen.scenario.d15.CL15DIntPerFacet;
 import cz.tul.dic.opencl.test.gen.scenario.d2.CL2DImage;
 import cz.tul.dic.opencl.test.gen.scenario.d2.CL2DInt;
-import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageC;
-import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageFtoA;
-import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageMC;
-import cz.tul.dic.opencl.test.gen.scenario.d2.opt.CL2DImageV;
 import cz.tul.dic.opencl.test.gen.scenario.driven.CL1D_I_V_LL_D;
 import cz.tul.dic.opencl.test.gen.scenario.driven.CL1D_I_V_LL_MC_D;
 import cz.tul.dic.opencl.test.gen.scenario.driven.CL2D_I_D;
 import cz.tul.dic.opencl.test.gen.scenario.driven.CL2D_I_V_D;
 import cz.tul.dic.opencl.test.gen.scenario.driven.CL2D_I_V_MC_D;
 import cz.tul.dic.opencl.test.gen.scenario.driven.CL2D_Int_D;
+import cz.tul.dic.opencl.test.gen.scenario.fulldata.comb.CL1D_I_LL_MC;
+import cz.tul.dic.opencl.test.gen.scenario.fulldata.d2.opt.CL2DImageC;
+import cz.tul.dic.opencl.test.gen.scenario.fulldata.d2.opt.CL2DImageFtoA;
+import cz.tul.dic.opencl.test.gen.scenario.fulldata.d2.opt.CL2DImageMC;
+import cz.tul.dic.opencl.test.gen.scenario.fulldata.d2.opt.CL2DImageV;
 import cz.tul.dic.opencl.test.gen.scenario.java.JavaPerDeformation;
 import cz.tul.dic.opencl.test.gen.scenario.java.JavaPerFacet;
 import java.io.File;
@@ -61,7 +61,7 @@ public class PerformanceTest {
             DataStorage.reset();
             final ContextHandler ch = new ContextHandler(device);
             final WorkSizeManager wsm = new WorkSizeManager();
-            final List<Scenario> scenarios = prepareScenarios(ch, wsm);
+            final List<ScenarioFullData> scenarios = prepareScenarios(ch, wsm);
             final List<TestCase> testCases = prepareTestCases();
             
             initializeDataStorage(scenarios, testCases.size());
@@ -73,7 +73,7 @@ public class PerformanceTest {
             long time, minTime;
             ParameterSet ps;
             ScenarioResult result, tempResult;
-            Scenario sc;
+            ScenarioFullData sc;
             TestCase tc;
             int s, bestLwsSub = 1;
             try {
@@ -199,9 +199,9 @@ public class PerformanceTest {
         }
     }
 
-    private static void initializeDataStorage(final List<Scenario> scenarios, final int testCaseCount) {
+    private static void initializeDataStorage(final List<ScenarioFullData> scenarios, final int testCaseCount) {
         DataStorage.clearVariantCounts();
-        for (Scenario sc : scenarios) {
+        for (ScenarioFullData sc : scenarios) {
             DataStorage.addVariantCount(sc.getVariantCount());
         }
         int lineCount = 1;
@@ -220,8 +220,8 @@ public class PerformanceTest {
         return result;
     }
 
-    private static List<Scenario> prepareScenarios(final ContextHandler contextHandler, final WorkSizeManager fcm) throws IOException {
-        final List<Scenario> scenarios = new LinkedList<>();
+    private static List<ScenarioFullData> prepareScenarios(final ContextHandler contextHandler, final WorkSizeManager fcm) throws IOException {
+        final List<ScenarioFullData> scenarios = new LinkedList<>();
 
         scenarios.add(new JavaPerFacet());    // Java threads computation
         scenarios.add(new JavaPerDeformation());
