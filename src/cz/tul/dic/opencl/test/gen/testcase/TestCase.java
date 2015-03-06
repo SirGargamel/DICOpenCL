@@ -104,12 +104,40 @@ public class TestCase {
     }
 
     protected void writeKnownDeformations(final float[] result, float... deformations) {
-        final int lr = result.length;
-        final int ld = deformations.length;
-        for (int i = 0; i < ld; i++) {
-            result[i] = deformations[i];
-            result[lr - ld + i] = deformations[i];
+        System.arraycopy(deformations, 0, result, 0, deformations.length);
+    }
+
+    public float[] generateDeformationLimits(final int deformationCount) {
+        final float[] deformationLimits = new float[Utils.DEFORMATION_DIM * 3];
+
+        for (int dim = 0; dim < Utils.DEFORMATION_DIM; dim++) {
+            deformationLimits[dim * 3] = 0;
+            deformationLimits[dim * 3 + 1] = Utils.DEFORMATION_ABS_MAX_1;
         }
+        deformationLimits[1] = Utils.DEFORMATION_ABS_MAX_0;
+        deformationLimits[4] = Utils.DEFORMATION_ABS_MAX_0;
+
+        for (int dim = 2; dim < Utils.DEFORMATION_DIM; dim++) {
+            deformationLimits[dim * 3 + 1] = Utils.DEFORMATION_ABS_MAX_1;
+        }
+
+        int rest = deformationCount;
+        int div;
+        for (int dim = 0; dim < Utils.DEFORMATION_DIM - 1; dim++) {
+            for (int n = 2; n < 100; n++) {
+                div = rest / n;
+                if (n * div == rest) {
+                    deformationLimits[dim * 3 + 2] = (float) ((deformationLimits[dim * 3 + 1] - deformationLimits[dim * 3]) / (double) n);
+                    rest /= n;
+                    break;
+                }
+            }
+        }
+
+        final int base = (Utils.DEFORMATION_DIM - 1) * 3;
+        deformationLimits[base + 2] = (float) ((deformationLimits[base + 1] - deformationLimits[base]) / (double) rest);
+
+        return deformationLimits;
     }
 
     public void checkResult(final ScenarioResult result, final int facetCount) {
@@ -124,7 +152,7 @@ public class TestCase {
                     oneCount++;
                 }
             }
-            if (oneCount != (facetCount * 2)) {
+            if (oneCount != (facetCount)) {
                 result.markAsInvalidFixedPart();
             }
         }

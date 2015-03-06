@@ -11,34 +11,15 @@ import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
 import cz.tul.dic.opencl.test.gen.Utils;
 import cz.tul.dic.opencl.test.gen.testcase.TestCase;
-import cz.tul.dic.opencl.test.gen.scenario.fulldata.ScenarioFullData;
 import cz.tul.dic.opencl.test.gen.scenario.fulldata.ScenarioDrivenOpenCL;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult.State;
-import cz.tul.dic.opencl.test.gen.scenario.comb.CL1D_I_V_LL_MC;
-import cz.tul.dic.opencl.test.gen.scenario.comb.CL1D_I_V_LL;
-import cz.tul.dic.opencl.test.gen.scenario.comb.CL2D_I_V_MC;
-import cz.tul.dic.opencl.test.gen.scenario.d1.CL1DIntPerDeformationSingle;
-import cz.tul.dic.opencl.test.gen.scenario.d1.CL1DIntPerFacetSingle;
-import cz.tul.dic.opencl.test.gen.scenario.d1.opt.CL1DImageL;
-import cz.tul.dic.opencl.test.gen.scenario.d1.opt.CL1DImageLL;
-import cz.tul.dic.opencl.test.gen.scenario.d15.CL15DIntPerDeformation;
-import cz.tul.dic.opencl.test.gen.scenario.d15.CL15DIntPerFacet;
 import cz.tul.dic.opencl.test.gen.scenario.d2.CL2DImage;
-import cz.tul.dic.opencl.test.gen.scenario.d2.CL2DInt;
-import cz.tul.dic.opencl.test.gen.scenario.driven.CL1D_I_V_LL_D;
-import cz.tul.dic.opencl.test.gen.scenario.driven.CL1D_I_V_LL_MC_D;
-import cz.tul.dic.opencl.test.gen.scenario.driven.CL2D_I_D;
-import cz.tul.dic.opencl.test.gen.scenario.driven.CL2D_I_V_D;
-import cz.tul.dic.opencl.test.gen.scenario.driven.CL2D_I_V_MC_D;
-import cz.tul.dic.opencl.test.gen.scenario.driven.CL2D_Int_D;
-import cz.tul.dic.opencl.test.gen.scenario.fulldata.comb.CL1D_I_LL_MC;
-import cz.tul.dic.opencl.test.gen.scenario.fulldata.d2.opt.CL2DImageC;
-import cz.tul.dic.opencl.test.gen.scenario.fulldata.d2.opt.CL2DImageFtoA;
-import cz.tul.dic.opencl.test.gen.scenario.fulldata.d2.opt.CL2DImageMC;
-import cz.tul.dic.opencl.test.gen.scenario.fulldata.d2.opt.CL2DImageV;
-import cz.tul.dic.opencl.test.gen.scenario.java.JavaPerDeformation;
-import cz.tul.dic.opencl.test.gen.scenario.java.JavaPerFacet;
+import cz.tul.dic.opencl.test.gen.scenario.fulldata.Scenario;
+import cz.tul.dic.opencl.test.gen.scenario.fulldata.ScenarioFullData;
+import cz.tul.dic.opencl.test.gen.scenario.fulldata.ScenarioOpenCL;
+import cz.tul.dic.opencl.test.gen.scenario.limits.ScenarioLimits;
+import cz.tul.dic.opencl.test.gen.scenario.limits.d2.CL_L_2DImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -61,19 +42,21 @@ public class PerformanceTest {
             DataStorage.reset();
             final ContextHandler ch = new ContextHandler(device);
             final WorkSizeManager wsm = new WorkSizeManager();
-            final List<ScenarioFullData> scenarios = prepareScenarios(ch, wsm);
+            final List<Scenario> scenarios = prepareScenarios(ch, wsm);
             final List<TestCase> testCases = prepareTestCases();
-            
+
             initializeDataStorage(scenarios, testCases.size());
 
             int[][] images;
             int[] facetData;
             float[] facetCenters;
-            float[] deformations;
+            float[] deformations, defomationLimits;
             long time, minTime;
             ParameterSet ps;
             ScenarioResult result, tempResult;
-            ScenarioFullData sc;
+            Scenario sc;
+            ScenarioFullData scf;
+            ScenarioLimits scl;
             TestCase tc;
             int s, bestLwsSub = 1;
             try {
@@ -92,6 +75,7 @@ public class PerformanceTest {
 
                             for (int d : Constants.DEFORMATION_COUNTS) {
                                 deformations = tc.generateDeformations(d);
+                                defomationLimits = tc.generateDeformationLimits(d);
 
                                 for (int sci = 0; sci < scenarios.size(); sci++) {
                                     sc = scenarios.get(sci);
@@ -110,44 +94,97 @@ public class PerformanceTest {
 
                                         try {
                                             result = null;
-                                            if (sc instanceof ScenarioDrivenOpenCL) {
-                                                // driven kernel
-                                                minTime = Long.MAX_VALUE;
-                                                while (sc.hasNext()) {
-                                                    time = System.nanoTime();
-                                                    tempResult = sc.compute(images[0], images[1], facetData, facetCenters, deformations, ps);
-                                                    time = System.nanoTime() - time;
+                                            if (sc instanceof ScenarioFullData) {
+                                                scf = (ScenarioFullData) sc;
+                                                if (sc instanceof ScenarioDrivenOpenCL) {
+                                                    // driven kernel
+                                                    minTime = Long.MAX_VALUE;
+                                                    while (sc.hasNext()) {
+                                                        time = System.nanoTime();
+                                                        tempResult = scf.compute(images[0], images[1], facetData, facetCenters, deformations, ps);
+                                                        time = System.nanoTime() - time;
 
-                                                    if (tempResult != null && time < minTime) {
-                                                        tc.checkResult(tempResult, ps.getValue(Parameter.FACET_COUNT));
+                                                        if (tempResult != null && time < minTime) {
+                                                            tc.checkResult(tempResult, ps.getValue(Parameter.FACET_COUNT));
 
-                                                        if (tempResult.getState() == State.SUCCESS) {
-                                                            result = tempResult;
-                                                            minTime = time;
-                                                            bestLwsSub = ps.getValue(Parameter.LWS_SUB);
-                                                            result.setTotalTime(minTime);
+                                                            if (tempResult.getState() == State.SUCCESS) {
+                                                                result = tempResult;
+                                                                minTime = time;
+                                                                bestLwsSub = ps.getValue(Parameter.LWS_SUB);
+                                                                result.setTotalTime(minTime);
+                                                            }
                                                         }
                                                     }
-                                                }
 
-                                                if (result == null) {
-                                                    result = new ScenarioResult(-1, false);
+                                                    if (result == null) {
+                                                        result = new ScenarioResult(-1, false);
+                                                    } else {
+                                                        ps.addParameter(Parameter.LWS_SUB, bestLwsSub);
+                                                    }
+                                                } else if (sc instanceof ScenarioOpenCL) {
+                                                    // not driven kernel 
+                                                    time = System.nanoTime();
+                                                    result = scf.compute(images[0], images[1], facetData, facetCenters, deformations, ps);
+                                                    if (result == null || result.getResultData() == null) {
+                                                        result = new ScenarioResult(-1, false);
+                                                    } else {
+                                                        result.setTotalTime(System.nanoTime() - time);
+                                                        tc.checkResult(result, ps.getValue(Parameter.FACET_COUNT));
+                                                        if (!State.SUCCESS.equals(result.getState())) {
+                                                            result.setTotalTime(-1);
+                                                        }
+                                                    }
                                                 } else {
-                                                    ps.addParameter(Parameter.LWS_SUB, bestLwsSub);
+                                                    log.log(Level.SEVERE, "Illegal type of full data scenario - {0}", sc.getClass().toGenericString());
+                                                    result = new ScenarioResult(-1, true);
+                                                }
+                                            } else if (sc instanceof ScenarioFullData) {
+                                                scl = (ScenarioLimits) sc;
+                                                if (sc instanceof ScenarioDrivenOpenCL) {
+                                                    // driven kernel
+                                                    minTime = Long.MAX_VALUE;
+                                                    while (sc.hasNext()) {
+                                                        time = System.nanoTime();
+                                                        tempResult = scl.compute(images[0], images[1], facetCenters, defomationLimits, ps);
+                                                        time = System.nanoTime() - time;
+
+                                                        if (tempResult != null && time < minTime) {
+                                                            tc.checkResult(tempResult, ps.getValue(Parameter.FACET_COUNT));
+
+                                                            if (tempResult.getState() == State.SUCCESS) {
+                                                                result = tempResult;
+                                                                minTime = time;
+                                                                bestLwsSub = ps.getValue(Parameter.LWS_SUB);
+                                                                result.setTotalTime(minTime);
+                                                            }
+                                                        }
+                                                    }
+
+                                                    if (result == null) {
+                                                        result = new ScenarioResult(-1, false);
+                                                    } else {
+                                                        ps.addParameter(Parameter.LWS_SUB, bestLwsSub);
+                                                    }
+                                                } else if (sc instanceof ScenarioOpenCL) {
+                                                    // not driven kernel 
+                                                    time = System.nanoTime();
+                                                    result = scl.compute(images[0], images[1], facetCenters, defomationLimits, ps);
+                                                    if (result == null || result.getResultData() == null) {
+                                                        result = new ScenarioResult(-1, false);
+                                                    } else {
+                                                        result.setTotalTime(System.nanoTime() - time);
+                                                        tc.checkResult(result, ps.getValue(Parameter.FACET_COUNT));
+                                                        if (!State.SUCCESS.equals(result.getState())) {
+                                                            result.setTotalTime(-1);
+                                                        }
+                                                    }
+                                                } else {
+                                                    log.log(Level.SEVERE, "Illegal type of limite scenario - {0}", sc.getClass().toGenericString());
+                                                    result = new ScenarioResult(-1, true);
                                                 }
                                             } else {
-                                                // not driven kernel 
-                                                time = System.nanoTime();
-                                                result = sc.compute(images[0], images[1], facetData, facetCenters, deformations, ps);
-                                                if (result == null || result.getResultData() == null) {
-                                                    result = new ScenarioResult(-1, false);
-                                                } else {
-                                                    result.setTotalTime(System.nanoTime() - time);
-                                                    tc.checkResult(result, ps.getValue(Parameter.FACET_COUNT));
-                                                    if (!State.SUCCESS.equals(result.getState())) {
-                                                        result.setTotalTime(-1);
-                                                    }
-                                                }
+                                                log.log(Level.SEVERE, "Illegal type of scenario - {0}", sc.getClass().toGenericString());
+                                                result = new ScenarioResult(-1, true);
                                             }
                                         } catch (CLException ex) {
                                             result = new ScenarioResult(-1, true);
@@ -199,9 +236,9 @@ public class PerformanceTest {
         }
     }
 
-    private static void initializeDataStorage(final List<ScenarioFullData> scenarios, final int testCaseCount) {
+    private static void initializeDataStorage(final List<Scenario> scenarios, final int testCaseCount) {
         DataStorage.clearVariantCounts();
-        for (ScenarioFullData sc : scenarios) {
+        for (Scenario sc : scenarios) {
             DataStorage.addVariantCount(sc.getVariantCount());
         }
         int lineCount = 1;
@@ -220,38 +257,40 @@ public class PerformanceTest {
         return result;
     }
 
-    private static List<ScenarioFullData> prepareScenarios(final ContextHandler contextHandler, final WorkSizeManager fcm) throws IOException {
-        final List<ScenarioFullData> scenarios = new LinkedList<>();
+    private static List<Scenario> prepareScenarios(final ContextHandler contextHandler, final WorkSizeManager fcm) throws IOException {
+        final List<Scenario> scenarios = new LinkedList<>();
 
-        scenarios.add(new JavaPerFacet());    // Java threads computation
-        scenarios.add(new JavaPerDeformation());
-
-        scenarios.add(new CL1DIntPerFacetSingle(contextHandler)); // OpenCL computation
-        scenarios.add(new CL1DIntPerDeformationSingle(contextHandler));
-        scenarios.add(new CL15DIntPerFacet(contextHandler));
-        scenarios.add(new CL15DIntPerDeformation(contextHandler));
-        scenarios.add(new CL2DInt("CL2DInt", contextHandler));
-        scenarios.add(new CL2DInt("CL2DIntOpt", contextHandler));
+//        scenarios.add(new JavaPerFacet());    // Java threads computation
+//        scenarios.add(new JavaPerDeformation());
+//
+//        scenarios.add(new CL1DIntPerFacetSingle(contextHandler)); // OpenCL computation
+//        scenarios.add(new CL1DIntPerDeformationSingle(contextHandler));
+//        scenarios.add(new CL15DIntPerFacet(contextHandler));
+//        scenarios.add(new CL15DIntPerDeformation(contextHandler));
+//        scenarios.add(new CL2DInt("CL2DInt", contextHandler));
+//        scenarios.add(new CL2DInt("CL2DIntOpt", contextHandler));
         scenarios.add(new CL2DImage(contextHandler));
+//
+//        scenarios.add(new CL2DImageFtoA(contextHandler)); // Optimizations
+//        scenarios.add(new CL2DImageMC(contextHandler));
+//        scenarios.add(new CL2DImageV(contextHandler));
+//        scenarios.add(new CL2DImageC(contextHandler));
+//        scenarios.add(new CL1DImageL(contextHandler));
+//        scenarios.add(new CL1DImageLL(contextHandler));
+//
+//        scenarios.add(new CL2D_I_V_MC(contextHandler));    // Combined optimizations
+//        scenarios.add(new CL1D_I_V_LL(contextHandler));
+//        scenarios.add(new CL1D_I_LL_MC(contextHandler));
+//        scenarios.add(new CL1D_I_V_LL_MC(contextHandler));
+//
+//        scenarios.add(new CL2D_Int_D(contextHandler, fcm)); // driven variants
+//        scenarios.add(new CL2D_I_D(contextHandler, fcm));
+//        scenarios.add(new CL2D_I_V_D(contextHandler, fcm));
+//        scenarios.add(new CL2D_I_V_MC_D(contextHandler, fcm));
+//        scenarios.add(new CL1D_I_V_LL_D(contextHandler, fcm));
+//        scenarios.add(new CL1D_I_V_LL_MC_D(contextHandler, fcm));
 
-        scenarios.add(new CL2DImageFtoA(contextHandler)); // Optimizations
-        scenarios.add(new CL2DImageMC(contextHandler));
-        scenarios.add(new CL2DImageV(contextHandler));
-        scenarios.add(new CL2DImageC(contextHandler));
-        scenarios.add(new CL1DImageL(contextHandler));
-        scenarios.add(new CL1DImageLL(contextHandler));
-
-        scenarios.add(new CL2D_I_V_MC(contextHandler));    // Combined optimizations
-        scenarios.add(new CL1D_I_V_LL(contextHandler));
-        scenarios.add(new CL1D_I_LL_MC(contextHandler));
-        scenarios.add(new CL1D_I_V_LL_MC(contextHandler));
-
-        scenarios.add(new CL2D_Int_D(contextHandler, fcm)); // driven variants
-        scenarios.add(new CL2D_I_D(contextHandler, fcm));
-        scenarios.add(new CL2D_I_V_D(contextHandler, fcm));
-        scenarios.add(new CL2D_I_V_MC_D(contextHandler, fcm));
-        scenarios.add(new CL1D_I_V_LL_D(contextHandler, fcm));
-        scenarios.add(new CL1D_I_V_LL_MC_D(contextHandler, fcm));
+        scenarios.add(new CL_L_2DImage(contextHandler));
 
         return scenarios;
     }
