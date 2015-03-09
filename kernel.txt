@@ -1,0 +1,75 @@
+constant sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP | CLK_FILTER_NEAREST;  
+
+inline int getValue(float p0, float p1, float p2, float p3, float x) {     return p1 + 0.5 * x*(p2 - p0 + x*(2.0*p0 - 5.0*p1 + 4.0*p2 - p3 + x*(3.0*(p1 - p2) + p3 - p0)));     }  
+
+inline int interpolate(const float x, const float y, read_only image2d_t image) {     
+const float ix = floor(x);     const float dx = x - ix;          
+const float iy = floor(y);     const float dy = y - iy;                      
+const float arr0 = getValue(read_imageui(image, sampler, (float2)(ix-1, iy-1)).x, read_imageui(image, sampler, (float2)(ix, iy-1)).x, read_imageui(image, sampler, (float2)(ix+1, iy-1)).x, read_imageui(image, sampler, (float2)(ix+2, iy-1)).x, dy);     
+const float arr1 = getValue(read_imageui(image, sampler, (float2)(ix-1, iy)).x, read_imageui(image, sampler, (float2)(ix, iy)).x, read_imageui(image, sampler, (float2)(ix+1, iy)).x, read_imageui(image, sampler, (float2)(ix+2, iy)).x, dy);     
+const float arr2 = getValue(read_imageui(image, sampler, (float2)(ix-1, iy+1)).x, read_imageui(image, sampler, (float2)(ix, iy+1)).x, read_imageui(image, sampler, (float2)(ix+1, iy+1)).x, read_imageui(image, sampler, (float2)(ix+2, iy+1)).x, dy);     
+const float arr3 = getValue(read_imageui(image, sampler, (float2)(ix-1, iy+2)).x, read_imageui(image, sampler, (float2)(ix, iy+2)).x, read_imageui(image, sampler, (float2)(ix+1, iy+2)).x, read_imageui(image, sampler, (float2)(ix+2, iy+2)).x, dy);          
+return getValue(arr0, arr1, arr2, arr3, dx); }   /**  * 
+
+@author Petr Jecmen, Technical University of Liberec  */ 
+kernel void CL1D_I_V_LL_MC_D(     
+	read_only image2d_t imageA, read_only image2d_t imageB,      
+	global read_only int2 * facets, global read_only float2 * facetCenters,     
+	global read_only float * deformationLimits, global read_only int * deformationCounts,     
+	global write_only float * result,             
+	const int imageWidth, const int deformationCount,     
+	const int facetSize, const int facetCount,     
+	const int groupCountPerFacet,     
+	const int facetSubCount, const int facetBase,     
+	const int deformationSubCount, const int deformationBase)  {             
+
+//// ID checks         
+// facet     
+	const size_t groupId = get_group_id(0);     
+	const size_t facetId = (groupId / groupCountPerFacet) + facetBase;     
+	if (facetId >= facetBase + facetSubCount || facetId >= facetCount) {         return;     }                        
+	const size_t localId = get_local_id(0);     
+	const size_t groupSize = get_local_size(0);         
+	const int facetSize2 = facetSize * facetSize;         
+	
+	// load facet to local memory         
+	local int2 facetLocal[10*10];     
+	int index;     
+	if (groupSize >= facetSize2) {         
+		if (localId < facetSize2) {                         
+			facetLocal[localId] = facets[localId*facetCount + facetId];                     }         
+			} else {         
+	const int runCount = facetSize2 / groupSize;         
+	int id;         
+	for (int i = 0; i < runCount; i++) {             
+		id = i*groupSize + localId;             
+		index = id*facetCount + facetId;              
+		facetLocal[id] = facets[index];                    
+	}         	
+	const int rest = facetSize2 % groupSize;         
+	if (localId < rest) {             id = groupSize * runCount + localId;             index = id*facetCount + facetId;                         facetLocal[id] = facets[index];                     }     }             barrier(CLK_LOCAL_MEM_FENCE);     
+
+	const int groupSubId = groupId % groupCountPerFacet;     
+	const int deformationId = groupSubId * groupSize + localId + deformationBase;     
+	if (deformationId >= deformationBase + deformationSubCount || deformationId >= deformationCount) {         return;     }     
+
+	float deformation[6];     
+	const int limitsBase = facetId * 18; 
+	const int countsBase = facetId * 7; 
+	if (deformationId >= deformationCounts[countsBase + 6]) { return; } 	
+	int counter = deformationId; 
+	deformation[0] = counter % deformationCounts[countsBase + 0]; 
+	counter = counter / deformationCounts[countsBase + 0]; 
+	deformation[1] = counter % deformationCounts[countsBase + 1]; counter = counter / deformationCounts[countsBase + 1]; 
+	deformation[2] = counter % deformationCounts[countsBase + 2]; counter = counter / deformationCounts[countsBase + 2]; 
+	deformation[3] = counter % deformationCounts[countsBase + 3]; counter = counter / deformationCounts[countsBase + 3]; 
+	deformation[4] = counter % deformationCounts[countsBase + 4]; counter = counter / deformationCounts[countsBase + 4]; 
+	deformation[5] = counter % deformationCounts[countsBase + 5]; counter = counter / deformationCounts[countsBase + 5]; 
+	deformation[0] = deformationLimits[limitsBase + 0] + deformation[0] * deformationLimits[limitsBase + 2]; 
+	deformation[1] = deformationLimits[limitsBase + 3] + deformation[1] * deformationLimits[limitsBase + 5]; 
+	deformation[2] = deformationLimits[limitsBase + 6] + deformation[2] * deformationLimits[limitsBase + 8]; 
+	deformation[3] = deformationLimits[limitsBase + 9] + deformation[3] * deformationLimits[limitsBase + 11]; 
+	deformation[4] = deformationLimits[limitsBase + 12] + deformation[4] * deformationLimits[limitsBase + 14]; 
+	deformation[5] = deformationLimits[limitsBase + 15] + deformation[5] * deformationLimits[limitsBase + 17];      
+
+// deform facet     float2 deformedFacet[10*10];     float2 coords, def;      for (int i = 0; i < facetSize2; i++) {         coords = convert_float2(facetLocal[i]);                 def = coords - facetCenters[facetId];                  deformedFacet[i] = (float2)(coords.x + deformation[0] + deformation[2] * def.x + deformation[3] * def.y, coords.y + deformation[1] + deformation[4] * def.x + deformation[5] * def.y);     }     // compute correlation using ZNCC     float deformedI[10*10];     float facetI[10*10];     float meanF = 0;     float meanG = 0;      for (int i = 0; i < facetSize2; i++) {         facetI[i] = read_imageui(imageA, sampler, facetLocal[i]).x;         meanF += facetI[i];                  deformedI[i] = interpolate(deformedFacet[i].x, deformedFacet[i].y, imageB);         meanG += deformedI[i];     }      meanF /= (float) facetSize2;     meanG /= (float) facetSize2;              float deltaF = 0;     float deltaG = 0;        for (int i = 0; i < facetSize2; i++) {                                                      facetI[i] -= meanF;         deltaF += facetI[i] * facetI[i];                                  deformedI[i] -= meanG;         deltaG += deformedI[i] * deformedI[i];     }              float resultVal = 0;                if (deltaF != 0 && deltaG != 0) {         for (int i = 0; i < facetSize2; i++) {                         resultVal += facetI[i] * deformedI[i];         }         resultVal /= sqrt(deltaF) * sqrt(deltaG);       }              //store result         result[facetId * deformationCount + deformationId] = resultVal;     }
