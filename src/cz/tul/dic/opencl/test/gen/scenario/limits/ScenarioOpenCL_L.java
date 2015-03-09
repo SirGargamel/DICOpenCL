@@ -50,12 +50,12 @@ public abstract class ScenarioOpenCL_L extends ScenarioLimits {
     public ScenarioResult compute(
             final int[] imageA, final int[] imageB,
             final float[] facetCenters,
-            final float[] deformationLimits,
+            final float[] deformationLimits, final int[] deformationCounts,
             final ParameterSet params) {
         params.addParameter(Parameter.LWS0, 1);
         params.addParameter(Parameter.LWS1, 1);
 
-        float[] result = prepareAndCompute(imageA, imageB, facetCenters, deformationLimits, params);
+        float[] result = prepareAndCompute(imageA, imageB, facetCenters, deformationLimits, deformationCounts, params);
 
         final long duration = computeTotalKernelTime();
 
@@ -86,7 +86,7 @@ public abstract class ScenarioOpenCL_L extends ScenarioLimits {
     protected abstract float[] prepareAndCompute(
             final int[] imageA, final int[] imageB,
             final float[] facetCenters,
-            final float[] deformationLimits,
+            final float[] deformationLimits, final int[] deformationCounts,
             final ParameterSet params);
 
     @Override

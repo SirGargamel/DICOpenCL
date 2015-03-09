@@ -13,7 +13,7 @@ public abstract class ScenarioLimits extends Scenario {
     public abstract ScenarioResult compute(
             final int[] imageA, final int[] imageB,
             final float[] facetCenters,
-            final float[] deformationLimits,
+            final float[] deformationLimits, final int[] deformationCounts,
             final ParameterSet params);
 
 }

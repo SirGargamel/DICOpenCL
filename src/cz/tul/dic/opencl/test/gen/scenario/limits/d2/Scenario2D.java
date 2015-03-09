@@ -36,11 +36,11 @@ public abstract class Scenario2D extends ScenarioOpenCL_L {
     public float[] prepareAndCompute(
             final int[] imageA, final int[] imageB,
             final float[] facetCenters,
-            final float[] deformationLimits,
+            final float[] deformationLimits, final int[] deformationCounts,
             final ParameterSet params) {
         float[] result = null;
         try {
-            result = computeScenario(imageA, imageB, facetCenters, deformationLimits, params);
+            result = computeScenario(imageA, imageB, facetCenters, deformationLimits, deformationCounts, params);
         } catch (Exception | Error ex) {
             throw ex;
         } finally {
@@ -52,7 +52,7 @@ public abstract class Scenario2D extends ScenarioOpenCL_L {
     protected abstract float[] computeScenario(
             final int[] imageA, final int[] imageB,
             final float[] facetCenters,
-            final float[] deformationLimits,
+            final float[] deformationLimits, final int[] deformationCounts,
             final ParameterSet params);
 
     private void prepareNextVariant() {

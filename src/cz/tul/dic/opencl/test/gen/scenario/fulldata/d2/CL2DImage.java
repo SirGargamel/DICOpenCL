@@ -1,4 +1,4 @@
-package cz.tul.dic.opencl.test.gen.scenario.d2;
+package cz.tul.dic.opencl.test.gen.scenario.fulldata.d2;
 
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import com.jogamp.opencl.CLBuffer;
@@ -10,6 +10,7 @@ import static com.jogamp.opencl.CLMemory.Mem.READ_ONLY;
 import static com.jogamp.opencl.CLMemory.Mem.WRITE_ONLY;
 import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
+import cz.tul.dic.opencl.test.gen.scenario.d2.Scenario2D;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;

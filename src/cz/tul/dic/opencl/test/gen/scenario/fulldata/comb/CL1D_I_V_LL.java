@@ -1,4 +1,4 @@
-package cz.tul.dic.opencl.test.gen.scenario.comb;
+package cz.tul.dic.opencl.test.gen.scenario.fulldata.comb;
 
 import com.jogamp.common.nio.Buffers;
 import cz.tul.dic.opencl.test.gen.ContextHandler;

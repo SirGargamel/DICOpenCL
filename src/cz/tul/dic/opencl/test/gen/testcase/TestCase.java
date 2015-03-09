@@ -139,6 +139,19 @@ public class TestCase {
 
         return deformationLimits;
     }
+    
+    public int[] generateDeformationCounts(final float[] deformationLimits) {
+        final int l = deformationLimits.length / 3;
+        final int[] counts = new int[l + 1];
+
+        int total = 1;
+        for (int i = 0; i < l; i++) {
+            counts[i] = (int) Math.round((deformationLimits[i * 3 + 1] - deformationLimits[i * 3]) / deformationLimits[i * 3 + 2]) + 1;
+            total *= counts[i];
+        }
+        counts[l] = total;
+        return counts;
+    }
 
     public void checkResult(final ScenarioResult result, final int facetCount) {
         final float[] coeffs = result.getResultData();

@@ -33,13 +33,13 @@ public abstract class ScenarioDrivenOpenCL_L extends ScenarioOpenCL_L {
     public ScenarioResult compute(
             final int[] imageA, final int[] imageB,
             final float[] facetCenters,
-            final float[] deformationLimits,
+            final float[] deformationLimits, final int[] deformationCounts,
             final ParameterSet params) throws CLException {
         currentVariant++;
         final int facetCount = getFacetCount();
         params.addParameter(Parameter.LWS_SUB, facetCount);
 
-        float[] result = prepareAndCompute(imageA, imageB, facetCenters, deformationLimits, params);
+        float[] result = prepareAndCompute(imageA, imageB, facetCenters, deformationLimits, deformationCounts, params);
 
         final long totalKernelTime = computeTotalKernelTime();
 

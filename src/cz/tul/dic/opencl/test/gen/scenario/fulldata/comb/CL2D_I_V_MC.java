@@ -1,4 +1,4 @@
-package cz.tul.dic.opencl.test.gen.scenario.comb;
+package cz.tul.dic.opencl.test.gen.scenario.fulldata.comb;
 
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;
