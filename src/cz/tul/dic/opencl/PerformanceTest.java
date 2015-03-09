@@ -21,11 +21,11 @@ import cz.tul.dic.opencl.test.gen.scenario.fulldata.Scenario;
 import cz.tul.dic.opencl.test.gen.scenario.fulldata.ScenarioDrivenOpenCL;
 import cz.tul.dic.opencl.test.gen.scenario.fulldata.ScenarioFullData;
 import cz.tul.dic.opencl.test.gen.scenario.fulldata.ScenarioOpenCL;
-import cz.tul.dic.opencl.test.gen.scenario.fulldata.d2.CL2DImage;
 import cz.tul.dic.opencl.test.gen.scenario.limits.ScenarioDrivenOpenCL_L;
 import cz.tul.dic.opencl.test.gen.scenario.limits.ScenarioLimits;
 import cz.tul.dic.opencl.test.gen.scenario.limits.ScenarioOpenCL_L;
 import cz.tul.dic.opencl.test.gen.scenario.limits.d2.CL_L_2DImage;
+import cz.tul.dic.opencl.test.gen.scenario.limits.d2.CL_L_2DInt;
 import cz.tul.dic.opencl.test.gen.testcase.TestCase;
 import java.io.File;
 import java.io.IOException;
@@ -55,9 +55,9 @@ public class PerformanceTest {
             initializeDataStorage(scenarios, testCases.size());
 
             int[][] images;
-            int[] facetData, deformationCounts;
+            int[] facetData, deformationCountsSingle, deformationCountsFull;
             float[] facetCenters;
-            float[] deformations, defomationLimits;
+            float[] deformations, defomationLimitsSingle, defomationLimitsFull;
             long time, minTime;
             ParameterSet ps;
             ScenarioResult result, tempResult;
@@ -65,7 +65,7 @@ public class PerformanceTest {
             ScenarioFullData scf;
             ScenarioLimits scl;
             TestCase tc;
-            int s, bestLwsSub = 1;
+            int s, bestLwsSub = 1, facetCount;
             try {
                 // execute scenarios
                 for (int tci = 0; tci < testCases.size(); tci++) {
@@ -79,11 +79,14 @@ public class PerformanceTest {
 
                             facetCenters = tc.generateFacetCenters(dim[0], dim[1], s);
                             facetData = tc.generateFacetData(facetCenters, s);
+                            facetCount = facetCenters.length / 2;
 
                             for (int d : Constants.DEFORMATION_COUNTS) {
                                 deformations = tc.generateDeformations(d);
-                                defomationLimits = tc.generateDeformationLimits(d);
-                                deformationCounts = tc.generateDeformationCounts(defomationLimits);
+                                defomationLimitsSingle = tc.generateDeformationLimits(d);
+                                defomationLimitsFull = repeatArray(defomationLimitsSingle, facetCount);
+                                deformationCountsSingle = tc.generateDeformationCounts(defomationLimitsSingle);
+                                deformationCountsFull = repeatArray(deformationCountsSingle, facetCount);
 
                                 for (int sci = 0; sci < scenarios.size(); sci++) {
                                     sc = scenarios.get(sci);
@@ -153,7 +156,7 @@ public class PerformanceTest {
                                                     minTime = Long.MAX_VALUE;
                                                     while (sc.hasNext()) {
                                                         time = System.nanoTime();
-                                                        tempResult = scl.compute(images[0], images[1], facetCenters, defomationLimits, deformationCounts, ps);
+                                                        tempResult = scl.compute(images[0], images[1], facetCenters, defomationLimitsFull, deformationCountsFull, ps);
                                                         time = System.nanoTime() - time;
 
                                                         if (tempResult != null && time < minTime) {
@@ -176,7 +179,7 @@ public class PerformanceTest {
                                                 } else if (sc instanceof ScenarioOpenCL_L) {
                                                     // not driven kernel 
                                                     time = System.nanoTime();
-                                                    result = scl.compute(images[0], images[1], facetCenters, defomationLimits, deformationCounts, ps);
+                                                    result = scl.compute(images[0], images[1], facetCenters, defomationLimitsFull, deformationCountsFull, ps);
                                                     if (result == null || result.getResultData() == null) {
                                                         result = new ScenarioResult(-1, false);
                                                     } else {
@@ -277,7 +280,7 @@ public class PerformanceTest {
 //        scenarios.add(new CL15DIntPerDeformation(contextHandler));
 //        scenarios.add(new CL2DInt("CL2DInt", contextHandler));
 //        scenarios.add(new CL2DInt("CL2DIntOpt", contextHandler));
-        scenarios.add(new CL2DImage(contextHandler));
+//        scenarios.add(new CL2DImage(contextHandler));
 //
 //        scenarios.add(new CL2DImageFtoA(contextHandler)); // Optimizations
 //        scenarios.add(new CL2DImageMC(contextHandler));
@@ -299,8 +302,27 @@ public class PerformanceTest {
 //        scenarios.add(new CL1D_I_V_LL_MC_D(contextHandler, fcm));
 
         scenarios.add(new CL_L_2DImage(contextHandler));
+        scenarios.add(new CL_L_2DInt("CL_L_2DInt", contextHandler));
 
         return scenarios;
+    }
+    
+    private static float[] repeatArray(final float[] input, final int repetitionCount) {
+        final int l = input.length;
+        final float[] result = new float[l * repetitionCount];
+        for (int i = 0; i < repetitionCount; i++) {
+            System.arraycopy(input, 0, result, i * l, l);
+        }
+        return result;
+    }
+    
+    private static int[] repeatArray(final int[] input, final int repetitionCount) {
+        final int l = input.length;
+        final int[] result = new int[l * repetitionCount];
+        for (int i = 0; i < repetitionCount; i++) {
+            System.arraycopy(input, 0, result, i * l, l);
+        }
+        return result;
     }
 
 }

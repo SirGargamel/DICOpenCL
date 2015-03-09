@@ -42,27 +42,29 @@ kernel void CL_L_2DImage(
     const int baseX = (int) floor(facetCenters[baseIndexFacetCenter] - facetSize);
     const int baseY = (int) floor(facetCenters[baseIndexFacetCenter + 1] - facetSize);
     // generate deformation
-    float deformation[6];    
+    float deformation[6];     
+    const int limitsBase = facetId * 18; 
+    const int countsBase = facetId * 7; 
+    if (deformationId >= deformationCounts[countsBase + 6]) { return; } 	
     int counter = deformationId; 
-    if (deformationId >= deformationCounts[6]) { return; }
-    deformation[0] = counter % deformationCounts[0]; 
-    counter = counter / deformationCounts[0]; 
-    deformation[1] = counter % deformationCounts[1]; 
-    counter = counter / deformationCounts[1]; 
-    deformation[2] = counter % deformationCounts[2]; 
-    counter = counter / deformationCounts[2]; 
-    deformation[3] = counter % deformationCounts[3]; 
-    counter = counter / deformationCounts[3]; 
-    deformation[4] = counter % deformationCounts[4]; 
-    counter = counter / deformationCounts[4]; 
-    deformation[5] = counter % deformationCounts[5]; 
-    counter = counter / deformationCounts[5]; 
-    deformation[0] = deformationLimits[0] + deformation[0] * deformationLimits[2]; 
-    deformation[1] = deformationLimits[3] + deformation[1] * deformationLimits[5]; 
-    deformation[2] = deformationLimits[6] + deformation[2] * deformationLimits[8]; 
-    deformation[3] = deformationLimits[9] + deformation[3] * deformationLimits[11]; 
-    deformation[4] = deformationLimits[12] + deformation[4] * deformationLimits[14]; 
-    deformation[5] = deformationLimits[15] + deformation[5] * deformationLimits[17]; 
+    deformation[0] = counter % deformationCounts[countsBase + 0]; 
+    counter = counter / deformationCounts[countsBase + 0]; 
+    deformation[1] = counter % deformationCounts[countsBase + 1]; 
+    counter = counter / deformationCounts[countsBase + 1]; 
+    deformation[2] = counter % deformationCounts[countsBase + 2]; 
+    counter = counter / deformationCounts[countsBase + 2]; 
+    deformation[3] = counter % deformationCounts[countsBase + 3]; 
+    counter = counter / deformationCounts[countsBase + 3]; 
+    deformation[4] = counter % deformationCounts[countsBase + 4]; 
+    counter = counter / deformationCounts[countsBase + 4]; 
+    deformation[5] = counter % deformationCounts[countsBase + 5]; 
+    counter = counter / deformationCounts[countsBase + 5]; 
+    deformation[0] = deformationLimits[limitsBase + 0] + deformation[0] * deformationLimits[limitsBase + 2]; 
+    deformation[1] = deformationLimits[limitsBase + 3] + deformation[1] * deformationLimits[limitsBase + 5]; 
+    deformation[2] = deformationLimits[limitsBase + 6] + deformation[2] * deformationLimits[limitsBase + 8]; 
+    deformation[3] = deformationLimits[limitsBase + 9] + deformation[3] * deformationLimits[limitsBase + 11]; 
+    deformation[4] = deformationLimits[limitsBase + 12] + deformation[4] * deformationLimits[limitsBase + 14]; 
+    deformation[5] = deformationLimits[limitsBase + 15] + deformation[5] * deformationLimits[limitsBase + 17]; 
     // deform facet
     // compute correlation using ZNCC
     float deformedFacet[-1*-1*2];
