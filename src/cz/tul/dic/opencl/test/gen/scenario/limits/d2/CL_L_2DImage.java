@@ -1,4 +1,4 @@
-package cz.tul.dic.opencl.test.gen.scenario.d2;
+package cz.tul.dic.opencl.test.gen.scenario.limits.d2;
 
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import com.jogamp.opencl.CLBuffer;
@@ -13,36 +13,41 @@ import cz.tul.dic.opencl.test.gen.ParameterSet;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.Arrays;
 
 /**
  *
  * @author Petr Jecmen
  */
-public class CL2DImage extends Scenario2D {
+public class CL_L_2DImage extends Scenario2D {
 
-    public CL2DImage(final ContextHandler contextHandler) throws IOException {
+    public CL_L_2DImage(final ContextHandler contextHandler) throws IOException {
         super(contextHandler);
     }
 
     @Override
     public float[] computeScenario(
             final int[] imageA, final int[] imageB,
-            final int[] facetData, final float[] facetCenters,
-            final float[] deformations,
-            final ParameterSet params) throws CLException {                
+            final float[] facetCenters,
+            final float[] deformationLimits, final int[] deformationCounts,
+            final ParameterSet params) throws CLException {
         // prepare buffers
         final int facetCount = params.getValue(Parameter.FACET_COUNT);
         final CLImage2d<IntBuffer> imageAcl = createImage(imageA, params.getValue(Parameter.IMAGE_WIDTH));
         final CLImage2d<IntBuffer> imageBcl = createImage(imageB, params.getValue(Parameter.IMAGE_WIDTH));
-        final CLBuffer<IntBuffer> bufferFacetData = createIntBuffer(facetData, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferFacetCenters = createFloatBuffer(facetCenters, READ_ONLY);
-        final CLBuffer<FloatBuffer> bufferDeformations = createFloatBuffer(deformations, READ_ONLY);
+        final CLBuffer<FloatBuffer> bufferDeformations = createFloatBuffer(deformationLimits, READ_ONLY);
+        final CLBuffer<IntBuffer> bufferDeformationCounts = createIntBuffer(deformationCounts, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferResult = createFloatBuffer(facetCount * params.getValue(Parameter.DEFORMATION_COUNT), WRITE_ONLY);
-        final long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
+        final long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
         params.addParameter(Parameter.DATASIZE, (int) (clSize / 1000));
         // prepare kernel arguments        
         final CLKernel kernel = contextHandler.getKernel();
-        kernel.putArgs(imageAcl, imageBcl, bufferFacetData, bufferFacetCenters, bufferDeformations, bufferResult)
+        kernel.putArgs(imageAcl, imageBcl);
+        kernel.putArg(bufferFacetCenters)
+                .putArg(bufferDeformations)
+                .putArg(bufferDeformationCounts)
+                .putArg(bufferResult)
                 .putArg(params.getValue(Parameter.IMAGE_WIDTH))
                 .putArg(params.getValue(Parameter.DEFORMATION_COUNT))
                 .putArg(params.getValue(Parameter.FACET_SIZE))
@@ -60,14 +65,14 @@ public class CL2DImage extends Scenario2D {
         final CLCommandQueue queue = createCommandQueue();
         queue.putWriteImage(imageAcl, false);
         queue.putWriteImage(imageBcl, false);
-        queue.putWriteBuffer(bufferFacetData, false);
         queue.putWriteBuffer(bufferFacetCenters, false);
         queue.putWriteBuffer(bufferDeformations, false);
+        queue.putWriteBuffer(bufferDeformationCounts, false);
         queue.put2DRangeKernel(kernel, 0, 0, facetGlobalWorkSize, deformationsGlobalWorkSize, lws0, lws1, eventList);
         queue.putReadBuffer(bufferResult, true);
         queue.finish();
         // create result
-        final float[] result = readBuffer(bufferResult.getBuffer());
+        final float[] result = readBuffer(bufferResult.getBuffer());       
         return result;
     }
 

@@ -6,20 +6,27 @@ import com.jogamp.opencl.CLPlatform;
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import cz.tul.dic.opencl.test.gen.ContextHandler.DeviceType;
 import cz.tul.dic.opencl.test.gen.DataStorage;
-import cz.tul.dic.opencl.test.gen.WorkSizeManager;
 import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
 import cz.tul.dic.opencl.test.gen.Utils;
-import cz.tul.dic.opencl.test.gen.testcase.TestCase;
-import cz.tul.dic.opencl.test.gen.scenario.fulldata.ScenarioDrivenOpenCL;
+import cz.tul.dic.opencl.test.gen.WorkSizeManager;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult.State;
-import cz.tul.dic.opencl.test.gen.scenario.d2.CL2DImage;
+import static cz.tul.dic.opencl.test.gen.scenario.ScenarioResult.State.FAIL;
+import static cz.tul.dic.opencl.test.gen.scenario.ScenarioResult.State.INVALID_PARAMS;
+import static cz.tul.dic.opencl.test.gen.scenario.ScenarioResult.State.SUCCESS;
+import static cz.tul.dic.opencl.test.gen.scenario.ScenarioResult.State.WRONG_RESULT_DYNAMIC;
+import static cz.tul.dic.opencl.test.gen.scenario.ScenarioResult.State.WRONG_RESULT_FIXED;
 import cz.tul.dic.opencl.test.gen.scenario.fulldata.Scenario;
+import cz.tul.dic.opencl.test.gen.scenario.fulldata.ScenarioDrivenOpenCL;
 import cz.tul.dic.opencl.test.gen.scenario.fulldata.ScenarioFullData;
 import cz.tul.dic.opencl.test.gen.scenario.fulldata.ScenarioOpenCL;
+import cz.tul.dic.opencl.test.gen.scenario.fulldata.d2.CL2DImage;
+import cz.tul.dic.opencl.test.gen.scenario.limits.ScenarioDrivenOpenCL_L;
 import cz.tul.dic.opencl.test.gen.scenario.limits.ScenarioLimits;
+import cz.tul.dic.opencl.test.gen.scenario.limits.ScenarioOpenCL_L;
 import cz.tul.dic.opencl.test.gen.scenario.limits.d2.CL_L_2DImage;
+import cz.tul.dic.opencl.test.gen.testcase.TestCase;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,7 +55,7 @@ public class PerformanceTest {
             initializeDataStorage(scenarios, testCases.size());
 
             int[][] images;
-            int[] facetData;
+            int[] facetData, deformationCounts;
             float[] facetCenters;
             float[] deformations, defomationLimits;
             long time, minTime;
@@ -76,6 +83,7 @@ public class PerformanceTest {
                             for (int d : Constants.DEFORMATION_COUNTS) {
                                 deformations = tc.generateDeformations(d);
                                 defomationLimits = tc.generateDeformationLimits(d);
+                                deformationCounts = tc.generateDeformationCounts(defomationLimits);
 
                                 for (int sci = 0; sci < scenarios.size(); sci++) {
                                     sc = scenarios.get(sci);
@@ -138,14 +146,14 @@ public class PerformanceTest {
                                                     log.log(Level.SEVERE, "Illegal type of full data scenario - {0}", sc.getClass().toGenericString());
                                                     result = new ScenarioResult(-1, true);
                                                 }
-                                            } else if (sc instanceof ScenarioFullData) {
+                                            } else if (sc instanceof ScenarioLimits) {
                                                 scl = (ScenarioLimits) sc;
-                                                if (sc instanceof ScenarioDrivenOpenCL) {
+                                                if (sc instanceof ScenarioDrivenOpenCL_L) {
                                                     // driven kernel
                                                     minTime = Long.MAX_VALUE;
                                                     while (sc.hasNext()) {
                                                         time = System.nanoTime();
-                                                        tempResult = scl.compute(images[0], images[1], facetCenters, defomationLimits, ps);
+                                                        tempResult = scl.compute(images[0], images[1], facetCenters, defomationLimits, deformationCounts, ps);
                                                         time = System.nanoTime() - time;
 
                                                         if (tempResult != null && time < minTime) {
@@ -165,10 +173,10 @@ public class PerformanceTest {
                                                     } else {
                                                         ps.addParameter(Parameter.LWS_SUB, bestLwsSub);
                                                     }
-                                                } else if (sc instanceof ScenarioOpenCL) {
+                                                } else if (sc instanceof ScenarioOpenCL_L) {
                                                     // not driven kernel 
                                                     time = System.nanoTime();
-                                                    result = scl.compute(images[0], images[1], facetCenters, defomationLimits, ps);
+                                                    result = scl.compute(images[0], images[1], facetCenters, defomationLimits, deformationCounts, ps);
                                                     if (result == null || result.getResultData() == null) {
                                                         result = new ScenarioResult(-1, false);
                                                     } else {
