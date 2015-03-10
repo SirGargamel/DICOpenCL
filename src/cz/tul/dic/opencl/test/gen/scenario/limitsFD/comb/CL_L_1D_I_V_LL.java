@@ -1,4 +1,4 @@
-package cz.tul.dic.opencl.test.gen.scenario.limits.comb;
+package cz.tul.dic.opencl.test.gen.scenario.limitsFD.comb;
 
 import com.jogamp.common.nio.Buffers;
 import cz.tul.dic.opencl.test.gen.ContextHandler;
@@ -15,7 +15,7 @@ import com.jogamp.opencl.llb.CLKernelBinding;
 import cz.tul.dic.opencl.test.gen.CustomMath;
 import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
-import cz.tul.dic.opencl.test.gen.scenario.limits.ScenarioOpenCL_L;
+import cz.tul.dic.opencl.test.gen.scenario.limitsFD.ScenarioOpenCL_LFD;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -24,7 +24,7 @@ import java.nio.IntBuffer;
  *
  * @author Petr Jecmen
  */
-public final class CL_L_1D_I_V_LL extends ScenarioOpenCL_L {
+public final class CL_L_1D_I_V_LL extends ScenarioOpenCL_LFD {
 
     private int maxVariantCount, lws0base, lws0base2;
     private int currentVariant;

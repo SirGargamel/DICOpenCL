@@ -1,4 +1,4 @@
-package cz.tul.dic.opencl.test.gen.scenario.limits.d2;
+package cz.tul.dic.opencl.test.gen.scenario.limitsFD.d2;
 
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import com.jogamp.opencl.CLBuffer;
@@ -13,13 +13,12 @@ import cz.tul.dic.opencl.test.gen.ParameterSet;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.Arrays;
 
 /**
  *
  * @author Petr Jecmen
  */
-public class CL_L_2DImage extends Scenario2D {
+public class CL_L_2DImage extends Scenario2D_LFD {
 
     public CL_L_2DImage(final ContextHandler contextHandler) throws IOException {
         super(contextHandler);

@@ -1,4 +1,4 @@
-package cz.tul.dic.opencl.test.gen.scenario.d2;
+package cz.tul.dic.opencl.test.gen.scenario.fulldata.d2;
 
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import cz.tul.dic.opencl.test.gen.CustomMath;

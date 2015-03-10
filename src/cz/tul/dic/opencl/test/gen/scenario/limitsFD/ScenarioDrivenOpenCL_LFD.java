@@ -1,4 +1,4 @@
-package cz.tul.dic.opencl.test.gen.scenario.limits;
+package cz.tul.dic.opencl.test.gen.scenario.limitsFD;
 
 import com.jogamp.opencl.CLEvent;
 import com.jogamp.opencl.CLException;
@@ -13,13 +13,13 @@ import java.io.IOException;
  *
  * @author Petr Jecmen
  */
-public abstract class ScenarioDrivenOpenCL_L extends ScenarioOpenCL_L {
+public abstract class ScenarioDrivenOpenCL_LFD extends ScenarioOpenCL_LFD {
 
     private static final int PUBLIC_VARIANT_COUNT = 1;
     private int currentVariant, maxVariantCount;
     private final WorkSizeManager wsm;
 
-    public ScenarioDrivenOpenCL_L(ContextHandler contextHandler, final WorkSizeManager wsm) throws IOException {
+    public ScenarioDrivenOpenCL_LFD(ContextHandler contextHandler, final WorkSizeManager wsm) throws IOException {
         super(contextHandler);
 
         this.wsm = wsm;

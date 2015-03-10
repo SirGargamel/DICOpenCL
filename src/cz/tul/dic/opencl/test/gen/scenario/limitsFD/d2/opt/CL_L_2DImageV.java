@@ -1,14 +1,16 @@
-package cz.tul.dic.opencl.test.gen.scenario.limits.d2;
+package cz.tul.dic.opencl.test.gen.scenario.limitsFD.d2.opt;
 
+import cz.tul.dic.opencl.test.gen.ContextHandler;
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;
 import com.jogamp.opencl.CLException;
+import com.jogamp.opencl.CLImage2d;
 import com.jogamp.opencl.CLKernel;
 import static com.jogamp.opencl.CLMemory.Mem.READ_ONLY;
 import static com.jogamp.opencl.CLMemory.Mem.WRITE_ONLY;
-import cz.tul.dic.opencl.test.gen.ContextHandler;
 import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
+import cz.tul.dic.opencl.test.gen.scenario.limitsFD.d2.Scenario2D_LFD;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -17,19 +19,10 @@ import java.nio.IntBuffer;
  *
  * @author Petr Jecmen
  */
-public class CL_L_2DInt extends Scenario2D {
+public class CL_L_2DImageV extends Scenario2D_LFD {
 
-    private final String kernelName;
-
-    public CL_L_2DInt(final String kernelName, final ContextHandler contextHandler) throws IOException {
+    public CL_L_2DImageV(final ContextHandler contextHandler) throws IOException {
         super(contextHandler);
-
-        this.kernelName = kernelName;
-    }
-
-    @Override
-    public String getKernelName() {
-        return kernelName;
     }
 
     @Override
@@ -38,19 +31,23 @@ public class CL_L_2DInt extends Scenario2D {
             final float[] facetCenters,
             final float[] deformationLimits, final int[] deformationCounts,
             final ParameterSet params) throws CLException {
-        // prepare buffers        
+        // prepare buffers
         final int facetCount = params.getValue(Parameter.FACET_COUNT);
-        final CLBuffer<IntBuffer> bufferImageA = createIntBuffer(imageA, READ_ONLY);
-        final CLBuffer<IntBuffer> bufferImageB = createIntBuffer(imageB, READ_ONLY);
+        final CLImage2d<IntBuffer> imageAcl = createImage(imageA, params.getValue(Parameter.IMAGE_WIDTH));
+        final CLImage2d<IntBuffer> imageBcl = createImage(imageB, params.getValue(Parameter.IMAGE_WIDTH));        
         final CLBuffer<FloatBuffer> bufferFacetCenters = createFloatBuffer(facetCenters, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferDeformations = createFloatBuffer(deformationLimits, READ_ONLY);
         final CLBuffer<IntBuffer> bufferDeformationCounts = createIntBuffer(deformationCounts, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferResult = createFloatBuffer(facetCount * params.getValue(Parameter.DEFORMATION_COUNT), WRITE_ONLY);
-        final long clSize = bufferImageA.getCLSize() + bufferImageB.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
+        final long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
         params.addParameter(Parameter.DATASIZE, (int) (clSize / 1000));
-        // prepare kernel arguments        
+        // prepare kernel arguments
         final CLKernel kernel = contextHandler.getKernel();
-        kernel.putArgs(bufferImageA, bufferImageB, bufferFacetCenters, bufferDeformations, bufferDeformationCounts, bufferResult)
+        kernel.putArgs(imageAcl, imageBcl);
+        kernel.putArg(bufferFacetCenters)
+                .putArg(bufferDeformations)
+                .putArg(bufferDeformationCounts)
+                .putArg(bufferResult)
                 .putArg(params.getValue(Parameter.IMAGE_WIDTH))
                 .putArg(params.getValue(Parameter.DEFORMATION_COUNT))
                 .putArg(params.getValue(Parameter.FACET_SIZE))
@@ -66,9 +63,9 @@ public class CL_L_2DInt extends Scenario2D {
         // execute kernel        
         prepareEventList(1);
         final CLCommandQueue queue = createCommandQueue();
-        queue.putWriteBuffer(bufferImageA, false);
-        queue.putWriteBuffer(bufferImageB, false);
-        queue.putWriteBuffer(bufferFacetCenters, false);        
+        queue.putWriteImage(imageAcl, false);
+        queue.putWriteImage(imageBcl, false);        
+        queue.putWriteBuffer(bufferFacetCenters, false);
         queue.putWriteBuffer(bufferDeformations, false);
         queue.putWriteBuffer(bufferDeformationCounts, false);
         queue.put2DRangeKernel(kernel, 0, 0, facetGlobalWorkSize, deformationsGlobalWorkSize, lws0, lws1, eventList);

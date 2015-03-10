@@ -1,4 +1,4 @@
-package cz.tul.dic.opencl.test.gen.scenario.limits;
+package cz.tul.dic.opencl.test.gen.scenario.limitsFD;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opencl.CLBuffer;
@@ -24,14 +24,14 @@ import java.util.List;
  *
  * @author Petr Jecmen
  */
-public abstract class ScenarioOpenCL_L extends ScenarioLimits {
+public abstract class ScenarioOpenCL_LFD extends ScenarioLimitsFD {
 
     private static final CLImageFormat IMAGE_FORMAT = new CLImageFormat(CLImageFormat.ChannelOrder.RGBA, CLImageFormat.ChannelType.UNSIGNED_INT8);
     protected final ContextHandler contextHandler;
     protected final List<CLResource> memoryObjects;
     protected CLEventList eventList;
 
-    public ScenarioOpenCL_L(ContextHandler contextHandler) throws IOException {
+    public ScenarioOpenCL_LFD(ContextHandler contextHandler) throws IOException {
         super();
 
         this.contextHandler = contextHandler;

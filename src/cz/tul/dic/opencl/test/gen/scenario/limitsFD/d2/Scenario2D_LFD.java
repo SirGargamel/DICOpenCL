@@ -1,23 +1,23 @@
-package cz.tul.dic.opencl.test.gen.scenario.limits.d2;
+package cz.tul.dic.opencl.test.gen.scenario.limitsFD.d2;
 
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import cz.tul.dic.opencl.test.gen.CustomMath;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
-import cz.tul.dic.opencl.test.gen.scenario.limits.ScenarioOpenCL_L;
+import cz.tul.dic.opencl.test.gen.scenario.limitsFD.ScenarioOpenCL_LFD;
 import java.io.IOException;
 
 /**
  *
  * @author Petr Jecmen
  */
-public abstract class Scenario2D extends ScenarioOpenCL_L {
+public abstract class Scenario2D_LFD extends ScenarioOpenCL_LFD {
 
     private static final int MIN_WORK = 16;
     private final int maxVariant;
     private final int lws0count, lws1count, maxWorkSize;
     private int currentVariant;
 
-    public Scenario2D(final ContextHandler contextHandler) throws IOException {
+    public Scenario2D_LFD(final ContextHandler contextHandler) throws IOException {
         super(contextHandler);
 
         currentVariant = 0;

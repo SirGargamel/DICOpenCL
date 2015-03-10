@@ -1,6 +1,6 @@
 package cz.tul.dic.opencl.test.gen.scenario.fulldata.d2.opt;
 
-import cz.tul.dic.opencl.test.gen.scenario.d2.*;
+import cz.tul.dic.opencl.test.gen.scenario.fulldata.d2.Scenario2D;
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;

@@ -10,7 +10,7 @@ import cz.tul.dic.opencl.test.gen.ContextHandler;
 import cz.tul.dic.opencl.test.gen.Parameter;
 import cz.tul.dic.opencl.test.gen.ParameterSet;
 import cz.tul.dic.opencl.test.gen.Utils;
-import cz.tul.dic.opencl.test.gen.scenario.d2.Scenario2D;
+import cz.tul.dic.opencl.test.gen.scenario.fulldata.d2.Scenario2D;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;

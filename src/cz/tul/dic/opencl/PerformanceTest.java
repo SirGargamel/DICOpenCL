@@ -21,11 +21,19 @@ import cz.tul.dic.opencl.test.gen.scenario.fulldata.Scenario;
 import cz.tul.dic.opencl.test.gen.scenario.fulldata.ScenarioDrivenOpenCL;
 import cz.tul.dic.opencl.test.gen.scenario.fulldata.ScenarioFullData;
 import cz.tul.dic.opencl.test.gen.scenario.fulldata.ScenarioOpenCL;
-import cz.tul.dic.opencl.test.gen.scenario.limits.ScenarioDrivenOpenCL_L;
-import cz.tul.dic.opencl.test.gen.scenario.limits.ScenarioLimits;
-import cz.tul.dic.opencl.test.gen.scenario.limits.ScenarioOpenCL_L;
-import cz.tul.dic.opencl.test.gen.scenario.limits.d2.CL_L_2DImage;
-import cz.tul.dic.opencl.test.gen.scenario.limits.d2.CL_L_2DInt;
+import cz.tul.dic.opencl.test.gen.scenario.fulldata.comb.CL1D_I_V_LL;
+import cz.tul.dic.opencl.test.gen.scenario.fulldata.d1.opt.CL1DImageLL;
+import cz.tul.dic.opencl.test.gen.scenario.fulldata.d2.CL2DImage;
+import cz.tul.dic.opencl.test.gen.scenario.fulldata.d2.CL2DInt;
+import cz.tul.dic.opencl.test.gen.scenario.fulldata.d2.opt.CL2DImageV;
+import cz.tul.dic.opencl.test.gen.scenario.limitsFD.ScenarioDrivenOpenCL_LFD;
+import cz.tul.dic.opencl.test.gen.scenario.limitsFD.ScenarioLimitsFD;
+import cz.tul.dic.opencl.test.gen.scenario.limitsFD.ScenarioOpenCL_LFD;
+import cz.tul.dic.opencl.test.gen.scenario.limitsFD.comb.CL_L_1D_I_V_LL;
+import cz.tul.dic.opencl.test.gen.scenario.limitsFD.d1.opt.CL_L_1DImageLL;
+import cz.tul.dic.opencl.test.gen.scenario.limitsFD.d2.CL_L_2DImage;
+import cz.tul.dic.opencl.test.gen.scenario.limitsFD.d2.CL_L_2DInt;
+import cz.tul.dic.opencl.test.gen.scenario.limitsFD.d2.opt.CL_L_2DImageV;
 import cz.tul.dic.opencl.test.gen.testcase.TestCase;
 import java.io.File;
 import java.io.IOException;
@@ -63,7 +71,7 @@ public class PerformanceTest {
             ScenarioResult result, tempResult;
             Scenario sc;
             ScenarioFullData scf;
-            ScenarioLimits scl;
+            ScenarioLimitsFD scl;
             TestCase tc;
             int s, bestLwsSub = 1, facetCount;
             try {
@@ -149,9 +157,9 @@ public class PerformanceTest {
                                                     log.log(Level.SEVERE, "Illegal type of full data scenario - {0}", sc.getClass().toGenericString());
                                                     result = new ScenarioResult(-1, true);
                                                 }
-                                            } else if (sc instanceof ScenarioLimits) {
-                                                scl = (ScenarioLimits) sc;
-                                                if (sc instanceof ScenarioDrivenOpenCL_L) {
+                                            } else if (sc instanceof ScenarioLimitsFD) {
+                                                scl = (ScenarioLimitsFD) sc;
+                                                if (sc instanceof ScenarioDrivenOpenCL_LFD) {
                                                     // driven kernel
                                                     minTime = Long.MAX_VALUE;
                                                     while (sc.hasNext()) {
@@ -176,7 +184,7 @@ public class PerformanceTest {
                                                     } else {
                                                         ps.addParameter(Parameter.LWS_SUB, bestLwsSub);
                                                     }
-                                                } else if (sc instanceof ScenarioOpenCL_L) {
+                                                } else if (sc instanceof ScenarioOpenCL_LFD) {
                                                     // not driven kernel 
                                                     time = System.nanoTime();
                                                     result = scl.compute(images[0], images[1], facetCenters, defomationLimitsFull, deformationCountsFull, ps);
@@ -259,6 +267,24 @@ public class PerformanceTest {
         DataStorage.setCounts(lineCount, testCaseCount);
     }
 
+    private static float[] repeatArray(final float[] input, final int repetitionCount) {
+        final int l = input.length;
+        final float[] result = new float[l * repetitionCount];
+        for (int i = 0; i < repetitionCount; i++) {
+            System.arraycopy(input, 0, result, i * l, l);
+        }
+        return result;
+    }
+
+    private static int[] repeatArray(final int[] input, final int repetitionCount) {
+        final int l = input.length;
+        final int[] result = new int[l * repetitionCount];
+        for (int i = 0; i < repetitionCount; i++) {
+            System.arraycopy(input, 0, result, i * l, l);
+        }
+        return result;
+    }
+
     private static List<TestCase> prepareTestCases() {
         List<TestCase> result = new ArrayList<>(2);
 
@@ -278,19 +304,19 @@ public class PerformanceTest {
 //        scenarios.add(new CL1DIntPerDeformationSingle(contextHandler));
 //        scenarios.add(new CL15DIntPerFacet(contextHandler));
 //        scenarios.add(new CL15DIntPerDeformation(contextHandler));
-//        scenarios.add(new CL2DInt("CL2DInt", contextHandler));
+        scenarios.add(new CL2DInt("CL2DInt", contextHandler));
 //        scenarios.add(new CL2DInt("CL2DIntOpt", contextHandler));
-//        scenarios.add(new CL2DImage(contextHandler));
+        scenarios.add(new CL2DImage(contextHandler));
 //
 //        scenarios.add(new CL2DImageFtoA(contextHandler)); // Optimizations
 //        scenarios.add(new CL2DImageMC(contextHandler));
-//        scenarios.add(new CL2DImageV(contextHandler));
+        scenarios.add(new CL2DImageV(contextHandler));
 //        scenarios.add(new CL2DImageC(contextHandler));
 //        scenarios.add(new CL1DImageL(contextHandler));
-//        scenarios.add(new CL1DImageLL(contextHandler));
+        scenarios.add(new CL1DImageLL(contextHandler));
 //
 //        scenarios.add(new CL2D_I_V_MC(contextHandler));    // Combined optimizations
-//        scenarios.add(new CL1D_I_V_LL(contextHandler));
+        scenarios.add(new CL1D_I_V_LL(contextHandler));
 //        scenarios.add(new CL1D_I_LL_MC(contextHandler));
 //        scenarios.add(new CL1D_I_V_LL_MC(contextHandler));
 //
@@ -301,28 +327,13 @@ public class PerformanceTest {
 //        scenarios.add(new CL1D_I_V_LL_D(contextHandler, fcm));
 //        scenarios.add(new CL1D_I_V_LL_MC_D(contextHandler, fcm));
 
+        scenarios.add(new CL_L_2DInt("CL_L_2DInt", contextHandler)); // variants with both facet and deformation limits
         scenarios.add(new CL_L_2DImage(contextHandler));
-        scenarios.add(new CL_L_2DInt("CL_L_2DInt", contextHandler));
+        scenarios.add(new CL_L_2DImageV(contextHandler));
+        scenarios.add(new CL_L_1DImageLL(contextHandler));
+        scenarios.add(new CL_L_1D_I_V_LL(contextHandler));
 
         return scenarios;
-    }
-    
-    private static float[] repeatArray(final float[] input, final int repetitionCount) {
-        final int l = input.length;
-        final float[] result = new float[l * repetitionCount];
-        for (int i = 0; i < repetitionCount; i++) {
-            System.arraycopy(input, 0, result, i * l, l);
-        }
-        return result;
-    }
-    
-    private static int[] repeatArray(final int[] input, final int repetitionCount) {
-        final int l = input.length;
-        final int[] result = new int[l * repetitionCount];
-        for (int i = 0; i < repetitionCount; i++) {
-            System.arraycopy(input, 0, result, i * l, l);
-        }
-        return result;
     }
 
 }

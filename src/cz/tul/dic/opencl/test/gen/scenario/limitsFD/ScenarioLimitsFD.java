@@ -1,4 +1,4 @@
-package cz.tul.dic.opencl.test.gen.scenario.limits;
+package cz.tul.dic.opencl.test.gen.scenario.limitsFD;
 
 import cz.tul.dic.opencl.test.gen.ParameterSet;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
@@ -8,7 +8,7 @@ import cz.tul.dic.opencl.test.gen.scenario.fulldata.Scenario;
  *
  * @author Petr Jecmen
  */
-public abstract class ScenarioLimits extends Scenario {
+public abstract class ScenarioLimitsFD extends Scenario {
 
     public abstract ScenarioResult compute(
             final int[] imageA, final int[] imageB,
