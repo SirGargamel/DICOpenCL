@@ -1,4 +1,4 @@
-package cz.tul.dic.opencl.test.gen.scenario.d1.opt;
+package cz.tul.dic.opencl.test.gen.scenario.fulldata.d1.opt;
 
 import cz.tul.dic.opencl.test.gen.ContextHandler;
 import com.jogamp.opencl.CLBuffer;
