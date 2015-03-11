@@ -48,7 +48,7 @@ kernel void CL_LF_1D_I_V_LL(
     const int baseIndexDeformation = deformationId * 6;        
     // top left facet coord
     float2 base = facetCenters[facetId];
-    base -= (float2)(facetSize, facetSize);
+    base -= (float2)(floor(facetSize / 2.0f), floor(facetSize / 2.0f));
     // load facet to local memory    
     local float2 facetLocal[-1*-1];    
     if (groupSize >= facetSize2) {

@@ -40,7 +40,7 @@ kernel void CL_LF_2DImageV(
     const int baseIndexDeformation = deformationId * 6;
     // top left facet coord
     float2 base = facetCenters[facetId];
-    base -= (float2)(facetSize, facetSize);    
+    base -= (float2)(floor(facetSize / 2.0f), floor(facetSize / 2.0f));    
     // deform facet
     // compute correlation using ZNCC
     float2 deformedFacet[-1*-1];

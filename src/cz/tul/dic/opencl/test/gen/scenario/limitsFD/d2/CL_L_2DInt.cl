@@ -42,8 +42,8 @@ kernel void CL_L_2DInt(
     const int baseIndexFacetCenter = facetId * 2;
     const int baseIndexDeformation = deformationId * 6;
     // top left facet coord
-    const int baseX = (int) floor(facetCenters[baseIndexFacetCenter] - facetSize);
-    const int baseY = (int) floor(facetCenters[baseIndexFacetCenter + 1] - facetSize);
+    const int baseX = (int) floor(facetCenters[baseIndexFacetCenter] - (facetSize / 2.0f));
+    const int baseY = (int) floor(facetCenters[baseIndexFacetCenter + 1] - (facetSize / 2.0f));
     // generate deformation
     float deformation[6];     
     const int limitsBase = facetId * 18; 

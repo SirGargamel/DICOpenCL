@@ -39,8 +39,8 @@ kernel void CL_LF_2DImage(
     const int baseIndexFacetCenter = facetId * 2;
     const int baseIndexDeformation = deformationId * 6;
     // top left facet coord
-    const int baseX = (int) floor(facetCenters[baseIndexFacetCenter] - facetSize);
-    const int baseY = (int) floor(facetCenters[baseIndexFacetCenter + 1] - facetSize);
+    const int baseX = (int) floor(facetCenters[baseIndexFacetCenter] - (facetSize / 2.0f));
+    const int baseY = (int) floor(facetCenters[baseIndexFacetCenter + 1] - (facetSize / 2.0f));
     // deform facet
     // compute correlation using ZNCC
     float deformedFacet[-1*-1*2];
