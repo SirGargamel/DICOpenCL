@@ -71,41 +71,42 @@ public class TestCase {
         }
 
         return result;
-    }
+    }    
 
-    public float[] generateDeformations(final int deformationCount) {
-        final float[] deformations = new float[deformationCount * Utils.DEFORMATION_DIM];
+    public float[] generateDeformations(final float[] deformationLimits, final int[] deformationCounts) {
+        final int defCount = deformationCounts[deformationCounts.length - 1];
+        final float[] result = new float[6 * defCount];
+        final float[] deformation = new float[6];
 
-        Random rnd = new Random();
-        float val;
-        int base;
-        for (int i = 0; i < deformationCount; i++) {
-            base = i * Utils.DEFORMATION_DIM;
-            for (int j = 0; j < 2; j++) {
-                val = rnd.nextFloat() * Utils.DEFORMATION_ABS_MAX_0 - (Utils.DEFORMATION_ABS_MAX_0 / 2);
-                if (val == 0) {
-                    val = Utils.DEFORMATION_ABS_MAX_0 * 0.25f;
-                }
-                deformations[base + j] = val;
-            }
-            for (int j = 2; j < Utils.DEFORMATION_DIM; j++) {
-                val = (rnd.nextFloat() * Utils.DEFORMATION_ABS_MAX_1) - (Utils.DEFORMATION_ABS_MAX_1 * 0.5f);
-                if (val == 0) {
-                    val = Utils.DEFORMATION_ABS_MAX_1 * 0.25f;
-                }
-                deformations[base + j] = val;
-            }
+        int resultsBase, counter;
+        for (int i = 0; i < defCount; i++) {
+            resultsBase = i * 6;
+
+            counter = i;
+            deformation[0] = counter % deformationCounts[0];
+            counter = counter / deformationCounts[0];
+            deformation[1] = counter % deformationCounts[1];
+            counter = counter / deformationCounts[1];
+            deformation[2] = counter % deformationCounts[2];
+            counter = counter / deformationCounts[2];
+            deformation[3] = counter % deformationCounts[3];
+            counter = counter / deformationCounts[3];
+            deformation[4] = counter % deformationCounts[4];
+            counter = counter / deformationCounts[4];
+            deformation[5] = counter % deformationCounts[5];
+            counter = counter / deformationCounts[5];
+            deformation[0] = deformationLimits[0] + deformation[0] * deformationLimits[2];
+            deformation[1] = deformationLimits[3] + deformation[1] * deformationLimits[5];
+            deformation[2] = deformationLimits[6] + deformation[2] * deformationLimits[8];
+            deformation[3] = deformationLimits[9] + deformation[3] * deformationLimits[11];
+            deformation[4] = deformationLimits[12] + deformation[4] * deformationLimits[14];
+            deformation[5] = deformationLimits[15] + deformation[5] * deformationLimits[17];
+            
+            System.arraycopy(deformation, 0, result, resultsBase, 6);
         }
-
-        // known results
-        writeKnownDeformations(deformations, 0, 0, 0, 0, 0, 0);
-
-        return deformations;
-    }
-
-    protected void writeKnownDeformations(final float[] result, float... deformations) {
-        System.arraycopy(deformations, 0, result, 0, deformations.length);
-    }
+        
+        return result;
+    }    
 
     public float[] generateDeformationLimits(final int deformationCount) {
         final float[] deformationLimits = new float[Utils.DEFORMATION_DIM * 3];
@@ -139,7 +140,7 @@ public class TestCase {
 
         return deformationLimits;
     }
-    
+
     public int[] generateDeformationCounts(final float[] deformationLimits) {
         final int l = deformationLimits.length / 3;
         final int[] counts = new int[l + 1];

@@ -46,11 +46,16 @@ public class ShiftedImageCase extends TestCase {
     }
 
     @Override
-    public float[] generateDeformations(int deformationCount) {
-        final float[] result = super.generateDeformations(deformationCount);
+    public float[] generateDeformations(final float[] deformationLimits, final int[] deformationCounts) {
+        final float[] result = super.generateDeformations(deformationLimits, deformationCounts);
 
-        // write shifts
-        writeKnownDeformations(result, shiftX, shiftY, 0, 0, 0, 0);
+        // write shifts        
+        result[0] = shiftX;
+        result[1] = shiftY;
+        result[2] = 0;
+        result[3] = 0;
+        result[4] = 0;
+        result[5] = 0;
 
         return result;
     }
