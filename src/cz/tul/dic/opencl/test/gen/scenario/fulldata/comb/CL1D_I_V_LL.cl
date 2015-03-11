@@ -44,7 +44,7 @@ kernel void CL1D_I_V_LL(
     // index computation
     const int facetSize2 = facetSize * facetSize;    
     const int baseIndexFacet = facetId * facetSize2;     
-    const int baseIndexDeformation = deformationId * 6;        
+    const int baseIndexDeformation = facetId * deformationCount * 6 + deformationId * 6;
     // load facet to local memory    
     local int2 facetLocal[-1*-1];    
     if (groupSize >= facetSize2) {

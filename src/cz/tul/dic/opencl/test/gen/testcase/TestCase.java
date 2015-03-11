@@ -71,7 +71,7 @@ public class TestCase {
         }
 
         return result;
-    }    
+    }
 
     public float[] generateDeformations(final float[] deformationLimits, final int[] deformationCounts) {
         final int defCount = deformationCounts[deformationCounts.length - 1];
@@ -101,12 +101,12 @@ public class TestCase {
             deformation[3] = deformationLimits[9] + deformation[3] * deformationLimits[11];
             deformation[4] = deformationLimits[12] + deformation[4] * deformationLimits[14];
             deformation[5] = deformationLimits[15] + deformation[5] * deformationLimits[17];
-            
+
             System.arraycopy(deformation, 0, result, resultsBase, 6);
         }
-        
+
         return result;
-    }    
+    }
 
     public float[] generateDeformationLimits(final int deformationCount) {
         final float[] deformationLimits = new float[Utils.DEFORMATION_DIM * 3];
@@ -125,10 +125,15 @@ public class TestCase {
         int rest = deformationCount;
         int div;
         for (int dim = 0; dim < Utils.DEFORMATION_DIM - 1; dim++) {
+            if (rest <= 1) {
+                deformationLimits[dim * 3 + 1] = deformationLimits[dim * 3];
+                deformationLimits[dim * 3 + 2] = 0;
+            }
+
             for (int n = 2; n < 100; n++) {
                 div = rest / n;
                 if (n * div == rest) {
-                    deformationLimits[dim * 3 + 2] = (float) ((deformationLimits[dim * 3 + 1] - deformationLimits[dim * 3]) / (double) n);
+                    deformationLimits[dim * 3 + 2] = (float) ((deformationLimits[dim * 3 + 1] - deformationLimits[dim * 3]) / (double) (n - 1));
                     rest /= n;
                     break;
                 }
@@ -136,7 +141,12 @@ public class TestCase {
         }
 
         final int base = (Utils.DEFORMATION_DIM - 1) * 3;
-        deformationLimits[base + 2] = (float) ((deformationLimits[base + 1] - deformationLimits[base]) / (double) rest);
+        if (rest > 1) {
+            deformationLimits[base + 2] = (float) ((deformationLimits[base + 1] - deformationLimits[base]) / (double) (rest - 1));
+        } else {
+            deformationLimits[base + 1] = deformationLimits[base];
+            deformationLimits[base + 2] = 0;
+        }
 
         return deformationLimits;
     }

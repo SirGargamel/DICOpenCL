@@ -42,7 +42,6 @@ kernel void CL_LD_1DImageLL(
     const int facetCoordCount = facetSize2 * 2;    
     const int baseIndexFacet = facetId * facetCoordCount; 
     const int baseIndexFacetCenter = facetId * 2;
-    const int baseIndexDeformation = deformationId * 6;     
     // load facet to local memory    
     local int facetLocal[-1*-1*2];    
     if (groupSize >= facetCoordCount) {

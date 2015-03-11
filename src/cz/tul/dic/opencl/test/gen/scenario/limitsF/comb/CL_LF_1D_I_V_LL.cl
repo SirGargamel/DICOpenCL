@@ -45,7 +45,7 @@ kernel void CL_LF_1D_I_V_LL(
     const int facetSize2 = facetSize * facetSize;    
     const int baseIndexFacet = facetId * facetSize2;   
     const int baseIndexFacetCenter = facetId * 2;
-    const int baseIndexDeformation = deformationId * 6;        
+    const int baseIndexDeformation = facetId * deformationCount * 6 + deformationId * 6;
     // top left facet coord
     float2 base = facetCenters[facetId];
     base -= (float2)(floor(facetSize / 2.0f), floor(facetSize / 2.0f));

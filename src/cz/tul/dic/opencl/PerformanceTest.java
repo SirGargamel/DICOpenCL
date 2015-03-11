@@ -107,8 +107,7 @@ public class PerformanceTest {
                             facetData = tc.generateFacetData(facetCenters, s);
                             facetCount = facetCenters.length / 2;
 
-                            for (int d : Constants.DEFORMATION_COUNTS) {
-//                                deformationsSingle = tc.generateDeformations(d);                                
+                            for (int d : Constants.DEFORMATION_COUNTS) {                           
                                 defomationLimitsSingle = tc.generateDeformationLimits(d);
                                 defomationLimitsFull = repeatArray(defomationLimitsSingle, facetCount);
                                 deformationCountsSingle = tc.generateDeformationCounts(defomationLimitsSingle);

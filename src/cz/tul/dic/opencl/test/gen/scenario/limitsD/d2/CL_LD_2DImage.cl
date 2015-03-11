@@ -38,7 +38,6 @@ kernel void CL_LD_2DImage(
     const int facetCoordCount = facetSize2 * 2;  
     const int baseIndexFacet = facetId * facetCoordCount;
     const int baseIndexFacetCenter = facetId * 2;
-    const int baseIndexDeformation = deformationId * 6;    
     // generate deformation
     float deformation[6];     
     const int limitsBase = facetId * 18; 

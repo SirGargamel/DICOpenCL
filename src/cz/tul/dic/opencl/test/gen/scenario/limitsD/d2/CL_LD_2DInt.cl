@@ -39,8 +39,7 @@ kernel void CL_LD_2DInt(
     const int facetSize2 = facetSize * facetSize;
     const int facetCoordCount = facetSize2 * 2;
     const int baseIndexFacet = facetId * facetCoordCount;         
-    const int baseIndexFacetCenter = facetId * 2;
-    const int baseIndexDeformation = deformationId * 6;
+    const int baseIndexFacetCenter = facetId * 2;    
     // top left facet coord
     const int baseX = (int) floor(facetCenters[baseIndexFacetCenter] - facetSize);
     const int baseY = (int) floor(facetCenters[baseIndexFacetCenter + 1] - facetSize);

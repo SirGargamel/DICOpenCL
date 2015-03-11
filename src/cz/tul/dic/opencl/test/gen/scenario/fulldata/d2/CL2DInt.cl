@@ -40,7 +40,7 @@ kernel void CL2DInt(
     const int facetCoordCount = facetSize2 * 2;
     const int baseIndexFacet = facetId * facetCoordCount;         
     const int baseIndexFacetCenter = facetId * 2;
-    const int baseIndexDeformation = deformationId * 6;
+    const int baseIndexDeformation = facetId * deformationCount * 6 + deformationId * 6;
     // deform facet
     float deformedFacet[-1*-1*2];    
     int index, i2, x, y;
