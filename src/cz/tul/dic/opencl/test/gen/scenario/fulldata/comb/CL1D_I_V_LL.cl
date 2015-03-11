@@ -22,9 +22,9 @@ int interpolate(const float2 coords, read_only image2d_t image) {
 
 kernel void CL1D_I_V_LL(
     read_only image2d_t imageA, read_only image2d_t imageB, 
-    global read_only int2 * facets, global read_only float2 * facetCenters,
-    global read_only float * deformations,
-    global write_only float * result,        
+    global int2 * facets, global float2 * facetCenters,
+    global float * deformations,
+    global float * result,        
     const int imageWidth, const int deformationCount,
     const int facetSize, const int facetCount,
     const int groupCountPerFacet) 
@@ -69,6 +69,11 @@ kernel void CL1D_I_V_LL(
         return;
     }
     // deform facet
+    // compute correlation using ZNCC
+    float deformedI[-1*-1];
+    float facetI[-1*-1];
+    float meanF = 0;
+    float meanG = 0; 
     float2 deformedFacet[-1*-1*2];
     int i2;
     float2 coords, def;   
@@ -80,14 +85,7 @@ kernel void CL1D_I_V_LL(
         deformedFacet[i] = (float2)(
             coords.x + deformations[baseIndexDeformation] + deformations[baseIndexDeformation + 2] * def.x + deformations[baseIndexDeformation + 4] * def.y, 
             coords.y + deformations[baseIndexDeformation + 1] + deformations[baseIndexDeformation + 3] * def.x + deformations[baseIndexDeformation + 5] * def.y);
-    }
-    // compute correlation using ZNCC
-    float deformedI[-1*-1];
-    float facetI[-1*-1];
-    float meanF = 0;
-    float meanG = 0; 
-    for (int i = 0; i < facetSize2; i++) {                        
-        // facet is just array of int coords                
+            
         facetI[i] = read_imageui(imageA, sampler, facetLocal[i]).x;
         meanF += facetI[i];
         

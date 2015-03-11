@@ -18,9 +18,9 @@ inline int interpolate(const float x, const float y, read_only image2d_t image) 
 
 kernel void CL2DImage(
     read_only image2d_t imageA, read_only image2d_t imageB, 
-    global read_only int * facets, global read_only float * facetCenters,
-    global read_only float * deformations,
-    global write_only float * result,    
+    global int * facets, global float * facetCenters,
+    global float * deformations,
+    global float * result,    
     const int imageWidth, const int deformationCount,
     const int facetSize, const int facetCount) 
 {    
@@ -40,9 +40,14 @@ kernel void CL2DImage(
     const int baseIndexFacetCenter = facetId * 2;
     const int baseIndexDeformation = deformationId * 6;
     // deform facet
+    // compute correlation using ZNCC
     float deformedFacet[-1*-1*2];
     int index, i2, x, y;
     float dx, dy;
+    float deformedI[-1*-1];
+    float facetI[-1*-1];
+    float meanF = 0;
+    float meanG = 0; 
     for (int i = 0; i < facetSize2; i++) {                
         i2 = i*2;
         index = baseIndexFacet + i2;        
@@ -55,16 +60,7 @@ kernel void CL2DImage(
         
         deformedFacet[i2] = x + deformations[baseIndexDeformation] + deformations[baseIndexDeformation + 2] * dx + deformations[baseIndexDeformation + 4] * dy;                    
         deformedFacet[i2 + 1] = y + deformations[baseIndexDeformation + 1] + deformations[baseIndexDeformation + 3] * dx + deformations[baseIndexDeformation + 5] * dy; 
-    }
-    // compute correlation using ZNCC
-    float deformedI[-1*-1];
-    float facetI[-1*-1];
-    float meanF = 0;
-    float meanG = 0; 
-    for (int i = 0; i < facetSize2; i++) {
-        i2 = i*2;
-        index = baseIndexFacet + i2;
-                
+        
         // facet is just array of int coords        
         facetI[i] = read_imageui(imageA, sampler, (int2)(facets[index], facets[index + 1])).x;        
         meanF += facetI[i];

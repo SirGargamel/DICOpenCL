@@ -2,7 +2,7 @@ inline int computeIndex(const float x, const float y, const int width) {
     return (int)((y * width) + x);
 }
 
-inline int interpolate(const float x, const float y, global read_only int * image, const int imageWidth) {
+inline int interpolate(const float x, const float y, global int * image, const int imageWidth) {
     const float ix = floor(x);
     const float dx = x - ix;
     
@@ -19,10 +19,10 @@ inline int interpolate(const float x, const float y, global read_only int * imag
 }
 
 kernel void CL2DInt(
-    global read_only int * imageA, global read_only int * imageB, 
-    global read_only int * facets, global read_only float * facetCenters,
-    global read_only float * deformations,
-    global write_only float * result,    
+    global int * imageA, global int * imageB, 
+    global int * facets, global float * facetCenters,
+    global float * deformations,
+    global float * result,    
     const int imageWidth, const int deformationCount,
     const int facetSize, const int facetCount) 
 {        
@@ -45,6 +45,10 @@ kernel void CL2DInt(
     float deformedFacet[-1*-1*2];    
     int index, i2, x, y;
     float dx, dy;
+    float deformedI[-1*-1];
+    float facetI[-1*-1];
+    float meanF = 0;
+    float meanG = 0;
     for (int i = 0; i < facetSize2; i++) {
         i2 = i*2;
         index = baseIndexFacet + i2;        
@@ -57,23 +61,14 @@ kernel void CL2DInt(
         
         deformedFacet[i2] = x + deformations[baseIndexDeformation] + deformations[baseIndexDeformation + 2] * dx + deformations[baseIndexDeformation + 4] * dy;                    
         deformedFacet[i2 + 1] = y + deformations[baseIndexDeformation + 1] + deformations[baseIndexDeformation + 3] * dx + deformations[baseIndexDeformation + 5] * dy;    
-    }
-    // compute correlation using ZNCC
-    float deformedI[-1*-1];
-    float facetI[-1*-1];
-    float meanF = 0;
-    float meanG = 0; 
-    for (int i = 0; i < facetSize2; i++) {
-        i2 = i*2;
-        index = baseIndexFacet + i2;
-                
+        
         // facet is just array of int coords        
         facetI[i] = imageA[computeIndex(facets[index], facets[index + 1], imageWidth)];        
         meanF += facetI[i];
         
         deformedI[i] = interpolate(deformedFacet[i2], deformedFacet[i2 + 1], imageB, imageWidth);                        
         meanG += deformedI[i];
-    } 
+    }
     meanF /= (float) facetSize2;
     meanG /= (float) facetSize2;
     

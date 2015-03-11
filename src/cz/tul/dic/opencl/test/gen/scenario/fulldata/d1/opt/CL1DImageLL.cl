@@ -18,9 +18,9 @@ inline int interpolate(const float x, const float y, read_only image2d_t image) 
 
 kernel void CL1DImageLL(
     read_only image2d_t imageA, read_only image2d_t imageB, 
-    global read_only int * facets, global read_only float * facetCenters,
-    global read_only float * deformations,
-    global write_only float * result,        
+    global int * facets, global float * facetCenters,
+    global float * deformations,
+    global float * result,        
     const int imageWidth, const int deformationCount,
     const int facetSize, const int facetCount,
     const int groupCountPerFacet) 
@@ -67,6 +67,11 @@ kernel void CL1DImageLL(
         return;
     }
     // deform facet
+    // compute correlation using ZNCC
+    float deformedI[-1*-1];
+    float facetI[-1*-1];
+    float meanF = 0;
+    float meanG = 0;
     float deformedFacet[-1*-1*2];
     int i2, x, y;
     float dx, dy;
@@ -80,23 +85,14 @@ kernel void CL1DImageLL(
         dy = y - facetCenters[baseIndexFacetCenter + 1];
         
         deformedFacet[i2] = x + deformations[baseIndexDeformation] + deformations[baseIndexDeformation + 2] * dx + deformations[baseIndexDeformation + 4] * dy;                    
-        deformedFacet[i2 + 1] = y + deformations[baseIndexDeformation + 1] + deformations[baseIndexDeformation + 3] * dx + deformations[baseIndexDeformation + 5] * dy; 
-    }
-    // compute correlation using ZNCC
-    float deformedI[-1*-1];
-    float facetI[-1*-1];
-    float meanF = 0;
-    float meanG = 0; 
-    for (int i = 0; i < facetSize2; i++) {
-        i2 = i*2;       
-                
-        // facet is just array of int coords        
+        deformedFacet[i2 + 1] = y + deformations[baseIndexDeformation + 1] + deformations[baseIndexDeformation + 3] * dx + deformations[baseIndexDeformation + 5] * dy;
+        
         facetI[i] = read_imageui(imageA, sampler, (int2)(facetLocal[i2], facetLocal[i2 + 1])).x;        
         meanF += facetI[i];
         
         deformedI[i] = interpolate(deformedFacet[i2], deformedFacet[i2+1], imageB);        
         meanG += deformedI[i];
-    } 
+    }
     meanF /= (float) facetSize2;
     meanG /= (float) facetSize2;    
     
