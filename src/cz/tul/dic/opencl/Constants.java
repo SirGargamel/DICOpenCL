@@ -8,7 +8,7 @@ import cz.tul.dic.opencl.test.gen.ContextHandler;
  */
 public interface Constants {
 
-    public static final float EPS_PRECISE = 0.001F;
+    public static final float EPS_PRECISE = 0.0001F;
     public static final float EPS_NORMAL = 0.05F;
 
     //  Devices for computation
@@ -32,9 +32,9 @@ public interface Constants {
 //    public final int[] DEFORMATION_COUNTS = new int[]{100};
 //    public final int[] FACET_SIZES = new int[]{21};
 //  Test task
-    public final int[][] IMAGE_SIZES = new int[][]{{88, 240}};
-    public final int[] DEFORMATION_COUNTS = new int[]{200, 5000, 100000};
-    public final int[] FACET_SIZES = new int[]{40, 20, 7};
+//    public final int[][] IMAGE_SIZES = new int[][]{{88, 240}};
+//    public final int[] DEFORMATION_COUNTS = new int[]{200, 5000, 100000};
+//    public final int[] FACET_SIZES = new int[]{40, 20, 7};
 //  Real task 0 order
 //    public final int[][] IMAGE_SIZES = new int[][]{{52, 52}, {143,143}};
 //    public final int[] DEFORMATION_COUNTS = new int[]{200, 10000};
@@ -44,8 +44,8 @@ public interface Constants {
 //    public final int[] DEFORMATION_COUNTS = new int[]{100};
 //    public final int[] FACET_SIZES = new int[]{9};
 //  Tiny task
-//    public final int[][] IMAGE_SIZES = new int[][]{{88, 240}};
-//    public final int[] DEFORMATION_COUNTS = new int[]{200};
-//    public final int[] FACET_SIZES = new int[]{20};
+    public final int[][] IMAGE_SIZES = new int[][]{{88, 240}};
+    public final int[] DEFORMATION_COUNTS = new int[]{5000};
+    public final int[] FACET_SIZES = new int[]{20};
 
 }
