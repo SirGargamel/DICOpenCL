@@ -26,7 +26,7 @@ public class Main {
         final Logger l = Logger.getGlobal();
 
         Handler h = new FileHandler("errorLog.log", true);
-        h.setFormatter(new XMLFormatter());
+        h.setFormatter(new SimpleFormatter());
         h.setLevel(lvl);
         l.addHandler(h);
 
