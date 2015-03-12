@@ -115,13 +115,15 @@ public class ContextHandler {
             resetCounter = 0;
         }
 
-        for (CLMemory mem : context.getMemoryObjects()) {
+        if (context != null) {
+            for (CLMemory mem : context.getMemoryObjects()) {
                 if (mem != null && !mem.isReleased()) {
                     mem.release();
                 }
             }
-        if (context != null && !context.isReleased()) {            
-            context.release();
+            if (!context.isReleased()) {
+                context.release();
+            }
         }
 
         final Filter<CLPlatform> filter;
