@@ -123,14 +123,15 @@ public class TestCase {
         }
 
         int rest = deformationCount;
-        int div;
+        int div, max;        
         for (int dim = 0; dim < Utils.DEFORMATION_DIM - 1; dim++) {
             if (rest <= 1) {
                 deformationLimits[dim * 3 + 1] = deformationLimits[dim * 3];
                 deformationLimits[dim * 3 + 2] = 0;
             }
 
-            for (int n = 2; n < 100; n++) {
+            max = (int) Math.pow(rest, 1 / (double)(Utils.DEFORMATION_DIM - dim));
+            for (int n = max; n > 1; n--) {
                 div = rest / n;
                 if (n * div == rest) {
                     deformationLimits[dim * 3 + 2] = (float) ((deformationLimits[dim * 3 + 1] - deformationLimits[dim * 3]) / (double) (n - 1));
