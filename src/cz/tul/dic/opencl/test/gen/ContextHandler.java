@@ -43,7 +43,7 @@ public class ContextHandler {
         errorHandler = new SimpleCLErrorHandler();
         facetSize = 1;
         resetCounter = -1;
-        reset();        
+        reset();
     }
 
     public CLContext getContext() {
@@ -81,7 +81,7 @@ public class ContextHandler {
                 }
                 final String source = sb.toString().replaceAll("-1", Integer.toString(facetSize));
                 program = context.createProgram(source);
-                program.build();                
+                program.build();
                 kernel = program.createCLKernel(name);
             } catch (IOException ex) {
                 // should not happen
@@ -115,10 +115,12 @@ public class ContextHandler {
             resetCounter = 0;
         }
 
-        if (context != null && !context.isReleased()) {
-            for (CLMemory mem : context.getMemoryObjects()) {
-                mem.release();
+        for (CLMemory mem : context.getMemoryObjects()) {
+                if (mem != null && !mem.isReleased()) {
+                    mem.release();
+                }
             }
+        if (context != null && !context.isReleased()) {            
             context.release();
         }
 
@@ -175,7 +177,7 @@ public class ContextHandler {
         if (device == null) {
             device = platform.getMaxFlopsDevice();
         }
-        
+
         context = CLContext.create(device);
         context.addCLErrorHandler(errorHandler);
         log.log(Level.INFO, "Using {0} on {1}", new Object[]{device, context});
