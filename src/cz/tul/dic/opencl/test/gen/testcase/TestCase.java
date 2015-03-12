@@ -123,20 +123,38 @@ public class TestCase {
         }
 
         int rest = deformationCount;
-        int div, max;        
+        int div, optimal;
+        boolean found;
         for (int dim = 0; dim < Utils.DEFORMATION_DIM - 1; dim++) {
             if (rest <= 1) {
                 deformationLimits[dim * 3 + 1] = deformationLimits[dim * 3];
                 deformationLimits[dim * 3 + 2] = 0;
-            }
-
-            max = (int) Math.pow(rest, 1 / (double)(Utils.DEFORMATION_DIM - dim));
-            for (int n = max; n > 1; n--) {
-                div = rest / n;
-                if (n * div == rest) {
-                    deformationLimits[dim * 3 + 2] = (float) ((deformationLimits[dim * 3 + 1] - deformationLimits[dim * 3]) / (double) (n - 1));
-                    rest /= n;
-                    break;
+            } else {
+                found = false;
+                optimal = (int) Math.pow(rest, 1 / (double) (Utils.DEFORMATION_DIM - dim));
+                for (int n = optimal; n > 1; n--) {
+                    div = rest / n;
+                    if (n * div == rest) {
+                        deformationLimits[dim * 3 + 2] = (float) ((deformationLimits[dim * 3 + 1] - deformationLimits[dim * 3]) / (double) (n - 1));
+                        rest /= n;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    for (int n = optimal; n <= rest; n++) {
+                        div = rest / n;
+                        if (n * div == rest) {
+                            deformationLimits[dim * 3 + 2] = (float) ((deformationLimits[dim * 3 + 1] - deformationLimits[dim * 3]) / (double) (n - 1));
+                            rest /= n;
+                            found = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!found) {
+                        System.err.println("Could not find the proper divider.");
+                    }
                 }
             }
         }
