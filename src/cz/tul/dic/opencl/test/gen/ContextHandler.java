@@ -87,8 +87,9 @@ public class ContextHandler {
                 // should not happen
                 ex.printStackTrace(System.err);
             } catch (CLException ex) {
+                log.log(Level.SEVERE, "CLException: ", ex);
                 if (program != null) {
-                    System.err.println(program.getBuildLog());
+                    log.log(Level.SEVERE, program.getBuildLog());
                 }
             }
         }
@@ -115,15 +116,21 @@ public class ContextHandler {
             resetCounter = 0;
         }
 
-        if (context != null) {
-            for (CLMemory mem : context.getMemoryObjects()) {
-                if (mem != null && !mem.isReleased()) {
-                    mem.release();
+        try {
+            if (context != null) {
+                if (!context.isReleased()) {
+                    log.log(Level.WARNING, "Releasing context.");
+                    context.release();
+                }
+                log.log(Level.WARNING, "Reseting context memory.");
+                for (CLMemory mem : context.getMemoryObjects()) {
+                    if (mem != null && !mem.isReleased()) {
+                        mem.release();
+                    }
                 }
             }
-            if (!context.isReleased()) {
-                context.release();
-            }
+        } catch (Exception ex) {
+            log.log(Level.SEVERE, "Error reseting context.", ex);
         }
 
         final Filter<CLPlatform> filter;
@@ -131,42 +138,21 @@ public class ContextHandler {
 
         switch (type) {
             case CPU:
-                filter = new Filter<CLPlatform>() {
-                    @Override
-                    public boolean accept(CLPlatform item) {
-                        return item.listCLDevices(CLDevice.Type.CPU).length > 0;
-                    }
-                };
+                filter = (CLPlatform item) -> item.listCLDevices(CLDevice.Type.CPU).length > 0;
                 deviceType = Type.CPU;
                 break;
             case GPU:
                 // select best GPU (prefer non-integrated)
-                filter = new Filter<CLPlatform>() {
-                    @Override
-                    public boolean accept(CLPlatform item) {
-                        return item.listCLDevices(CLDevice.Type.CPU).length == 0;
-                    }
-                };
+                filter = (CLPlatform item) -> item.listCLDevices(CLDevice.Type.CPU).length == 0;
                 deviceType = Type.GPU;
                 break;
             case iGPU:
                 // select integrated GPU
-                filter = new Filter<CLPlatform>() {
-                    @Override
-                    public boolean accept(CLPlatform item) {
-                        return item.listCLDevices(CLDevice.Type.CPU).length > 0;
-                    }
-                };
+                filter = (CLPlatform item) -> item.listCLDevices(CLDevice.Type.CPU).length > 0;
                 deviceType = Type.GPU;
                 break;
             default:
-                filter = new Filter<CLPlatform>() {
-
-                    @Override
-                    public boolean accept(CLPlatform i) {
-                        return true;
-                    }
-                };
+                filter = (CLPlatform i) -> true;
                 deviceType = Type.ALL;
         }
 
