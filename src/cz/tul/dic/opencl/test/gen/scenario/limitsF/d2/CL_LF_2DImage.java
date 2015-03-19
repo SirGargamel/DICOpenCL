@@ -30,6 +30,10 @@ public class CL_LF_2DImage extends Scenario2D_LF {
             final float[] facetCenters,
             final float[] deformations,
             final ParameterSet params) throws CLException {
+        final int lws0 = getLWS0();
+        final int lws1 = getLWS1();
+        params.addParameter(Parameter.LWS0, lws0);
+        params.addParameter(Parameter.LWS1, lws1);
         // prepare buffers
         final int facetCount = params.getValue(Parameter.FACET_COUNT);
         final CLImage2d<IntBuffer> imageAcl = createImage(imageA, params.getValue(Parameter.IMAGE_WIDTH));
@@ -51,12 +55,8 @@ public class CL_LF_2DImage extends Scenario2D_LF {
                 .putArg(facetCount)
                 .rewind();
         // prepare work sizes
-        final int lws0 = getLWS0();
-        final int lws1 = getLWS1();
         final int facetGlobalWorkSize = roundUp(lws0, facetCount);
         final int deformationsGlobalWorkSize = roundUp(lws1, params.getValue(Parameter.DEFORMATION_COUNT));
-        params.addParameter(Parameter.LWS0, lws0);
-        params.addParameter(Parameter.LWS1, lws1);
         // execute kernel        
         prepareEventList(1);
         final CLCommandQueue queue = createCommandQueue();

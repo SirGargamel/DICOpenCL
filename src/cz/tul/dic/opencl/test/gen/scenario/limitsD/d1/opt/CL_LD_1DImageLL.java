@@ -82,6 +82,9 @@ public final class CL_LD_1DImageLL extends ScenarioOpenCL_LD {
             final int[] facetData, final float[] facetCenters,
             final float[] deformationLimits, final int[] deformationCounts,
             final ParameterSet params) throws CLException {
+        final int lws0 = (int) Math.pow(2, currentVariant + lws0base2);
+        params.addParameter(Parameter.LWS0, lws0);
+        params.addParameter(Parameter.LWS1, 1);
         // prepare buffers
         final int facetCount = params.getValue(Parameter.FACET_COUNT);
         final CLImage2d<IntBuffer> imageAcl = createImage(imageA, params.getValue(Parameter.IMAGE_WIDTH));
@@ -94,11 +97,8 @@ public final class CL_LD_1DImageLL extends ScenarioOpenCL_LD {
         final long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferDeformationCounts.getCLSize() + bufferResult.getCLSize();
         params.addParameter(Parameter.DATASIZE, (int) (clSize / 1000));
         // prepare work sizes        
-        final int deformationCount = params.getValue(Parameter.DEFORMATION_COUNT);
-        final int lws0 = (int) Math.pow(2, currentVariant + lws0base2);
+        final int deformationCount = params.getValue(Parameter.DEFORMATION_COUNT);        
         final int facetGlobalWorkSize = roundUp(lws0, deformationCount) * facetCount;
-        params.addParameter(Parameter.LWS0, lws0);
-        params.addParameter(Parameter.LWS1, 1);
         int groupCountPerFacet = deformationCount / lws0;
         if (deformationCount % lws0 > 0) {
             groupCountPerFacet++;
