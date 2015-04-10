@@ -26,4 +26,8 @@ public abstract class Scenario {
 
     public abstract int getVariantCount();
     
+    public boolean isDriven() {
+        return false;
+    }
+    
 }

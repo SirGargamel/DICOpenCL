@@ -81,5 +81,10 @@ public abstract class ScenarioDrivenOpenCL_LFD extends ScenarioOpenCL_LFD {
     public int getVariantCount() {
         return PUBLIC_VARIANT_COUNT;
     }
+    
+    @Override
+    public boolean isDriven() {
+        return true;
+    }
 
 }

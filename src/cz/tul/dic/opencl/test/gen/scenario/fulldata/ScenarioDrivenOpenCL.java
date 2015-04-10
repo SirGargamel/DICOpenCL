@@ -81,5 +81,10 @@ public abstract class ScenarioDrivenOpenCL extends ScenarioOpenCL {
     public int getVariantCount() {
         return PUBLIC_VARIANT_COUNT;
     }
+    
+    @Override
+    public boolean isDriven() {
+        return true;
+    }
 
 }

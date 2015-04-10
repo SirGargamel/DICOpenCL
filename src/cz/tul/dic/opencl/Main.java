@@ -11,7 +11,6 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.logging.StreamHandler;
-import java.util.logging.XMLFormatter;
 
 /**
  *
@@ -22,13 +21,14 @@ public class Main {
     public static void main(final String[] args) throws IOException, SQLException {
         // init logging
         LogManager.getLogManager().reset();
+        Handler h;
         final Level lvl = Level.WARNING;
         final Logger l = Logger.getGlobal();
 
-        Handler h = new FileHandler("errorLog.log", true);
-        h.setFormatter(new SimpleFormatter());
-        h.setLevel(lvl);
-        l.addHandler(h);
+//        Handler h = new FileHandler("errorLog.log", true);
+//        h.setFormatter(new SimpleFormatter());
+//        h.setLevel(lvl);
+//        l.addHandler(h);
 
         h = new HandlerOut();
         h.setLevel(Level.ALL);
