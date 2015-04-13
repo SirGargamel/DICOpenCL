@@ -2,7 +2,6 @@ package cz.tul.dic.opencl;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -16,26 +15,36 @@ import java.util.logging.StreamHandler;
  *
  * @author Petr Jecmen
  */
-public class Main {
+public final class Main {
+
+    private static final Logger LOG = Logger.getGlobal();
+    private static final String SWITCH_LIMITS = "l";
 
     public static void main(final String[] args) throws IOException, SQLException {
         // init logging
         LogManager.getLogManager().reset();
-        Handler h;
-        final Level lvl = Level.WARNING;
-        final Logger l = Logger.getGlobal();
+        Handler handler;        
 
+//        final Level lvl = Level.WARNING;        
 //        Handler h = new FileHandler("errorLog.log", true);
 //        h.setFormatter(new SimpleFormatter());
 //        h.setLevel(lvl);
 //        l.addHandler(h);
+        handler = new HandlerOut();
+        handler.setLevel(Level.ALL);
+        LOG.addHandler(handler);
 
-        h = new HandlerOut();
-        h.setLevel(Level.ALL);
-        l.addHandler(h);
+        boolean testLimits;
+        if (args.length > 0 && args[0].contains(SWITCH_LIMITS)) {
+            testLimits = true;
+            LOG.info("Testing limits scenarios.");
+        } else {
+            testLimits = false;
+            LOG.info("Testing optimization scenarios.");
+        }
 
-        PerformanceTest.computeImageFillTest();
-        
+        PerformanceTest.computeImageFillTest(testLimits);
+
         // DB testing
 //        ParameterSet ps = new ParameterSet();
 //        ScenarioResult sr = new ScenarioResult(new float[]{1}, 1000);

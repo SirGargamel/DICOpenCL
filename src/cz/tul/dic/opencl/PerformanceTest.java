@@ -80,16 +80,15 @@ import java.util.logging.Logger;
  */
 public class PerformanceTest {
 
-    private static final Logger log = Logger.getGlobal();
-    private static final boolean TEST_LIMITS = true;
+    private static final Logger LOG = Logger.getGlobal();
 
-    public static void computeImageFillTest() throws IOException {
+    public static void computeImageFillTest(final boolean testLimits) throws IOException {
         for (DeviceType device : Constants.HW) {
             CLPlatform.initialize();
             DataStorage.reset();
             final ContextHandler ch = new ContextHandler(device);
             final WorkSizeManager wsm = new WorkSizeManager();
-            final List<Scenario> scenarios = prepareScenarios(ch, wsm);
+            final List<Scenario> scenarios = prepareScenarios(testLimits, ch, wsm);
             final List<TestCase> testCases = prepareTestCases();
 
             initializeDataStorage(scenarios, testCases.size());
@@ -149,35 +148,35 @@ public class PerformanceTest {
                                             }
                                         } catch (CLException ex) {
                                             result = new ScenarioResult(-1, true);
-                                            log.log(Level.SEVERE, "CL error - " + ex.getLocalizedMessage(), ex);
+                                            LOG.log(Level.SEVERE, "CL error - " + ex.getLocalizedMessage(), ex);
                                         } catch (Exception | Error ex) {
                                             result = new ScenarioResult(-1, true);
-                                            log.log(Level.SEVERE, "Error - " + ex.getLocalizedMessage(), ex);
+                                            LOG.log(Level.SEVERE, "Error - " + ex.getLocalizedMessage(), ex);
                                         }
 
                                         if (result == null) {
                                             result = new ScenarioResult(-1, true);
-                                            log.log(Level.SEVERE, "Unknown error, NULL result.");
+                                            LOG.log(Level.SEVERE, "Unknown error, NULL result.");
                                         }
 
                                         DataStorage.storeData(ps, result, ch.getDeviceName());
 
                                         switch (result.getState()) {
                                             case SUCCESS:
-                                                log.log(Level.INFO, "Finished {0} {1}ms ({2} ms in kernel) with params {3}, dif = {4}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps, result.getMaxDifference()});
+                                                LOG.log(Level.INFO, "Finished {0} {1}ms ({2} ms in kernel) with params {3}, dif = {4}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps, result.getMaxDifference()});
                                                 break;
                                             case WRONG_RESULT_DYNAMIC:
-                                                log.log(Level.INFO, "Wrong dynamic part of result for  {0} {1}ms ({2} ms in kernel) with params {3}, dif = {4}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps, result.getMaxDifference()});
+                                                LOG.log(Level.INFO, "Wrong dynamic part of result for  {0} {1}ms ({2} ms in kernel) with params {3}, dif = {4}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps, result.getMaxDifference()});
                                                 break;
                                             case WRONG_RESULT_FIXED:
-                                                log.log(Level.INFO, "Wrong fixed part of result for  {0} {1}ms ({2} ms in kernel) with params {3}, dif = {4}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps, result.getMaxDifference()});
+                                                LOG.log(Level.INFO, "Wrong fixed part of result for  {0} {1}ms ({2} ms in kernel) with params {3}, dif = {4}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps, result.getMaxDifference()});
                                                 break;
                                             case FAIL:
-                                                log.log(Level.INFO, "Failed {0} with params {1}", new Object[]{sc.getKernelName(), ps});
+                                                LOG.log(Level.INFO, "Failed {0} with params {1}", new Object[]{sc.getKernelName(), ps});
                                                 ch.reset();
                                                 break;
                                             case INVALID_PARAMS:
-                                                log.log(Level.INFO, "Invalid params for {0} - {1}", new Object[]{sc.getKernelName(), ps});
+                                                LOG.log(Level.INFO, "Invalid params for {0} - {1}", new Object[]{sc.getKernelName(), ps});
                                         }
                                     }
                                 }
@@ -254,7 +253,7 @@ public class PerformanceTest {
         } else if (sc instanceof ScenarioDrivenOpenCL_LFD) {
             result = ((ScenarioDrivenOpenCL_LFD) sc).compute(images[0], images[1], facetCenters, defomationLimitsFull, deformationCountsFull, ps);
         } else {
-            log.log(Level.SEVERE, "Illegal type of driven scenario - {0}", sc.getClass().toGenericString());
+            LOG.log(Level.SEVERE, "Illegal type of driven scenario - {0}", sc.getClass().toGenericString());
             result = new ScenarioResult(-1, true);
         }
         return result;
@@ -298,7 +297,7 @@ public class PerformanceTest {
         } else if (sc instanceof ScenarioOpenCL_LFD) {
             result = ((ScenarioOpenCL_LFD) sc).compute(images[0], images[1], facetCenters, defomationLimitsFull, deformationCountsFull, ps);
         } else {
-            log.log(Level.SEVERE, "Illegal type of normal scenario - {0}", sc.getClass().toGenericString());
+            LOG.log(Level.SEVERE, "Illegal type of normal scenario - {0}", sc.getClass().toGenericString());
             result = new ScenarioResult(-1, true);
         }
         return result;
@@ -343,10 +342,10 @@ public class PerformanceTest {
         return result;
     }
 
-    private static List<Scenario> prepareScenarios(final ContextHandler contextHandler, final WorkSizeManager wsm) throws IOException {
+    private static List<Scenario> prepareScenarios(final boolean testLimit, final ContextHandler contextHandler, final WorkSizeManager wsm) throws IOException {
         final List<Scenario> scenarios = new LinkedList<>();
 
-        if (TEST_LIMITS) {
+        if (testLimit) {
             prepareLimitsOptimization(scenarios, contextHandler);
         } else {
             prepareBasicOptimizations(scenarios, contextHandler, wsm);

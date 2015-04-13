@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  */
 public class ContextHandler {
 
-    private static final Logger log = Logger.getGlobal();
+    private static final Logger LOG = Logger.getGlobal();
     private static final String CL_EXTENSION = ".cl";
     private static final int MAX_RESET_COUNT_IN_TIME = 3;
     private static final long RESET_TIME = 60000;
@@ -87,9 +87,9 @@ public class ContextHandler {
                 // should not happen
                 ex.printStackTrace(System.err);
             } catch (CLException ex) {
-                log.log(Level.SEVERE, "CLException: ", ex);
+                LOG.log(Level.SEVERE, "CLException: ", ex);
                 if (program != null) {
-                    log.log(Level.SEVERE, program.getBuildLog());
+                    LOG.log(Level.SEVERE, program.getBuildLog());
                 }
             }
         }
@@ -106,7 +106,7 @@ public class ContextHandler {
             if (time > 0) {
                 synchronized (this) {
                     try {
-                        log.log(Level.WARNING, "Waiting {0}ms before another computation.", time);
+                        LOG.log(Level.WARNING, "Waiting {0}ms before another computation.", time);
                         this.wait(time);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(ContextHandler.class.getName()).log(Level.SEVERE, null, ex);
@@ -119,10 +119,10 @@ public class ContextHandler {
         try {
             if (context != null) {
                 if (!context.isReleased()) {
-                    log.log(Level.WARNING, "Releasing context.");
+                    LOG.log(Level.WARNING, "Releasing context.");
                     context.release();
                 }
-                log.log(Level.WARNING, "Reseting context memory.");
+                LOG.log(Level.WARNING, "Reseting context memory.");
                 for (CLMemory mem : context.getMemoryObjects()) {
                     if (mem != null && !mem.isReleased()) {
                         mem.release();
@@ -130,7 +130,7 @@ public class ContextHandler {
                 }
             }
         } catch (Exception ex) {
-            log.log(Level.SEVERE, "Error reseting context.", ex);
+            LOG.log(Level.SEVERE, "Error reseting context.", ex);
         }
 
         final Filter<CLPlatform> filter;
@@ -168,7 +168,7 @@ public class ContextHandler {
 
         context = CLContext.create(device);
         context.addCLErrorHandler(errorHandler);
-        log.log(Level.INFO, "Using {0} on {1}", new Object[]{device, context});
+        LOG.log(Level.INFO, "Using {0} on {1}", new Object[]{device, context});
 
         assignScenario(scenario);
     }
