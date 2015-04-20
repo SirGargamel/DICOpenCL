@@ -136,12 +136,13 @@ public class JavaPerFacet extends ScenarioFullData {
         public void run() {
             final int facetArraySize = Utils.calculateFacetArraySize(facetSize);
             final int facetArea = Utils.calculateFacetArea(facetSize);
+            final int facetCount = facetCenters.length / 2;
 
             final float[] deformedFacet = new float[facetArraySize];
             final int[] deformedFacetI = new int[facetArea];
             final int[] facetI = new int[facetArea];
 
-            final int deformationCount = deformations.length / Utils.DEFORMATION_DIM;
+            final int deformationCount = deformations.length / Utils.DEFORMATION_DIM / facetCount;
 
             for (int fi = startIndex; fi < endIndex; fi++) {
                 interpolate(facetData, fi, facetI, imageA, imageWidth);
@@ -156,7 +157,7 @@ public class JavaPerFacet extends ScenarioFullData {
     }
 
     private static void deform(final int[] facets, final int facetSize, final float[] facetCenters, final int facetIndex, final float[] deformedFacet, final float[] deformations, final int deformationIndex) {
-        final int di = deformationIndex * Utils.DEFORMATION_DIM;
+        final int di = deformationIndex * Utils.DEFORMATION_DIM + facetIndex * Utils.DEFORMATION_DIM;
         final int facetBase = facetIndex * Utils.calculateFacetArraySize(facetSize);
         final int facetArea = Utils.calculateFacetArea(facetSize);
 
