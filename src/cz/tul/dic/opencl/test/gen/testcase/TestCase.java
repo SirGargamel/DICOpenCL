@@ -26,14 +26,14 @@ public class TestCase {
         return new int[][]{result, result};
     }
 
-    public float[] generateFacetCenters(final int width, final int height, final int size) {
-        final int count = (width / size) * (height / size);
+    public float[] generateFacetCenters(final int width, final int height, final int size, final int countMultiplier) {
+        final int count = (width / size) * (height / size) * countMultiplier;
         final float[] result = new float[count * 2];
 
-        Random rnd = new Random();
+        final Random rnd = new Random();
         int centerX, centerY, baseIndex;
-        final double s_2 = Math.ceil(size / 2.0);
-        final int offset = (int) (s_2 + Utils.DEFORMATION_ABS_MAX_0 + (2 * Utils.DEFORMATION_ABS_MAX_1 * s_2));
+        final double sizeHalf = Math.ceil(size / 2.0);
+        final int offset = (int) (sizeHalf + Utils.DEFORMATION_ABS_MAX_0 + (2 * Utils.DEFORMATION_ABS_MAX_1 * sizeHalf));
         for (int i = 0; i < count; i++) {
             baseIndex = i * 2;
             centerX = rnd.nextInt(width - (2 * offset)) + offset;

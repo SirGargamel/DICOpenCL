@@ -34,13 +34,14 @@ public interface Constants {
 //    int[] DEFORMATION_COUNTS = new int[]{100};
 //    int[] FACET_SIZES = new int[]{21};
 //  Test task
-//    int[][] IMAGE_SIZES = new int[][]{{70, 240}, {88, 240}};
+//    int[][] IMAGE_SIZES = new int[][]{{70, 240}, {88, 240}};    
     int[][] IMAGE_SIZES = new int[][]{{88, 240}};
 //    int[] DEFORMATION_COUNTS = new int[]{200, 5000, 100000};
 //    int[] DEFORMATION_COUNTS = new int[]{200, 5000};
 //    int[] FACET_SIZES = new int[]{41, 21, 7};
     int[] DEFORMATION_COUNTS = new int[]{200};
     int[] FACET_SIZES = new int[]{21};
+    int[] FACET_MULTI = new int[]{1};
 //  Real task 0 order
 //     int[][] IMAGE_SIZES = new int[][]{{52, 52}, {143,143}};
 //     int[] DEFORMATION_COUNTS = new int[]{200, 10000};

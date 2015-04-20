@@ -113,70 +113,72 @@ public class PerformanceTest {
                         for (int sz = 0; sz < Constants.FACET_SIZES.length; sz++) {
                             s = Constants.FACET_SIZES[sz];
 
-                            facetCenters = tc.generateFacetCenters(dim[0], dim[1], s);
-                            facetData = tc.generateFacetData(facetCenters, s);
-                            facetCount = facetCenters.length / 2;
+                            for (int fm = 0; fm < Constants.FACET_MULTI.length; fm++) {
+                                facetCenters = tc.generateFacetCenters(dim[0], dim[1], s, Constants.FACET_MULTI[fm]);
+                                facetData = tc.generateFacetData(facetCenters, s);
+                                facetCount = facetCenters.length / 2;
 
-                            for (int d : Constants.DEFORMATION_COUNTS) {
-                                defomationLimitsSingle = tc.generateDeformationLimits(d);
-                                defomationLimitsFull = repeatArray(defomationLimitsSingle, facetCount);
-                                deformationCountsSingle = tc.generateDeformationCounts(defomationLimitsSingle);
-                                deformationCountsFull = repeatArray(deformationCountsSingle, facetCount);
-                                deformationsSingle = tc.generateDeformations(defomationLimitsSingle, deformationCountsSingle);
-                                deformationsFull = repeatArray(deformationsSingle, facetCount);
+                                for (int d : Constants.DEFORMATION_COUNTS) {
+                                    defomationLimitsSingle = tc.generateDeformationLimits(d);
+                                    defomationLimitsFull = repeatArray(defomationLimitsSingle, facetCount);
+                                    deformationCountsSingle = tc.generateDeformationCounts(defomationLimitsSingle);
+                                    deformationCountsFull = repeatArray(deformationCountsSingle, facetCount);
+                                    deformationsSingle = tc.generateDeformations(defomationLimitsSingle, deformationCountsSingle);
+                                    deformationsFull = repeatArray(deformationsSingle, facetCount);
 
-                                for (int sci = 0; sci < scenarios.size(); sci++) {
-                                    sc = scenarios.get(sci);
-                                    sc.reset();
-                                    while (sc.hasNext()) {
-                                        ps = new ParameterSet();
-                                        ps.addParameter(Parameter.IMAGE_WIDTH, dim[0]);
-                                        ps.addParameter(Parameter.IMAGE_HEIGHT, dim[1]);
-                                        ps.addParameter(Parameter.FACET_SIZE, s);
-                                        ps.addParameter(Parameter.FACET_COUNT, facetData.length / Utils.calculateFacetArraySize(s));
-                                        ps.addParameter(Parameter.DEFORMATION_COUNT, d);
-                                        ps.addParameter(Parameter.VARIANT, sci);
-                                        ps.addParameter(Parameter.TEST_CASE, tci);
+                                    for (int sci = 0; sci < scenarios.size(); sci++) {
+                                        sc = scenarios.get(sci);
+                                        sc.reset();
+                                        while (sc.hasNext()) {
+                                            ps = new ParameterSet();
+                                            ps.addParameter(Parameter.IMAGE_WIDTH, dim[0]);
+                                            ps.addParameter(Parameter.IMAGE_HEIGHT, dim[1]);
+                                            ps.addParameter(Parameter.FACET_SIZE, s);
+                                            ps.addParameter(Parameter.FACET_COUNT, facetData.length / Utils.calculateFacetArraySize(s));
+                                            ps.addParameter(Parameter.DEFORMATION_COUNT, d);
+                                            ps.addParameter(Parameter.VARIANT, sci);
+                                            ps.addParameter(Parameter.TEST_CASE, tci);
 
-                                        sc.prepare(ps);
+                                            sc.prepare(ps);
 
-                                        try {
-                                            if (sc.isDriven()) {
-                                                result = runDrivenKernel(tc, sc, ps, images, facetData, facetCenters, deformationCountsFull, defomationLimitsFull, deformationsFull);
-                                            } else {
-                                                result = runNormalKernel(tc, sc, ps, images, facetData, facetCenters, deformationCountsFull, defomationLimitsFull, deformationsFull);
+                                            try {
+                                                if (sc.isDriven()) {
+                                                    result = runDrivenKernel(tc, sc, ps, images, facetData, facetCenters, deformationCountsFull, defomationLimitsFull, deformationsFull);
+                                                } else {
+                                                    result = runNormalKernel(tc, sc, ps, images, facetData, facetCenters, deformationCountsFull, defomationLimitsFull, deformationsFull);
+                                                }
+                                            } catch (CLException ex) {
+                                                result = new ScenarioResult(-1, true);
+                                                LOG.log(Level.SEVERE, "CL error - " + ex.getLocalizedMessage(), ex);
+                                            } catch (Exception | Error ex) {
+                                                result = new ScenarioResult(-1, true);
+                                                LOG.log(Level.SEVERE, "Error - " + ex.getLocalizedMessage(), ex);
                                             }
-                                        } catch (CLException ex) {
-                                            result = new ScenarioResult(-1, true);
-                                            LOG.log(Level.SEVERE, "CL error - " + ex.getLocalizedMessage(), ex);
-                                        } catch (Exception | Error ex) {
-                                            result = new ScenarioResult(-1, true);
-                                            LOG.log(Level.SEVERE, "Error - " + ex.getLocalizedMessage(), ex);
-                                        }
 
-                                        if (result == null) {
-                                            result = new ScenarioResult(-1, true);
-                                            LOG.log(Level.SEVERE, "Unknown error, NULL result.");
-                                        }
+                                            if (result == null) {
+                                                result = new ScenarioResult(-1, true);
+                                                LOG.log(Level.SEVERE, "Unknown error, NULL result.");
+                                            }
 
-                                        DataStorage.storeData(ps, result, ch.getDeviceName());
+                                            DataStorage.storeData(ps, result, ch.getDeviceName());
 
-                                        switch (result.getState()) {
-                                            case SUCCESS:
-                                                LOG.log(Level.INFO, "Finished {0} {1}ms ({2} ms in kernel) with params {3}, dif = {4}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps, result.getMaxDifference()});
-                                                break;
-                                            case WRONG_RESULT_DYNAMIC:
-                                                LOG.log(Level.INFO, "Wrong dynamic part of result for  {0} {1}ms ({2} ms in kernel) with params {3}, dif = {4}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps, result.getMaxDifference()});
-                                                break;
-                                            case WRONG_RESULT_FIXED:
-                                                LOG.log(Level.INFO, "Wrong fixed part of result for  {0} {1}ms ({2} ms in kernel) with params {3}, dif = {4}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps, result.getMaxDifference()});
-                                                break;
-                                            case FAIL:
-                                                LOG.log(Level.INFO, "Failed {0} with params {1}", new Object[]{sc.getKernelName(), ps});
-                                                ch.reset();
-                                                break;
-                                            case INVALID_PARAMS:
-                                                LOG.log(Level.INFO, "Invalid params for {0} - {1}", new Object[]{sc.getKernelName(), ps});
+                                            switch (result.getState()) {
+                                                case SUCCESS:
+                                                    LOG.log(Level.INFO, "Finished {0} {1}ms ({2} ms in kernel) with params {3}, dif = {4}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps, result.getMaxDifference()});
+                                                    break;
+                                                case WRONG_RESULT_DYNAMIC:
+                                                    LOG.log(Level.INFO, "Wrong dynamic part of result for  {0} {1}ms ({2} ms in kernel) with params {3}, dif = {4}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps, result.getMaxDifference()});
+                                                    break;
+                                                case WRONG_RESULT_FIXED:
+                                                    LOG.log(Level.INFO, "Wrong fixed part of result for  {0} {1}ms ({2} ms in kernel) with params {3}, dif = {4}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps, result.getMaxDifference()});
+                                                    break;
+                                                case FAIL:
+                                                    LOG.log(Level.INFO, "Failed {0} with params {1}", new Object[]{sc.getKernelName(), ps});
+                                                    ch.reset();
+                                                    break;
+                                                case INVALID_PARAMS:
+                                                    LOG.log(Level.INFO, "Invalid params for {0} - {1}", new Object[]{sc.getKernelName(), ps});
+                                            }
                                         }
                                     }
                                 }
@@ -288,7 +290,11 @@ public class PerformanceTest {
             final int[] deformationCountsFull, final float[] defomationLimitsFull,
             final float[] deformationsFull) {
         ScenarioResult result;
-        if (sc instanceof ScenarioOpenCL) {
+        if (sc instanceof JavaPerFacet) {
+            result = ((JavaPerFacet) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
+        } else if (sc instanceof JavaPerDeformation) {
+            result = ((JavaPerDeformation) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
+        } else if (sc instanceof ScenarioOpenCL) {
             result = ((ScenarioOpenCL) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
         } else if (sc instanceof ScenarioOpenCL_LD) {
             result = ((ScenarioOpenCL_LD) sc).compute(images[0], images[1], facetData, facetCenters, defomationLimitsFull, deformationCountsFull, ps);
