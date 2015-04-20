@@ -6,14 +6,14 @@ import cz.tul.dic.opencl.test.gen.ContextHandler;
  *
  * @author Petr Jecmen
  */
-public interface Constants {
+public final class Constants {
 
-    float EPS_PRECISE = 0.0001F;
-    float EPS_NORMAL = 0.05F;
+    public static final float EPS_PRECISE = 0.0001F;
+    public static final float EPS_NORMAL = 0.05F;
 
     //  Devices for computation
-    ContextHandler.DeviceType[] HW
-//            = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.CPU};
+    public static final ContextHandler.DeviceType[] HW
+            //            = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.CPU};
             = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU};
 //    ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.CPU, ContextHandler.DeviceType.iGPU};
 //    ContextHandler.DeviceType[] HW = new ContextHandler.DeviceType[]{ContextHandler.DeviceType.GPU, ContextHandler.DeviceType.CPU, ContextHandler.DeviceType.iGPU};
@@ -35,13 +35,14 @@ public interface Constants {
 //    int[] FACET_SIZES = new int[]{21};
 //  Test task
 //    int[][] IMAGE_SIZES = new int[][]{{70, 240}, {88, 240}};    
-    int[][] IMAGE_SIZES = new int[][]{{88, 240}};
-//    int[] DEFORMATION_COUNTS = new int[]{200, 5000, 100000};
+    public static final int[][] IMAGE_SIZES = new int[][]{{88, 240}};
+    public static final int[] DEFORMATION_COUNTS = new int[]{50, 200, 1000, 20000};
 //    int[] DEFORMATION_COUNTS = new int[]{200, 5000};
-//    int[] FACET_SIZES = new int[]{41, 21, 7};
-    int[] DEFORMATION_COUNTS = new int[]{200};
-    int[] FACET_SIZES = new int[]{21};
-    int[] FACET_MULTI = new int[]{1};
+//    int[] DEFORMATION_COUNTS = new int[]{200};
+    public static final int[] FACET_SIZES = new int[]{41, 21, 7};
+//    int[] FACET_SIZES = new int[]{21};
+    public static final int[] FACET_MULTI = new int[]{1, 2, 4};
+//    int[] FACET_MULTI = new int[]{1};
 //  Real task 0 order
 //     int[][] IMAGE_SIZES = new int[][]{{52, 52}, {143,143}};
 //     int[] DEFORMATION_COUNTS = new int[]{200, 10000};
@@ -54,5 +55,8 @@ public interface Constants {
 //    int[][] IMAGE_SIZES = new int[][]{{88, 240}};
 //    int[] DEFORMATION_COUNTS = new int[]{5000};
 //    int[] FACET_SIZES = new int[]{20};
+
+    private Constants() {
+    }
 
 }
