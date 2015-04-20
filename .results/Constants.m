@@ -5,6 +5,7 @@ FILE_DELIMITER = ',';
 % FILE_FORMAT = '%f %f %f %f %f %f %f %f %f %f %f %f %f %s %f';
 FILE_FORMAT = '%f %f %f %f %f %f %f %f %f %f %f %f %f %s %f %f %f %f %f %f %f %f %f %f %f %f %f';
 FILE_HEADER_LINE_COUNT = 2;
+FILE_NAME_CPU = 'D:\\DIC_OpenCL_Data_CPU.csv';
 FILE_NAME_GPU = 'D:\\DIC_OpenCL_Data_GPU.csv';
 FILE_NAME_GT650 = 'DIC_OpenCL_Data_GPU_GT650_AT.csv';
 FILE_NAME_GTX765 = 'DIC_OpenCL_Data_GPU_GTX765M_AT.csv';
@@ -12,7 +13,9 @@ FILE_NAME_i7_3610 = 'DIC_OpenCL_Data_CPU_i7-3610QM_AT.csv';
 FILE_NAME_i7_4700 = 'DIC_OpenCL_Data_CPU_i7-4700MQ_AT.csv';
 FILE_NAME_HD4000 = 'DIC_OpenCL_Data_iGPU_HD4000_AT.csv';
 FILE_NAME_HD4000_FIX = 'DIC_OpenCL_Data_iGPU_HD4000_AT.csv';
-FILE_NAME = FILE_NAME_GT650;
+FILE_NAME_LIMITS_GPU = 'DIC_OpenCL_Data_GPU_GT650_Limits.csv';
+FILE_NAME_LIMITS_CPU = 'DIC_OpenCL_Data_CPU_i7-3610QM_Limits.csv';
+FILE_NAME = FILE_NAME_LIMITS_CPU;
 
 INDEX_DEFORMATION_COUNT = 4;
 INDEX_FACET_SIZE = 3;
@@ -26,13 +29,17 @@ INDEX_TIME_KERNEL = 13;
 INDEX_TIME_TOTAL = 12;
 INDEX_VARIANT = 6;
 NAMES_VARIANTS = { ...
-    'TpF' 'TpD' ...
-    '1D pF' '1D pD' '1.5D pF' '1.5D pD' ...
-    '2D Naive' '2D Int[]' '2D I' ...
-    '2D I FtoA' '2D I MC' '2D I V' '2D I C' ...
-    '1D I L' '1D I LL' ...
-    '2D I V + MC' '2D I LL + V' '2D I LL + MC' '2D I LL + MC + V' ...
-    '2D Int[] D' '2D I D' '2D I V D' '2D I V MC D' '1D I V LL D' '1D I V LL MC D'};
+%     'TpF' 'TpD' ...
+%     '1D pF' '1D pD' '1.5D pF' '1.5D pD' ...
+%     '2D Naive' '2D Int[]' '2D I' ...
+%     '2D I FtoA' '2D I MC' '2D I V' '2D I C' ...
+%     '1D I L' '1D I LL' ...
+%     '2D I V + MC' '2D I LL + V' '2D I LL + MC' '2D I LL + MC + V' ...
+%     '2D Int[] D' '2D I D' '2D I V D' '2D I V MC D' '1D I V LL D' '1D I V LL MC D'};
+    '2D Int[]' '2D I' '2D I V' '2D I LL' '2D I V LL' ...
+    'FD 1' 'FD 2' 'FD 3' 'FD 4' 'FD 5' ...
+    'D 1' 'D 2' 'D 3' 'D 4' 'D 5' ...
+    'F 1' 'F 2' 'F 3' 'F 4' 'F 5'};
 TEST_CASE_RANDOM = 1;
 TEST_CASE_SHIFT = 2;
 TIME_KERNEL = 1;
@@ -62,13 +69,18 @@ VARIANT_2D_IMAGE_VEC_D = 22;
 VARIANT_2D_IMAGE_V_MC_D = 23;
 VARIANT_2D_IMAGE_V_LL_D = 24;
 VARIANT_2D_IMAGE_V_LL_MC_D = 25;
+
 X = 1 : COUNT_LWS1;
-% X = 1 : 8;
 X_LABELS = cell(COUNT_LWS1,1);
 for i=1:COUNT_LWS1
-    X_LABELS(i) = cellstr(int2str(2^(i-1)));
-%     X_LABELS(i) = cellstr(int2str(i));
+    X_LABELS(i) = cellstr(int2str(2^(i-1)));   
 end;
+
+% X = 1 : 8;
+% X_LABELS = cell(8,1);
+% for i=1:8
+%     X_LABELS(i) = cellstr(int2str(i));
+% end;
 
 % which time will be used in graphs
 ANALYZED_TIME = TIME_TOTAL;

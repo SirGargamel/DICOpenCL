@@ -1,5 +1,5 @@
 clear all;
-close all;
+% close all;
 clc;
 % Find best variant for each data config
 % Display time and lws0 / lws1

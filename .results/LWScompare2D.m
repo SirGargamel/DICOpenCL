@@ -5,7 +5,7 @@ clc;
 % Data format specification can be found in Constants.m and LoadData.m
 Constants;
 LoadData;
-ANALYZED_VARIANT = VARIANT_2D_IMAGE_FA;
+ANALYZED_VARIANT = VARIANT_2D_INT;
 % Plot graphs
 % Main plot, create multiple windows
 graphCountX = 1;
@@ -37,13 +37,17 @@ for win=1:windowCount
             % plot curves for all LWS0 into one subfigure
             hold on;                                    
             for lws0i=1:COUNT_LWS0
-                plot(allCurves(ANALYZED_TIME, :, lws0i, ANALYZED_VARIANT, ANALYZED_TEST_CASE, innerBase),'-o','Color',COLORS(lws0i, :), 'LineSmoothing','on')                
+                plot(allCurves(ANALYZED_TIME, :, lws0i, ANALYZED_VARIANT, ANALYZED_TEST_CASE, innerBase),'-o','Color',COLORS(lws0i, :), 'LineSmoothing','on', 'LineWidth',3)                
             end;            
             set(gca, 'XTick', X, 'XTickLabel', X_LABELS);
             h = legend('1', '2', '4', '8', '16', '32', '64');
             v = get(h,'title');
             set(v,'string','LWS0');
+            set(findall(gcf, '-property', 'FontSize'), 'FontSize', 25);
             hold off;
         end;
     end;
+    
+    hgexport(gcf, sprintf('export%d.jpg', win), hgexport('factorystyle'), 'Format', 'jpeg');
+    close(gcf); 
 end;
