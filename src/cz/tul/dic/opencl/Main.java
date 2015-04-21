@@ -2,6 +2,7 @@ package cz.tul.dic.opencl;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Scanner;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -19,11 +20,12 @@ public final class Main {
 
     private static final Logger LOG = Logger.getGlobal();
     private static final String SWITCH_LIMITS = "l";
+    private static final String SWITCH_OPT = "o";
 
     public static void main(final String[] args) throws IOException, SQLException {
         // init logging
         LogManager.getLogManager().reset();
-        Handler handler;        
+        Handler handler;
 
 //        final Level lvl = Level.WARNING;        
 //        Handler h = new FileHandler("errorLog.log", true);
@@ -34,13 +36,30 @@ public final class Main {
         handler.setLevel(Level.ALL);
         LOG.addHandler(handler);
 
-        boolean testLimits;
+        Boolean testLimits = null;
         if (args.length > 0 && args[0].contains(SWITCH_LIMITS)) {
             testLimits = true;
             LOG.info("Testing limits scenarios.");
-        } else {
+        } else if (args.length > 0 && args[0].contains(SWITCH_OPT)) {
             testLimits = false;
-            LOG.info("Testing optimization scenarios.");
+            LOG.info("Testing limits scenarios.");
+        } else {
+            System.out.println("You need to provide test type -\n\"o\" for optimizations test, \"l\" for limits vs. full data test:");
+            final Scanner reader = new Scanner(System.in);            
+            String input;
+            while (testLimits == null) {
+                input = reader.next();
+                if (input.equals(SWITCH_LIMITS)) {
+                    LOG.info("Testing limits scenarios.");
+                    testLimits = true;
+                } else if (input.equals(SWITCH_OPT)) {
+                    LOG.info("Testing optimization scenarios.");
+                    testLimits = false;
+                } else {
+                    System.out.println("Illegal input, use \"o\" or \"l\"");
+                }
+            }
+            reader.close();
         }
 
         PerformanceTest.computeImageFillTest(testLimits);
