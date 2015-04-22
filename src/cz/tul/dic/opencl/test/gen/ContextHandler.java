@@ -116,6 +116,10 @@ public class ContextHandler {
             resetCounter = 0;
         }
 
+        initContext();
+    }
+
+    public final void initContext() {
         try {
             if (context != null) {
                 if (!context.isReleased()) {

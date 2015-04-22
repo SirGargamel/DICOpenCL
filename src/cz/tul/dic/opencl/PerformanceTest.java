@@ -181,6 +181,7 @@ public class PerformanceTest {
                                             }
                                         }
                                     }
+                                    ch.initContext();
                                 }
                             }
                         }
