@@ -5,12 +5,15 @@ import cz.tul.dic.opencl.test.gen.CustomMath;
 import cz.tul.dic.opencl.test.gen.Utils;
 import cz.tul.dic.opencl.test.gen.scenario.ScenarioResult;
 import java.util.Random;
+import java.util.logging.Logger;
 
 /**
  *
  * @author Petr Jecmen
  */
 public class TestCase {
+
+    private static final Logger LOG = Logger.getGlobal();
 
     public int[][] generateImages(final int width, final int height) {
         final int length = width * height;
@@ -118,10 +121,6 @@ public class TestCase {
         deformationLimits[1] = Utils.DEFORMATION_ABS_MAX_0;
         deformationLimits[4] = Utils.DEFORMATION_ABS_MAX_0;
 
-        for (int dim = 2; dim < Utils.DEFORMATION_DIM; dim++) {
-            deformationLimits[dim * 3 + 1] = Utils.DEFORMATION_ABS_MAX_1;
-        }
-
         int rest = deformationCount;
         int div, optimal;
         boolean found;
@@ -145,15 +144,20 @@ public class TestCase {
                     for (int n = optimal; n <= rest; n++) {
                         div = rest / n;
                         if (n * div == rest) {
-                            deformationLimits[dim * 3 + 2] = (float) ((deformationLimits[dim * 3 + 1] - deformationLimits[dim * 3]) / (double) (n - 1));
+                            if (n > 1) {
+                                deformationLimits[dim * 3 + 2] = (float) ((deformationLimits[dim * 3 + 1] - deformationLimits[dim * 3]) / (double) (n - 1));
+                            } else {
+                                deformationLimits[dim * 3 + 1] = deformationLimits[dim * 3];
+                                deformationLimits[dim * 3 + 2] = 0;
+                            }
                             rest /= n;
                             found = true;
                             break;
                         }
                     }
-                    
+
                     if (!found) {
-                        System.err.println("Could not find the proper divider.");
+                        LOG.warning("Could not find the proper divider.");
                     }
                 }
             }
