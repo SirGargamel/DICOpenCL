@@ -318,6 +318,7 @@ public class PerformanceTest {
         int lineCount = 1;
         lineCount *= Constants.IMAGE_SIZES.length;
         lineCount *= Constants.FACET_SIZES.length;
+        lineCount *= Constants.FACET_MULTI.length;
         lineCount *= Constants.DEFORMATION_COUNTS.length;
         DataStorage.setCounts(lineCount, testCaseCount);
     }
