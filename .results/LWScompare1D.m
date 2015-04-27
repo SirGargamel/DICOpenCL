@@ -35,7 +35,7 @@ for win=1:windowCount
             subplot(graphCountY, graphCountX, (graphY-1) * graphCountX + graphX);
             xlabel('LWS0');
             ylabel('Time [ms]');            
-            title(cellstr([int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY)) ', fs=' int2str(data(index, INDEX_FACET_SIZE)) ', dc=' int2str(data(index, INDEX_DEFORMATION_COUNT))]));            
+            title(cellstr([int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY)) ', fs=' int2str(data(index, INDEX_FACET_SIZE)) ', fc=' int2str(data(index, INDEX_FACET_COUNT)) ', dc=' int2str(data(index, INDEX_DEFORMATION_COUNT))]));
             % plot curves for all LWS0 into one subfigure
             hold on;
             values(1, :) = allCurves(TIME_KERNEL, LWS1,  1:size(X_LABELS, 1), ANALYZED_VARIANT, ANALYZED_TEST_CASE, innerBase);

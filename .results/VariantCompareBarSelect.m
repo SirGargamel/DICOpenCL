@@ -42,9 +42,10 @@ graphCountY = 1;
 graphsPerWindowCount = graphCountX * graphCountY;
 windowCount = ceil(graphCount / graphsPerWindowCount);
 for win=1:windowCount
-%     if (~(win == 1 || win == 3 || win == 5 || win == 7 || win == 9))
-%         continue;
-%     end;
+    if (~(win == 1 || win == 10 || win == 20 || win == 30 || win == 40))
+%     if (win > 5)
+        continue;
+    end;
     
     index = (win-1) * graphsPerWindowCount * pointCount + 1;
     name = 'Kernel running time';
@@ -61,7 +62,7 @@ for win=1:windowCount
             % create subplot
             subplot(graphCountY, graphCountX, (graphY-1) * graphCountX + graphX);
             ylabel('Time [ms]');                        
-            title(cellstr([int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY)) ', fs=' int2str(data(index, INDEX_FACET_SIZE)) ', dc=' int2str(data(index, INDEX_DEFORMATION_COUNT))]));
+            title(cellstr([int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY)) ', fs=' int2str(data(index, INDEX_FACET_SIZE)) ', fc=' int2str(data(index, INDEX_FACET_COUNT)) ', dc=' int2str(data(index, INDEX_DEFORMATION_COUNT))]));
             % plot both curves to one subfigure       
             hold on;                                    
             bar(bestCurves(1:2, :, innerBase)','stacked');                        
