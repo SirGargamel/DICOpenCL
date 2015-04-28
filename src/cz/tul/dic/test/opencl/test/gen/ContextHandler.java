@@ -122,15 +122,15 @@ public class ContextHandler {
     public final void initContext() {
         try {
             if (context != null) {
-                if (!context.isReleased()) {
-                    LOG.log(Level.WARNING, "Releasing context.");
-                    context.release();
-                }
                 LOG.log(Level.WARNING, "Reseting context memory.");
                 for (CLMemory mem : context.getMemoryObjects()) {
                     if (mem != null && !mem.isReleased()) {
                         mem.release();
                     }
+                }
+                if (!context.isReleased()) {
+                    LOG.log(Level.WARNING, "Releasing context.");
+                    context.release();
                 }
             }
         } catch (Exception ex) {
