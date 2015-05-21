@@ -65,6 +65,13 @@ import cz.tul.dic.test.opencl.test.gen.scenario.limitsFD.d1.opt.CL_L_1DImageLL;
 import cz.tul.dic.test.opencl.test.gen.scenario.limitsFD.d2.CL_L_2DImage;
 import cz.tul.dic.test.opencl.test.gen.scenario.limitsFD.d2.CL_L_2DInt;
 import cz.tul.dic.test.opencl.test.gen.scenario.limitsFD.d2.opt.CL_L_2DImageV;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.ScenarioDrivenOpenCL_NO;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.ScenarioOpenCL_NO;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.comb.CL_NO_1D_I_V_LL;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.d1.opt.CL_NO_1DImageLL;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.d2.CL_NO_2DImage;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.d2.CL_NO_2DInt;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.d2.opt.CL_NO_2DImageV;
 import cz.tul.dic.test.opencl.test.gen.testcase.TestCase;
 import java.io.File;
 import java.io.IOException;
@@ -249,6 +256,8 @@ public class PerformanceTest {
         ScenarioResult result;
         if (sc instanceof ScenarioDrivenOpenCL) {
             result = ((ScenarioDrivenOpenCL) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
+        } else if (sc instanceof ScenarioDrivenOpenCL_NO) {
+            result = ((ScenarioDrivenOpenCL_NO) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
         } else if (sc instanceof ScenarioDrivenOpenCL_LD) {
             result = ((ScenarioDrivenOpenCL_LD) sc).compute(images[0], images[1], facetData, facetCenters, defomationLimitsFull, deformationCountsFull, ps);
         } else if (sc instanceof ScenarioDrivenOpenCL_LF) {
@@ -297,6 +306,8 @@ public class PerformanceTest {
             result = ((JavaPerDeformation) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
         } else if (sc instanceof ScenarioOpenCL) {
             result = ((ScenarioOpenCL) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
+            } else if (sc instanceof ScenarioOpenCL_NO) {
+            result = ((ScenarioOpenCL_NO) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
         } else if (sc instanceof ScenarioOpenCL_LD) {
             result = ((ScenarioOpenCL_LD) sc).compute(images[0], images[1], facetData, facetCenters, defomationLimitsFull, deformationCountsFull, ps);
         } else if (sc instanceof ScenarioOpenCL_LF) {
@@ -398,11 +409,11 @@ public class PerformanceTest {
 
     private static void prepareLimitsOptimization(final List<Scenario> scenarios, final ContextHandler contextHandler) throws IOException {
         // OpenCL limits performance test
-        scenarios.add(new CL2DInt("CL2DInt", contextHandler));  // basic variants - full data
-        scenarios.add(new CL2DImage(contextHandler));
-        scenarios.add(new CL2DImageV(contextHandler));
-        scenarios.add(new CL1DImageLL(contextHandler));
-        scenarios.add(new CL1D_I_V_LL(contextHandler));
+        scenarios.add(new CL_NO_2DInt("CL_NO_2DInt", contextHandler));  // basic variants - full data
+        scenarios.add(new CL_NO_2DImage(contextHandler));
+        scenarios.add(new CL_NO_2DImageV(contextHandler));
+        scenarios.add(new CL_NO_1DImageLL(contextHandler));
+        scenarios.add(new CL_NO_1D_I_V_LL(contextHandler));
 
         scenarios.add(new CL_L_2DInt("CL_L_2DInt", contextHandler)); // variants with both facet and deformation limits
         scenarios.add(new CL_L_2DImage(contextHandler));
