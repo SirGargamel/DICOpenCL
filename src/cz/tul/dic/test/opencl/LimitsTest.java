@@ -18,15 +18,47 @@ import static cz.tul.dic.test.opencl.test.gen.scenario.ScenarioResult.State.SUCC
 import static cz.tul.dic.test.opencl.test.gen.scenario.ScenarioResult.State.WRONG_RESULT_DYNAMIC;
 import static cz.tul.dic.test.opencl.test.gen.scenario.ScenarioResult.State.WRONG_RESULT_FIXED;
 import cz.tul.dic.test.opencl.test.gen.scenario.fulldata.Scenario;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsD.CL_LD_1DImageLL;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsD.CL_LD_1DImageLL_GPU;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsD.CL_LD_1D_I_V_LL;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsD.CL_LD_1D_I_V_LL_GPU;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsD.CL_LD_2DImage;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsD.CL_LD_2DImageV;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsD.CL_LD_2DImageV_GPU;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsD.CL_LD_2DImage_GPU;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsD.CL_LD_2DInt;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsD.CL_LD_2DInt_GPU;
 import cz.tul.dic.test.opencl.test.gen.scenario.limitsD.ScenarioOpenCL_LD;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsD.ScenarioOpenCL_LD_GPU;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsF.CL_LF_1DImageLL;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsF.CL_LF_1DImageLL_GPU;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsF.CL_LF_1D_I_V_LL;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsF.CL_LF_1D_I_V_LL_GPU;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsF.CL_LF_2DImage;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsF.CL_LF_2DImageV;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsF.CL_LF_2DImageV_GPU;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsF.CL_LF_2DImage_GPU;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsF.CL_LF_2DInt;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsF.CL_LF_2DInt_GPU;
 import cz.tul.dic.test.opencl.test.gen.scenario.limitsF.ScenarioOpenCL_LF;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsF.ScenarioOpenCL_LF_GPU;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsFD.CL_L_1DImageLL;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsFD.CL_L_1D_I_V_LL;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsFD.CL_L_2DImage;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsFD.CL_L_2DImageV;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsFD.CL_L_2DInt;
 import cz.tul.dic.test.opencl.test.gen.scenario.limitsFD.ScenarioOpenCL_LFD;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.CL_NO_1DImageLL;
 import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.CL_NO_1DImageLL_GPU;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.CL_NO_1D_I_V_LL;
 import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.CL_NO_1D_I_V_LL_GPU;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.CL_NO_2DImage;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.CL_NO_2DImageV;
 import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.CL_NO_2DImageV_GPU;
 import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.CL_NO_2DImage_GPU;
-import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.ScenarioOpenCL_NO;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.CL_NO_2DInt;
 import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.CL_NO_2DInt_GPU;
+import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.ScenarioOpenCL_NO;
 import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.ScenarioOpenCL_NO_GPU;
 import cz.tul.dic.test.opencl.test.gen.testcase.TestCase;
 import java.io.File;
@@ -196,23 +228,32 @@ public class LimitsTest {
             final int[] facetData = tc.generateFacetData(facetCenters, ps.getValue(Parameter.FACET_SIZE));
             final float[] deformationsFull = repeatArray(tc.generateDeformations(defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle)), facetCount);
             result = ((ScenarioOpenCL_NO) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
-        } else if (sc instanceof ScenarioOpenCL_LD) {
-            final int[] facetData = tc.generateFacetData(facetCenters, ps.getValue(Parameter.FACET_SIZE));
-            final float[] defomationLimitsFull = repeatArray(defomationLimitsSingle, facetCount);
-            final int[] deformationCountsFull = repeatArray(tc.generateDeformationCounts(defomationLimitsSingle), facetCount);
-            result = ((ScenarioOpenCL_LD) sc).compute(images[0], images[1], facetData, facetCenters, defomationLimitsFull, deformationCountsFull, ps);
-        } else if (sc instanceof ScenarioOpenCL_LF) {
-            final float[] deformationsFull = repeatArray(tc.generateDeformations(defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle)), facetCount);
-            result = ((ScenarioOpenCL_LF) sc).compute(images[0], images[1], facetCenters, deformationsFull, ps);
-        } else if (sc instanceof ScenarioOpenCL_LFD) {
-            final float[] defomationLimitsFull = repeatArray(defomationLimitsSingle, facetCount);
-            final int[] deformationCountsFull = repeatArray(tc.generateDeformationCounts(defomationLimitsSingle), facetCount);
-            result = ((ScenarioOpenCL_LFD) sc).compute(images[0], images[1], facetCenters, defomationLimitsFull, deformationCountsFull, ps);
         } else if (sc instanceof ScenarioOpenCL_NO_GPU) {
             final CLBuffer<FloatBuffer> bufferFacetCenters = GPUDataGenerator.storeCenters(context, facetCenters);
             final CLBuffer<IntBuffer> bufferFacetData = GPUDataGenerator.generateFacets(context, bufferFacetCenters, ps);
             final CLBuffer<FloatBuffer> bufferDeformations = GPUDataGenerator.generateDeformations(context, defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle), ps);
             result = ((ScenarioOpenCL_NO_GPU) sc).compute(images[0], images[1], bufferFacetData, bufferFacetCenters, bufferDeformations, ps);
+        } else if (sc instanceof ScenarioOpenCL_LD) {
+            final int[] facetData = tc.generateFacetData(facetCenters, ps.getValue(Parameter.FACET_SIZE));
+            final float[] defomationLimitsFull = repeatArray(defomationLimitsSingle, facetCount);
+            final int[] deformationCountsFull = repeatArray(tc.generateDeformationCounts(defomationLimitsSingle), facetCount);
+            result = ((ScenarioOpenCL_LD) sc).compute(images[0], images[1], facetData, facetCenters, defomationLimitsFull, deformationCountsFull, ps);
+        } else if (sc instanceof ScenarioOpenCL_LD_GPU) {
+            final CLBuffer<FloatBuffer> bufferFacetCenters = GPUDataGenerator.storeCenters(context, facetCenters);
+            final CLBuffer<IntBuffer> bufferFacetData = GPUDataGenerator.generateFacets(context, bufferFacetCenters, ps);
+            final float[] defomationLimitsFull = repeatArray(defomationLimitsSingle, facetCount);
+            final int[] deformationCountsFull = repeatArray(tc.generateDeformationCounts(defomationLimitsSingle), facetCount);
+            result = ((ScenarioOpenCL_LD_GPU) sc).compute(images[0], images[1], bufferFacetData, bufferFacetCenters, defomationLimitsFull, deformationCountsFull, ps);
+        } else if (sc instanceof ScenarioOpenCL_LF) {
+            final float[] deformationsFull = repeatArray(tc.generateDeformations(defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle)), facetCount);
+            result = ((ScenarioOpenCL_LF) sc).compute(images[0], images[1], facetCenters, deformationsFull, ps);
+        } else if (sc instanceof ScenarioOpenCL_LF_GPU) {
+            final CLBuffer<FloatBuffer> bufferDeformations = GPUDataGenerator.generateDeformations(context, defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle), ps);
+            result = ((ScenarioOpenCL_LF_GPU) sc).compute(images[0], images[1], facetCenters, bufferDeformations, ps);
+        } else if (sc instanceof ScenarioOpenCL_LFD) {
+            final float[] defomationLimitsFull = repeatArray(defomationLimitsSingle, facetCount);
+            final int[] deformationCountsFull = repeatArray(tc.generateDeformationCounts(defomationLimitsSingle), facetCount);
+            result = ((ScenarioOpenCL_LFD) sc).compute(images[0], images[1], facetCenters, defomationLimitsFull, deformationCountsFull, ps);
         } else {
             LOG.log(Level.SEVERE, "Illegal type of normal scenario - {0}", sc.getClass().toGenericString());
             result = new ScenarioResult(-1, true);
@@ -264,34 +305,47 @@ public class LimitsTest {
         final List<Scenario> scenarios = new LinkedList<>();
 
         // OpenCL limits performance test
-//        scenarios.add(new CL_NO_2DInt("CL_NO_2DInt", contextHandler));  // basic variants - full data        
-//        scenarios.add(new CL_NO_2DImage(contextHandler));
-//        scenarios.add(new CL_NO_2DImageV(contextHandler));
-//        scenarios.add(new CL_NO_1DImageLL(contextHandler));
-//        scenarios.add(new CL_NO_1D_I_V_LL(contextHandler));
-//
-//        scenarios.add(new CL_L_2DInt("CL_L_2DInt", contextHandler)); // variants with both facet and deformation limits
-//        scenarios.add(new CL_L_2DImage(contextHandler));
-//        scenarios.add(new CL_L_2DImageV(contextHandler));
-//        scenarios.add(new CL_L_1DImageLL(contextHandler));
-//        scenarios.add(new CL_L_1D_I_V_LL(contextHandler));
-//
-//        scenarios.add(new CL_LD_2DInt("CL_LD_2DInt", contextHandler)); // variants with facet data and deformation limits
-//        scenarios.add(new CL_LD_2DImage(contextHandler));
-//        scenarios.add(new CL_LD_2DImageV(contextHandler));
-//        scenarios.add(new CL_LD_1DImageLL(contextHandler));
-//        scenarios.add(new CL_LD_1D_I_V_LL(contextHandler));
-//
-//        scenarios.add(new CL_LF_2DInt("CL_LF_2DInt", contextHandler)); // variants with facet limits and deformation data
-//        scenarios.add(new CL_LF_2DImage(contextHandler));
-//        scenarios.add(new CL_LF_2DImageV(contextHandler));
-//        scenarios.add(new CL_LF_1DImageLL(contextHandler));
-//        scenarios.add(new CL_LF_1D_I_V_LL(contextHandler));
-        scenarios.add(new CL_NO_2DInt_GPU("CL_NO_2DInt_GPU", contextHandler)); // GPU generated data
+        scenarios.add(new CL_NO_2DInt("CL_NO_2DInt", contextHandler));  // basic variants - full data        
+        scenarios.add(new CL_NO_2DImage(contextHandler));
+        scenarios.add(new CL_NO_2DImageV(contextHandler));
+        scenarios.add(new CL_NO_1DImageLL(contextHandler));
+        scenarios.add(new CL_NO_1D_I_V_LL(contextHandler));
+
+        scenarios.add(new CL_NO_2DInt_GPU("CL_NO_2DInt_GPU", contextHandler)); // offline GPU generated data
         scenarios.add(new CL_NO_2DImage_GPU(contextHandler));
         scenarios.add(new CL_NO_2DImageV_GPU(contextHandler));
         scenarios.add(new CL_NO_1DImageLL_GPU(contextHandler));
         scenarios.add(new CL_NO_1D_I_V_LL_GPU(contextHandler));
+
+        scenarios.add(new CL_L_2DInt("CL_L_2DInt", contextHandler)); // variants with both facet and deformation limits
+        scenarios.add(new CL_L_2DImage(contextHandler));
+        scenarios.add(new CL_L_2DImageV(contextHandler));
+        scenarios.add(new CL_L_1DImageLL(contextHandler));
+        scenarios.add(new CL_L_1D_I_V_LL(contextHandler));
+
+        scenarios.add(new CL_LD_2DInt("CL_LD_2DInt", contextHandler)); // variants with facet data and deformation limits
+        scenarios.add(new CL_LD_2DImage(contextHandler));
+        scenarios.add(new CL_LD_2DImageV(contextHandler));
+        scenarios.add(new CL_LD_1DImageLL(contextHandler));
+        scenarios.add(new CL_LD_1D_I_V_LL(contextHandler));
+
+        scenarios.add(new CL_LD_2DInt_GPU("CL_LD_2DInt_GPU", contextHandler)); // offline GPU generated data
+        scenarios.add(new CL_LD_2DImage_GPU(contextHandler));
+        scenarios.add(new CL_LD_2DImageV_GPU(contextHandler));
+        scenarios.add(new CL_LD_1DImageLL_GPU(contextHandler));
+        scenarios.add(new CL_LD_1D_I_V_LL_GPU(contextHandler));
+
+        scenarios.add(new CL_LF_2DInt("CL_LF_2DInt", contextHandler)); // variants with facet limits and deformation data
+        scenarios.add(new CL_LF_2DImage(contextHandler));
+        scenarios.add(new CL_LF_2DImageV(contextHandler));
+        scenarios.add(new CL_LF_1DImageLL(contextHandler));
+        scenarios.add(new CL_LF_1D_I_V_LL(contextHandler));
+
+        scenarios.add(new CL_LF_2DInt_GPU("CL_LF_2DInt_GPU", contextHandler)); // offline GPU generated data
+        scenarios.add(new CL_LF_2DImage_GPU(contextHandler));
+        scenarios.add(new CL_LF_2DImageV_GPU(contextHandler));
+        scenarios.add(new CL_LF_1DImageLL_GPU(contextHandler));
+        scenarios.add(new CL_LF_1D_I_V_LL_GPU(contextHandler));
 
         return scenarios;
     }

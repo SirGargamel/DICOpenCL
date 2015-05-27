@@ -44,14 +44,6 @@ import cz.tul.dic.test.opencl.test.gen.scenario.fulldata.d2.opt.CL2DImageMC;
 import cz.tul.dic.test.opencl.test.gen.scenario.fulldata.d2.opt.CL2DImageV;
 import cz.tul.dic.test.opencl.test.gen.scenario.java.JavaPerDeformation;
 import cz.tul.dic.test.opencl.test.gen.scenario.java.JavaPerFacet;
-import cz.tul.dic.test.opencl.test.gen.scenario.limitsD.ScenarioDrivenOpenCL_LD;
-import cz.tul.dic.test.opencl.test.gen.scenario.limitsD.ScenarioOpenCL_LD;
-import cz.tul.dic.test.opencl.test.gen.scenario.limitsF.ScenarioDrivenOpenCL_LF;
-import cz.tul.dic.test.opencl.test.gen.scenario.limitsF.ScenarioOpenCL_LF;
-import cz.tul.dic.test.opencl.test.gen.scenario.limitsFD.ScenarioDrivenOpenCL_LFD;
-import cz.tul.dic.test.opencl.test.gen.scenario.limitsFD.ScenarioOpenCL_LFD;
-import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.ScenarioDrivenOpenCL_NO;
-import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.ScenarioOpenCL_NO;
 import cz.tul.dic.test.opencl.test.gen.testcase.TestCase;
 import java.io.File;
 import java.io.IOException;
@@ -130,9 +122,9 @@ public class OptimizationsTest {
 
                                             try {
                                                 if (sc.isDriven()) {
-                                                    result = runDrivenKernel(tc, sc, ps, images, facetData, facetCenters, deformationCountsFull, defomationLimitsFull, deformationsFull);
+                                                    result = runDrivenKernel(tc, sc, ps, images, facetData, facetCenters, deformationsFull);
                                                 } else {
-                                                    result = runNormalKernel(tc, sc, ps, images, facetData, facetCenters, deformationCountsFull, defomationLimitsFull, deformationsFull);
+                                                    result = runNormalKernel(tc, sc, ps, images, facetData, facetCenters, deformationsFull);
                                                 }
                                             } catch (CLException ex) {
                                                 result = new ScenarioResult(-1, true);
@@ -195,7 +187,6 @@ public class OptimizationsTest {
             final TestCase tc, final Scenario sc, final ParameterSet ps,
             final int[][] images,
             final int[] facetData, final float[] facetCenters,
-            final int[] deformationCountsFull, final float[] defomationLimitsFull,
             final float[] deformationsFull) {
         ScenarioResult result = null, tempResult;
         long minTime = Long.MAX_VALUE;
@@ -203,7 +194,7 @@ public class OptimizationsTest {
         int bestLwsSub = 1;
         while (sc.hasNext()) {
             time = System.nanoTime();
-            tempResult = executeDrivenKernel(sc, ps, images, facetData, facetCenters, deformationCountsFull, defomationLimitsFull, deformationsFull);
+            tempResult = executeDrivenKernel(sc, ps, images, facetData, facetCenters, deformationsFull);
             time = System.nanoTime() - time;
 
             if (tempResult != null && time < minTime) {
@@ -231,19 +222,10 @@ public class OptimizationsTest {
             final Scenario sc, final ParameterSet ps,
             final int[][] images,
             final int[] facetData, final float[] facetCenters,
-            final int[] deformationCountsFull, final float[] defomationLimitsFull,
             final float[] deformationsFull) {
         ScenarioResult result;
         if (sc instanceof ScenarioDrivenOpenCL) {
-            result = ((ScenarioDrivenOpenCL) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
-        } else if (sc instanceof ScenarioDrivenOpenCL_NO) {
-            result = ((ScenarioDrivenOpenCL_NO) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
-        } else if (sc instanceof ScenarioDrivenOpenCL_LD) {
-            result = ((ScenarioDrivenOpenCL_LD) sc).compute(images[0], images[1], facetData, facetCenters, defomationLimitsFull, deformationCountsFull, ps);
-        } else if (sc instanceof ScenarioDrivenOpenCL_LF) {
-            result = ((ScenarioDrivenOpenCL_LF) sc).compute(images[0], images[1], facetCenters, deformationsFull, ps);
-        } else if (sc instanceof ScenarioDrivenOpenCL_LFD) {
-            result = ((ScenarioDrivenOpenCL_LFD) sc).compute(images[0], images[1], facetCenters, defomationLimitsFull, deformationCountsFull, ps);
+            result = ((ScenarioDrivenOpenCL) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);        
         } else {
             LOG.log(Level.SEVERE, "Illegal type of driven scenario - {0}", sc.getClass().toGenericString());
             result = new ScenarioResult(-1, true);
@@ -254,12 +236,11 @@ public class OptimizationsTest {
     private static ScenarioResult runNormalKernel(final TestCase tc, final Scenario sc, final ParameterSet ps,
             final int[][] images,
             final int[] facetData, final float[] facetCenters,
-            final int[] deformationCountsFull, final float[] defomationLimitsFull,
             final float[] deformationsFull) {
         ScenarioResult result;
 
         long time = System.nanoTime();
-        result = executeNormalKernel(sc, ps, images, facetData, facetCenters, deformationCountsFull, defomationLimitsFull, deformationsFull);
+        result = executeNormalKernel(sc, ps, images, facetData, facetCenters, deformationsFull);
         if (result == null || result.getResultData() == null) {
             result = new ScenarioResult(-1, false);
         } else {
@@ -277,7 +258,6 @@ public class OptimizationsTest {
             final Scenario sc, final ParameterSet ps,
             final int[][] images,
             final int[] facetData, final float[] facetCenters,
-            final int[] deformationCountsFull, final float[] defomationLimitsFull,
             final float[] deformationsFull) {
         ScenarioResult result;
         if (sc instanceof JavaPerFacet) {
@@ -285,15 +265,7 @@ public class OptimizationsTest {
         } else if (sc instanceof JavaPerDeformation) {
             result = ((JavaPerDeformation) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
         } else if (sc instanceof ScenarioOpenCL) {
-            result = ((ScenarioOpenCL) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
-        } else if (sc instanceof ScenarioOpenCL_NO) {
-            result = ((ScenarioOpenCL_NO) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
-        } else if (sc instanceof ScenarioOpenCL_LD) {
-            result = ((ScenarioOpenCL_LD) sc).compute(images[0], images[1], facetData, facetCenters, defomationLimitsFull, deformationCountsFull, ps);
-        } else if (sc instanceof ScenarioOpenCL_LF) {
-            result = ((ScenarioOpenCL_LF) sc).compute(images[0], images[1], facetCenters, deformationsFull, ps);
-        } else if (sc instanceof ScenarioOpenCL_LFD) {
-            result = ((ScenarioOpenCL_LFD) sc).compute(images[0], images[1], facetCenters, defomationLimitsFull, deformationCountsFull, ps);
+            result = ((ScenarioOpenCL) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);        
         } else {
             LOG.log(Level.SEVERE, "Illegal type of normal scenario - {0}", sc.getClass().toGenericString());
             result = new ScenarioResult(-1, true);
