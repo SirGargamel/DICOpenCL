@@ -45,7 +45,7 @@ public final class Main {
             LOG.info("Testing limits scenarios.");
         } else {
             System.out.println("You need to provide test type -\n\"o\" for optimizations test, \"l\" for limits vs. full data test:");
-            final Scanner reader = new Scanner(System.in);            
+            final Scanner reader = new Scanner(System.in);
             String input;
             while (testLimits == null) {
                 input = reader.next();
@@ -62,7 +62,11 @@ public final class Main {
             reader.close();
         }
 
-        PerformanceTest.computeImageFillTest(testLimits);
+        if (testLimits) {
+            LimitsTest.runTest();
+        } else {
+            OptimizationsTest.runTest();
+        }
 
         // DB testing
 //        ParameterSet ps = new ParameterSet();

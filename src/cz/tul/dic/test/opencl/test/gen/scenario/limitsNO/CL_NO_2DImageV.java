@@ -58,7 +58,7 @@ public class CL_NO_2DImageV extends Scenario2D_NO {
         final int deformationsGlobalWorkSize = roundUp(lws1, params.getValue(Parameter.DEFORMATION_COUNT));
         // execute kernel        
         prepareEventList(1);
-        final CLCommandQueue queue = createCommandQueue();
+        final CLCommandQueue queue = contextHandler.getQueue();
         queue.putWriteImage(imageAcl, false);
         queue.putWriteImage(imageBcl, false);
         queue.putWriteBuffer(bufferFacetData, false);

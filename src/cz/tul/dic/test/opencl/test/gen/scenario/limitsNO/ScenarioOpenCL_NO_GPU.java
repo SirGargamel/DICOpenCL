@@ -24,14 +24,14 @@ import java.util.List;
  *
  * @author Petr Jecmen
  */
-public abstract class ScenarioOpenCL_NO extends ScenarioLimitsNO {
+public abstract class ScenarioOpenCL_NO_GPU extends ScenarioLimitsNO_GPU {
 
     private static final CLImageFormat IMAGE_FORMAT = new CLImageFormat(CLImageFormat.ChannelOrder.RGBA, CLImageFormat.ChannelType.UNSIGNED_INT8);
     protected final ContextHandler contextHandler;
     protected final List<CLResource> memoryObjects;
     protected CLEventList eventList;
 
-    public ScenarioOpenCL_NO(ContextHandler contextHandler) throws IOException {
+    public ScenarioOpenCL_NO_GPU(ContextHandler contextHandler) throws IOException {
         super();
 
         this.contextHandler = contextHandler;
@@ -49,13 +49,13 @@ public abstract class ScenarioOpenCL_NO extends ScenarioLimitsNO {
     @Override
     public ScenarioResult compute(
             final int[] imageA, final int[] imageB,
-            final int[] facetData, final float[] facetCenters,
-            final float[] deformations,
+            final CLBuffer<IntBuffer> bufferFacetData, final CLBuffer<FloatBuffer> bufferFacetCenters,
+            final CLBuffer<FloatBuffer> bufferDeformations,
             final ParameterSet params) {
         params.addParameter(Parameter.LWS0, 1);
         params.addParameter(Parameter.LWS1, 1);
 
-        float[] result = prepareAndCompute(imageA, imageB, facetData, facetCenters, deformations, params);
+        float[] result = prepareAndCompute(imageA, imageB, bufferFacetData, bufferFacetCenters, bufferDeformations, params);
 
         final long duration = computeTotalKernelTime();
 
@@ -85,8 +85,8 @@ public abstract class ScenarioOpenCL_NO extends ScenarioLimitsNO {
 
     protected abstract float[] prepareAndCompute(
             final int[] imageA, final int[] imageB,
-            final int[] facetData, final float[] facetCenters,
-            final float[] deformations,
+            final CLBuffer<IntBuffer> bufferFacetData, final CLBuffer<FloatBuffer> bufferFacetCenters,
+            final CLBuffer<FloatBuffer> bufferDeformations,
             final ParameterSet params);
 
     @Override
@@ -170,6 +170,12 @@ public abstract class ScenarioOpenCL_NO extends ScenarioLimitsNO {
     protected void prepareEventList(final int size) {
         eventList = new CLEventList(size);
         memoryObjects.add(eventList);
-    }    
+    }
+
+    protected CLCommandQueue createCommandQueue() {
+        final CLCommandQueue result = contextHandler.getDevice().createCommandQueue(CLCommandQueue.Mode.PROFILING_MODE);
+        memoryObjects.add(result);
+        return result;
+    }
 
 }

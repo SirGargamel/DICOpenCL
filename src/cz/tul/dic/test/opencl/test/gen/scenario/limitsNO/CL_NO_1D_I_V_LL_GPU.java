@@ -8,14 +8,12 @@ import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLException;
 import com.jogamp.opencl.CLImage2d;
 import com.jogamp.opencl.CLKernel;
-import static com.jogamp.opencl.CLMemory.Mem.READ_ONLY;
 import static com.jogamp.opencl.CLMemory.Mem.WRITE_ONLY;
 import com.jogamp.opencl.llb.CL;
 import com.jogamp.opencl.llb.CLKernelBinding;
 import cz.tul.dic.test.opencl.test.gen.CustomMath;
 import cz.tul.dic.test.opencl.test.gen.Parameter;
 import cz.tul.dic.test.opencl.test.gen.ParameterSet;
-import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.ScenarioOpenCL_NO;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -24,13 +22,13 @@ import java.nio.IntBuffer;
  *
  * @author Petr Jecmen
  */
-public final class CL_NO_1D_I_V_LL extends ScenarioOpenCL_NO {
+public final class CL_NO_1D_I_V_LL_GPU extends ScenarioOpenCL_NO_GPU {
 
     private int maxVariantCount, lws0base, lws0base2;
     private int currentVariant;
     private boolean inited;
 
-    public CL_NO_1D_I_V_LL(final ContextHandler contextHandler) throws IOException {
+    public CL_NO_1D_I_V_LL_GPU(final ContextHandler contextHandler) throws IOException {
         super(contextHandler);
 
         inited = false;
@@ -60,10 +58,11 @@ public final class CL_NO_1D_I_V_LL extends ScenarioOpenCL_NO {
     }
 
     @Override
-    public float[] prepareAndCompute(int[] imageA, int[] imageB, int[] facetData, final float[] facetCenters, float[] deformations, ParameterSet params) {
+    public float[] prepareAndCompute(int[] imageA, int[] imageB, final CLBuffer<IntBuffer> bufferFacetData, final CLBuffer<FloatBuffer> bufferFacetCenters,
+            final CLBuffer<FloatBuffer> bufferDeformations, ParameterSet params) {
         float[] result = null;
         try {
-            result = computeScenario(imageA, imageB, facetData, facetCenters, deformations, params);
+            result = computeScenario(imageA, imageB, bufferFacetData, bufferFacetCenters, bufferDeformations, params);
         } catch (CLException ex) {
             throw ex;
         } finally {
@@ -75,8 +74,8 @@ public final class CL_NO_1D_I_V_LL extends ScenarioOpenCL_NO {
 
     float[] computeScenario(
             final int[] imageA, final int[] imageB,
-            final int[] facetData, final float[] facetCenters,
-            final float[] deformations,
+            final CLBuffer<IntBuffer> bufferFacetData, final CLBuffer<FloatBuffer> bufferFacetCenters,
+            final CLBuffer<FloatBuffer> bufferDeformations,
             final ParameterSet params) throws CLException {
         final int lws0 = (int) Math.pow(2, currentVariant + lws0base2);
         params.addParameter(Parameter.LWS0, lws0);
@@ -85,9 +84,6 @@ public final class CL_NO_1D_I_V_LL extends ScenarioOpenCL_NO {
         final int facetCount = params.getValue(Parameter.FACET_COUNT);
         final CLImage2d<IntBuffer> imageAcl = createImage(imageA, params.getValue(Parameter.IMAGE_WIDTH));
         final CLImage2d<IntBuffer> imageBcl = createImage(imageB, params.getValue(Parameter.IMAGE_WIDTH));
-        final CLBuffer<IntBuffer> bufferFacetData = createIntBuffer(facetData, READ_ONLY);
-        final CLBuffer<FloatBuffer> bufferFacetCenters = createFloatBuffer(facetCenters, READ_ONLY);
-        final CLBuffer<FloatBuffer> bufferDeformations = createFloatBuffer(deformations, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferResult = createFloatBuffer(facetCount * params.getValue(Parameter.DEFORMATION_COUNT), WRITE_ONLY);
         final long clSize = imageAcl.getCLSize() + imageBcl.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
         params.addParameter(Parameter.DATASIZE, (int) (clSize / 1000));
@@ -112,9 +108,6 @@ public final class CL_NO_1D_I_V_LL extends ScenarioOpenCL_NO {
         final CLCommandQueue queue = contextHandler.getQueue();
         queue.putWriteImage(imageAcl, false);
         queue.putWriteImage(imageBcl, false);
-        queue.putWriteBuffer(bufferFacetData, false);
-        queue.putWriteBuffer(bufferFacetCenters, false);
-        queue.putWriteBuffer(bufferDeformations, false);
         queue.put1DRangeKernel(kernel, 0, facetGlobalWorkSize, lws0, eventList);
         queue.putReadBuffer(bufferResult, true);
         queue.finish();

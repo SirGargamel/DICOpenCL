@@ -1,5 +1,6 @@
 package cz.tul.dic.test.opencl.test.gen;
 
+import com.jogamp.opencl.CLCommandQueue;
 import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLDevice;
 import com.jogamp.opencl.CLDevice.Type;
@@ -35,6 +36,7 @@ public class ContextHandler {
     private CLContext context;
     private CLDevice device;
     private CLKernel kernel;
+    private CLCommandQueue queue;
     private int resetCounter, facetSize;
     private long firstResetTime;
 
@@ -56,6 +58,10 @@ public class ContextHandler {
 
     public CLKernel getKernel() {
         return kernel;
+    }
+    
+    public CLCommandQueue getQueue() {
+        return queue;
     }
 
     public void setFacetSize(int facetSize) {
@@ -123,6 +129,8 @@ public class ContextHandler {
         try {
             if (context != null) {
                 LOG.log(Level.WARNING, "Reseting context memory.");
+                queue.release();
+                
                 for (CLMemory mem : context.getMemoryObjects()) {
                     if (mem != null && !mem.isReleased()) {
                         mem.release();
@@ -172,6 +180,9 @@ public class ContextHandler {
 
         context = CLContext.create(device);
         context.addCLErrorHandler(errorHandler);
+        
+        queue = device.createCommandQueue(CLCommandQueue.Mode.PROFILING_MODE);
+        
         LOG.log(Level.INFO, "Using {0} on {1}", new Object[]{device, context});
 
         assignScenario(scenario);

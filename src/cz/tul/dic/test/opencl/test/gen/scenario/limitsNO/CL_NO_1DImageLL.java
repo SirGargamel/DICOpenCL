@@ -15,7 +15,6 @@ import com.jogamp.opencl.llb.CLKernelBinding;
 import cz.tul.dic.test.opencl.test.gen.CustomMath;
 import cz.tul.dic.test.opencl.test.gen.Parameter;
 import cz.tul.dic.test.opencl.test.gen.ParameterSet;
-import cz.tul.dic.test.opencl.test.gen.scenario.limitsNO.ScenarioOpenCL_NO;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -110,7 +109,7 @@ public final class CL_NO_1DImageLL extends ScenarioOpenCL_NO {
                 .rewind();
         // execute kernel         
         prepareEventList(1);
-        final CLCommandQueue queue = createCommandQueue();
+        final CLCommandQueue queue = contextHandler.getQueue();
         queue.putWriteImage(imageAcl, false);
         queue.putWriteImage(imageBcl, false);
         queue.putWriteBuffer(bufferFacetData, false);

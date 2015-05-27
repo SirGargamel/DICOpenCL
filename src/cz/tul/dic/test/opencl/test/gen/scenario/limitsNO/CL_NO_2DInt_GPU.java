@@ -17,11 +17,11 @@ import java.nio.IntBuffer;
  *
  * @author Petr Jecmen
  */
-public class CL_NO_2DInt extends Scenario2D_NO {
+public class CL_NO_2DInt_GPU extends Scenario2D_NO_GPU {
 
     private final String kernelName;
 
-    public CL_NO_2DInt(final String kernelName, final ContextHandler contextHandler) throws IOException {
+    public CL_NO_2DInt_GPU(final String kernelName, final ContextHandler contextHandler) throws IOException {
         super(contextHandler);
 
         this.kernelName = kernelName;
@@ -35,8 +35,8 @@ public class CL_NO_2DInt extends Scenario2D_NO {
     @Override
     public float[] computeScenario(
             final int[] imageA, final int[] imageB,
-            final int[] facetData, final float[] facetCenters,
-            final float[] deformations,
+            final CLBuffer<IntBuffer> bufferFacetData, final CLBuffer<FloatBuffer> bufferFacetCenters,
+            final CLBuffer<FloatBuffer> bufferDeformations,
             final ParameterSet params) throws CLException {
         final int lws0 = getLWS0();
         final int lws1 = getLWS1();
@@ -46,9 +46,6 @@ public class CL_NO_2DInt extends Scenario2D_NO {
         final int facetCount = params.getValue(Parameter.FACET_COUNT);
         final CLBuffer<IntBuffer> bufferImageA = createIntBuffer(imageA, READ_ONLY);
         final CLBuffer<IntBuffer> bufferImageB = createIntBuffer(imageB, READ_ONLY);
-        final CLBuffer<IntBuffer> bufferFacetData = createIntBuffer(facetData, READ_ONLY);
-        final CLBuffer<FloatBuffer> bufferFacetCenters = createFloatBuffer(facetCenters, READ_ONLY);
-        final CLBuffer<FloatBuffer> bufferDeformations = createFloatBuffer(deformations, READ_ONLY);
         final CLBuffer<FloatBuffer> bufferResult = createFloatBuffer(facetCount * params.getValue(Parameter.DEFORMATION_COUNT), WRITE_ONLY);
         final long clSize = bufferImageA.getCLSize() + bufferImageB.getCLSize() + bufferFacetData.getCLSize() + bufferDeformations.getCLSize() + bufferResult.getCLSize();
         params.addParameter(Parameter.DATASIZE, (int) (clSize / 1000));
@@ -65,18 +62,14 @@ public class CL_NO_2DInt extends Scenario2D_NO {
         final int deformationsGlobalWorkSize = roundUp(lws1, params.getValue(Parameter.DEFORMATION_COUNT));
         // execute kernel        
         prepareEventList(1);
-        final CLCommandQueue queue = contextHandler.getQueue();
+        final CLCommandQueue queue = contextHandler.getQueue();        
         queue.putWriteBuffer(bufferImageA, false);
-        queue.putWriteBuffer(bufferImageB, false);
-        queue.putWriteBuffer(bufferFacetData, false);
-        queue.putWriteBuffer(bufferFacetCenters, false);
-        queue.putWriteBuffer(bufferDeformations, false);
+        queue.putWriteBuffer(bufferImageB, false);        
         queue.put2DRangeKernel(kernel, 0, 0, facetGlobalWorkSize, deformationsGlobalWorkSize, lws0, lws1, eventList);
         queue.putReadBuffer(bufferResult, true);
         queue.finish();
-        // create result
-        final float[] result = readBuffer(bufferResult.getBuffer());
-        return result;
+
+        return readBuffer(bufferResult.getBuffer());
     }
 
 }
