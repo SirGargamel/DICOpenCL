@@ -1,5 +1,6 @@
 package cz.tul.dic.test.opencl.scenario;
 
+import cz.tul.dic.test.opencl.utils.CustomMath;
 import cz.tul.dic.test.opencl.Constants;
 import cz.tul.dic.test.opencl.scenario.ScenarioResult;
 import cz.tul.dic.test.opencl.scenario.ScenarioResult.State;

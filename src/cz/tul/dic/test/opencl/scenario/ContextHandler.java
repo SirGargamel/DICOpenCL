@@ -1,5 +1,6 @@
 package cz.tul.dic.test.opencl.scenario;
 
+import cz.tul.dic.test.opencl.SimpleCLErrorHandler;
 import com.jogamp.opencl.CLCommandQueue;
 import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLDevice;

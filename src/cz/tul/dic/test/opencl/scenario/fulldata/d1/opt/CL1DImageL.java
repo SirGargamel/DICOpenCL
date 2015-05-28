@@ -10,7 +10,7 @@ import static com.jogamp.opencl.CLMemory.Mem.READ_ONLY;
 import static com.jogamp.opencl.CLMemory.Mem.WRITE_ONLY;
 import cz.tul.dic.test.opencl.scenario.Parameter;
 import cz.tul.dic.test.opencl.scenario.ParameterSet;
-import cz.tul.dic.test.opencl.scenario.Utils;
+import cz.tul.dic.test.opencl.utils.Utils;
 import cz.tul.dic.test.opencl.scenario.fulldata.ScenarioOpenCL;
 import java.io.IOException;
 import java.nio.FloatBuffer;

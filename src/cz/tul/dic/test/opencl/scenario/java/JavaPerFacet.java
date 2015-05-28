@@ -1,6 +1,6 @@
 package cz.tul.dic.test.opencl.scenario.java;
 
-import cz.tul.dic.test.opencl.scenario.Utils;
+import cz.tul.dic.test.opencl.utils.Utils;
 import cz.tul.dic.test.opencl.scenario.Parameter;
 import cz.tul.dic.test.opencl.scenario.ParameterSet;
 import cz.tul.dic.test.opencl.scenario.fulldata.ScenarioFullData;

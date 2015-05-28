@@ -12,7 +12,7 @@ import static com.jogamp.opencl.CLMemory.Mem.READ_ONLY;
 import static com.jogamp.opencl.CLMemory.Mem.WRITE_ONLY;
 import com.jogamp.opencl.llb.CL;
 import com.jogamp.opencl.llb.CLKernelBinding;
-import cz.tul.dic.test.opencl.scenario.CustomMath;
+import cz.tul.dic.test.opencl.utils.CustomMath;
 import cz.tul.dic.test.opencl.scenario.Parameter;
 import cz.tul.dic.test.opencl.scenario.ParameterSet;
 import cz.tul.dic.test.opencl.scenario.limitsFD.ScenarioOpenCL_LFD;

@@ -1,4 +1,4 @@
-package cz.tul.dic.test.opencl.scenario;
+package cz.tul.dic.test.opencl;
 
 import com.jogamp.opencl.CLErrorHandler;
 import java.nio.ByteBuffer;

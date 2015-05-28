@@ -1,7 +1,7 @@
 package cz.tul.dic.test.opencl.scenario.limitsF;
 
 import cz.tul.dic.test.opencl.scenario.ContextHandler;
-import cz.tul.dic.test.opencl.scenario.CustomMath;
+import cz.tul.dic.test.opencl.utils.CustomMath;
 import cz.tul.dic.test.opencl.scenario.ParameterSet;
 import cz.tul.dic.test.opencl.scenario.limitsF.ScenarioOpenCL_LF;
 import java.io.IOException;

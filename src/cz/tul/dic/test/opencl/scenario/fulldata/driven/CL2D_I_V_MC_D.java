@@ -9,7 +9,7 @@ import static com.jogamp.opencl.CLMemory.Mem.WRITE_ONLY;
 import cz.tul.dic.test.opencl.scenario.ContextHandler;
 import cz.tul.dic.test.opencl.scenario.Parameter;
 import cz.tul.dic.test.opencl.scenario.ParameterSet;
-import cz.tul.dic.test.opencl.scenario.Utils;
+import cz.tul.dic.test.opencl.utils.Utils;
 import cz.tul.dic.test.opencl.scenario.WorkSizeManager;
 import cz.tul.dic.test.opencl.scenario.fulldata.ScenarioDrivenOpenCL;
 import java.io.IOException;

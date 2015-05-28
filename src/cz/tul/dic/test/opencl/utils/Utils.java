@@ -1,4 +1,4 @@
-package cz.tul.dic.test.opencl.scenario;
+package cz.tul.dic.test.opencl.utils;
 
 /**
  *

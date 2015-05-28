@@ -1,4 +1,4 @@
-package cz.tul.dic.test.opencl.scenario;
+package cz.tul.dic.test.opencl.utils;
 
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;
@@ -9,7 +9,10 @@ import static com.jogamp.opencl.CLMemory.Mem.READ_ONLY;
 import com.jogamp.opencl.CLProgram;
 import com.jogamp.opencl.CLResource;
 import cz.tul.dic.test.opencl.scenario.ContextHandler;
+import cz.tul.dic.test.opencl.scenario.ContextHandler;
 import cz.tul.dic.test.opencl.scenario.Parameter;
+import cz.tul.dic.test.opencl.scenario.Parameter;
+import cz.tul.dic.test.opencl.scenario.ParameterSet;
 import cz.tul.dic.test.opencl.scenario.ParameterSet;
 import java.io.BufferedReader;
 import java.io.IOException;

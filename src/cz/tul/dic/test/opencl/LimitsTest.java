@@ -4,7 +4,7 @@ import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLException;
 import com.jogamp.opencl.CLPlatform;
-import cz.tul.dic.test.opencl.scenario.GPUDataGenerator;
+import cz.tul.dic.test.opencl.utils.GPUDataGenerator;
 import cz.tul.dic.test.opencl.scenario.ContextHandler;
 import cz.tul.dic.test.opencl.scenario.ContextHandler.DeviceType;
 import cz.tul.dic.test.opencl.scenario.DataStorage;

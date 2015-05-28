@@ -1,8 +1,8 @@
 package cz.tul.dic.test.opencl.testcase;
 
 import cz.tul.dic.test.opencl.Constants;
-import cz.tul.dic.test.opencl.scenario.CustomMath;
-import cz.tul.dic.test.opencl.scenario.Utils;
+import cz.tul.dic.test.opencl.utils.CustomMath;
+import cz.tul.dic.test.opencl.utils.Utils;
 import cz.tul.dic.test.opencl.scenario.ScenarioResult;
 import java.util.Random;
 import java.util.logging.Logger;

@@ -8,7 +8,7 @@ import cz.tul.dic.test.opencl.scenario.ContextHandler.DeviceType;
 import cz.tul.dic.test.opencl.scenario.DataStorage;
 import cz.tul.dic.test.opencl.scenario.Parameter;
 import cz.tul.dic.test.opencl.scenario.ParameterSet;
-import cz.tul.dic.test.opencl.scenario.Utils;
+import cz.tul.dic.test.opencl.utils.Utils;
 import cz.tul.dic.test.opencl.scenario.WorkSizeManager;
 import cz.tul.dic.test.opencl.scenario.ScenarioResult;
 import cz.tul.dic.test.opencl.scenario.ScenarioResult.State;

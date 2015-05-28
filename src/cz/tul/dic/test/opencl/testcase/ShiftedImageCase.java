@@ -1,6 +1,6 @@
 package cz.tul.dic.test.opencl.testcase;
 
-import cz.tul.dic.test.opencl.scenario.Utils;
+import cz.tul.dic.test.opencl.utils.Utils;
 import cz.tul.dic.test.opencl.scenario.ScenarioResult;
 
 /**
