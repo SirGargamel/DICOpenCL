@@ -2,6 +2,7 @@ package cz.tul.dic.test.opencl;
 
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLContext;
+import com.jogamp.opencl.CLException;
 import com.jogamp.opencl.CLPlatform;
 import cz.tul.dic.test.opencl.utils.GPUDataGenerator;
 import cz.tul.dic.test.opencl.scenario.ContextHandler;
@@ -60,11 +61,11 @@ import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -87,11 +88,7 @@ public class LimitsTest {
 
             initializeDataStorage(scenarios, testCases.size());
 
-            final Map<DataType, Map<ParameterSet, Map<Double, String>>> times = new EnumMap<>(DataType.class);
-            times.put(DataType.FACET, new TreeMap<>());
-            times.put(DataType.DEFORMATION, new TreeMap<>());
-            Map<DataType, Map<Double, String>> temp;
-
+            Map<DataType, int[]> bestLws;
             int[][] images;
             float[] facetCenters;
             float[] defomationLimitsSingle;
@@ -122,66 +119,66 @@ public class LimitsTest {
                                     ps.addParameter(Parameter.FACET_SIZE, s);
                                     ps.addParameter(Parameter.FACET_COUNT, facetCenters.length / 2);
                                     ps.addParameter(Parameter.DEFORMATION_COUNT, d);
-                                    temp = runGPUDataGenerationTest(ch, ps, defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle), facetCenters);
-                                    times.get(DataType.DEFORMATION).put(ps, temp.get(DataType.DEFORMATION));
-                                    times.get(DataType.FACET).put(ps, temp.get(DataType.FACET));                                    
+                                    bestLws = runGPUDataGenerationTest(ch, ps, defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle), facetCenters);
+                                    System.out.println("-- Best LWS DEF: " + Arrays.toString(bestLws.get(DataType.DEFORMATION)) + "; best LWS FAC: " + Arrays.toString(bestLws.get(DataType.FACET)));
                                     // TEST END
 
-//                                    for (int sci = 0; sci < scenarios.size(); sci++) {
-//                                        sc = scenarios.get(sci);
-//                                        sc.reset();
-//                                        while (sc.hasNext()) {
-//                                            ps = new ParameterSet();
-//                                            ps.addParameter(Parameter.IMAGE_WIDTH, dim[0]);
-//                                            ps.addParameter(Parameter.IMAGE_HEIGHT, dim[1]);
-//                                            ps.addParameter(Parameter.FACET_SIZE, s);
-//                                            ps.addParameter(Parameter.FACET_COUNT, facetCenters.length / 2);
-//                                            ps.addParameter(Parameter.DEFORMATION_COUNT, d);
-//                                            ps.addParameter(Parameter.VARIANT, sci);
-//                                            ps.addParameter(Parameter.TEST_CASE, tci);
-//
-//                                            sc.prepare(ps);
-//
-//                                            try {
-//                                                if (sc.isDriven()) {
-//                                                    throw new UnsupportedOperationException("No driven version available.");
-//                                                } else {
-//                                                    result = runNormalKernel(tc, sc, ps, ch, images, facetCenters, defomationLimitsSingle);
-//                                                }
-//                                            } catch (CLException ex) {
-//                                                result = new ScenarioResult(-1, true);
-//                                                LOG.log(Level.SEVERE, "CL error - " + ex.getLocalizedMessage(), ex);
-//                                            } catch (Exception | Error ex) {
-//                                                result = new ScenarioResult(-1, true);
-//                                                LOG.log(Level.SEVERE, "Error - " + ex.getLocalizedMessage(), ex);
-//                                            }
-//
-//                                            if (result == null) {
-//                                                result = new ScenarioResult(-1, true);
-//                                                LOG.log(Level.SEVERE, "Unknown error, NULL result.");
-//                                            }
-//
-//                                            DataStorage.storeData(ps, result, ch.getDeviceName());
-//
-//                                            switch (result.getState()) {
-//                                                case SUCCESS:
-//                                                    LOG.log(Level.INFO, "Finished {0} {1}ms ({2} ms in kernel) with params {3}, dif = {4}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps, result.getMaxDifference()});
-//                                                    break;
-//                                                case WRONG_RESULT_DYNAMIC:
-//                                                    LOG.log(Level.INFO, "Wrong dynamic part of result for  {0} {1}ms ({2} ms in kernel) with params {3}, dif = {4}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps, result.getMaxDifference()});
-//                                                    break;
-//                                                case WRONG_RESULT_FIXED:
-//                                                    LOG.log(Level.INFO, "Wrong fixed part of result for  {0} {1}ms ({2} ms in kernel) with params {3}, dif = {4}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps, result.getMaxDifference()});
-//                                                    break;
-//                                                case FAIL:
-//                                                    LOG.log(Level.INFO, "Failed {0} with params {1}", new Object[]{sc.getKernelName(), ps});
-//                                                    ch.reset();
-//                                                    break;
-//                                                case INVALID_PARAMS:
-//                                                    LOG.log(Level.INFO, "Invalid params for {0} - {1}", new Object[]{sc.getKernelName(), ps});
-//                                            }
-//                                        }
-//                                    }
+                                    for (int sci = 0; sci < scenarios.size(); sci++) {
+                                        sc = scenarios.get(sci);
+                                        sc.reset();
+                                        while (sc.hasNext()) {
+                                            ps = new ParameterSet();
+                                            ps.addParameter(Parameter.IMAGE_WIDTH, dim[0]);
+                                            ps.addParameter(Parameter.IMAGE_HEIGHT, dim[1]);
+                                            ps.addParameter(Parameter.FACET_SIZE, s);
+                                            ps.addParameter(Parameter.FACET_COUNT, facetCenters.length / 2);
+                                            ps.addParameter(Parameter.DEFORMATION_COUNT, d);
+                                            ps.addParameter(Parameter.VARIANT, sci);
+                                            ps.addParameter(Parameter.TEST_CASE, tci);
+
+                                            sc.prepare(ps);
+
+                                            try {
+                                                if (sc.isDriven()) {
+                                                    throw new UnsupportedOperationException("No driven version available.");
+                                                } else {
+                                                    result = runNormalKernel(tc, sc, ps, ch, images, facetCenters, defomationLimitsSingle, bestLws);
+                                                }
+                                            } catch (CLException ex) {
+                                                result = new ScenarioResult(-1, true);
+                                                LOG.log(Level.SEVERE, "CL error - " + ex.getLocalizedMessage(), ex);
+                                            } catch (Exception | Error ex) {
+                                                result = new ScenarioResult(-1, true);
+                                                LOG.log(Level.SEVERE, "Error - " + ex.getLocalizedMessage(), ex);
+                                            }
+
+                                            if (result == null) {
+                                                result = new ScenarioResult(-1, true);
+                                                LOG.log(Level.SEVERE, "Unknown error, NULL result.");
+                                            }
+
+                                            DataStorage.storeData(ps, result, ch.getDeviceName());
+
+                                            switch (result.getState()) {
+                                                case SUCCESS:
+                                                    LOG.log(Level.INFO, "Finished {0} {1}ms ({2} ms in kernel) with params {3}, dif = {4}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps, result.getMaxDifference()});
+                                                    break;
+                                                case WRONG_RESULT_DYNAMIC:
+                                                    LOG.log(Level.INFO, "Wrong dynamic part of result for  {0} {1}ms ({2} ms in kernel) with params {3}, dif = {4}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps, result.getMaxDifference()});
+                                                    break;
+                                                case WRONG_RESULT_FIXED:
+                                                    LOG.log(Level.INFO, "Wrong fixed part of result for  {0} {1}ms ({2} ms in kernel) with params {3}, dif = {4}", new Object[]{sc.getKernelName(), result.getTotalTime() / 1000000, result.getKernelExecutionTime() / 1000000, ps, result.getMaxDifference()});
+                                                    break;
+                                                case FAIL:
+                                                    LOG.log(Level.INFO, "Failed {0} with params {1}", new Object[]{sc.getKernelName(), ps});
+                                                    ch.reset();
+                                                    break;
+                                                case INVALID_PARAMS:
+                                                    LOG.log(Level.INFO, "Invalid params for {0} - {1}", new Object[]{sc.getKernelName(), ps});
+                                            }
+                                        }
+                                    }
+
                                     GPUDataGenerator.resourceCleanup();
                                     ch.initContext();
                                 }
@@ -199,8 +196,6 @@ public class LimitsTest {
                 }
             }
 
-            printTimes(times);
-
             initializeDataStorage(scenarios, testCases.size());
             String fileName = "D:\\DIC_OpenCL_Data_" + device + ".csv";
             DataStorage.exportData(new File(fileName));
@@ -213,11 +208,12 @@ public class LimitsTest {
             final ContextHandler context,
             final int[][] images,
             final float[] facetCenters,
-            final float[] defomationLimitsSingle) {
+            final float[] defomationLimitsSingle,
+            final Map<DataType, int[]> bestLws) {
         ScenarioResult result;
 
         long time = System.nanoTime();
-        result = executeNormalKernel(sc, ps, tc, context, images, facetCenters, defomationLimitsSingle);
+        result = executeNormalKernel(sc, ps, tc, context, images, facetCenters, defomationLimitsSingle, bestLws);
         if (result == null || result.getResultData() == null) {
             result = new ScenarioResult(-1, false);
         } else {
@@ -236,7 +232,8 @@ public class LimitsTest {
             final ContextHandler context,
             final int[][] images,
             final float[] facetCenters,
-            final float[] defomationLimitsSingle) {
+            final float[] defomationLimitsSingle,
+            final Map<DataType, int[]> bestLws) {
         ScenarioResult result;
         final int facetCount = facetCenters.length / 2;
         if (sc instanceof ScenarioOpenCL_NO) {
@@ -245,8 +242,8 @@ public class LimitsTest {
             result = ((ScenarioOpenCL_NO) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
         } else if (sc instanceof ScenarioOpenCL_NO_GPU) {
             final CLBuffer<FloatBuffer> bufferFacetCenters = GPUDataGenerator.storeCenters(context, facetCenters);
-            final CLBuffer<IntBuffer> bufferFacetData = GPUDataGenerator.generateFacets(context, bufferFacetCenters, ps);
-            final CLBuffer<FloatBuffer> bufferDeformations = GPUDataGenerator.generateDeformations(context, defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle), ps);
+            final CLBuffer<IntBuffer> bufferFacetData = GPUDataGenerator.generateFacets(context, bufferFacetCenters, ps, bestLws.get(DataType.FACET));
+            final CLBuffer<FloatBuffer> bufferDeformations = GPUDataGenerator.generateDeformations(context, defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle), ps, bestLws.get(DataType.DEFORMATION));
             result = ((ScenarioOpenCL_NO_GPU) sc).compute(images[0], images[1], bufferFacetData, bufferFacetCenters, bufferDeformations, ps);
         } else if (sc instanceof ScenarioOpenCL_LD) {
             final int[] facetData = tc.generateFacetData(facetCenters, ps.getValue(Parameter.FACET_SIZE));
@@ -255,7 +252,7 @@ public class LimitsTest {
             result = ((ScenarioOpenCL_LD) sc).compute(images[0], images[1], facetData, facetCenters, defomationLimitsFull, deformationCountsFull, ps);
         } else if (sc instanceof ScenarioOpenCL_LD_GPU) {
             final CLBuffer<FloatBuffer> bufferFacetCenters = GPUDataGenerator.storeCenters(context, facetCenters);
-            final CLBuffer<IntBuffer> bufferFacetData = GPUDataGenerator.generateFacets(context, bufferFacetCenters, ps);
+            final CLBuffer<IntBuffer> bufferFacetData = GPUDataGenerator.generateFacets(context, bufferFacetCenters, ps, bestLws.get(DataType.FACET));
             final float[] defomationLimitsFull = repeatArray(defomationLimitsSingle, facetCount);
             final int[] deformationCountsFull = repeatArray(tc.generateDeformationCounts(defomationLimitsSingle), facetCount);
             result = ((ScenarioOpenCL_LD_GPU) sc).compute(images[0], images[1], bufferFacetData, bufferFacetCenters, defomationLimitsFull, deformationCountsFull, ps);
@@ -263,7 +260,7 @@ public class LimitsTest {
             final float[] deformationsFull = repeatArray(tc.generateDeformations(defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle)), facetCount);
             result = ((ScenarioOpenCL_LF) sc).compute(images[0], images[1], facetCenters, deformationsFull, ps);
         } else if (sc instanceof ScenarioOpenCL_LF_GPU) {
-            final CLBuffer<FloatBuffer> bufferDeformations = GPUDataGenerator.generateDeformations(context, defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle), ps);
+            final CLBuffer<FloatBuffer> bufferDeformations = GPUDataGenerator.generateDeformations(context, defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle), ps, bestLws.get(DataType.DEFORMATION));
             result = ((ScenarioOpenCL_LF_GPU) sc).compute(images[0], images[1], facetCenters, bufferDeformations, ps);
         } else if (sc instanceof ScenarioOpenCL_LFD) {
             final float[] defomationLimitsFull = repeatArray(defomationLimitsSingle, facetCount);
@@ -362,11 +359,11 @@ public class LimitsTest {
         return scenarios;
     }
 
-    private static Map<DataType, Map<Double, String>> runGPUDataGenerationTest(
+    private static Map<DataType, int[]> runGPUDataGenerationTest(
             final ContextHandler ch, final ParameterSet ps,
             final float[] defomationLimitsSingle, final int[] defomationCountsSingle, final float[] facetCenters) {
         long time;
-        final Map<DataType, Map<Double, String>> times = new EnumMap<>(DataType.class);
+        final Map<DataType, Map<Double, int[]>> times = new EnumMap<>(DataType.class);
         times.put(DataType.DEFORMATION, new TreeMap<>());
         times.put(DataType.FACET, new TreeMap<>());
 
@@ -377,7 +374,7 @@ public class LimitsTest {
             time = System.nanoTime();
             GPUDataGenerator.generateDeformations(ch, defomationLimitsSingle, defomationCountsSingle, ps, lws0);
             ch.getQueue().finish();
-            times.get(DataType.DEFORMATION).put((System.nanoTime() - time) / 1000 / 1000.0, Integer.toString(lws0));
+            times.get(DataType.DEFORMATION).put((System.nanoTime() - time) / 1000 / 1000.0, new int[]{lws0});
             GPUDataGenerator.resourceCleanup();
         }
         for (int lws0 = 1; lws0 <= maxLws0; lws0 *= 2) {
@@ -385,7 +382,7 @@ public class LimitsTest {
                 time = System.nanoTime();
                 GPUDataGenerator.generateDeformations(ch, defomationLimitsSingle, defomationCountsSingle, ps, lws0, lws1);
                 ch.getQueue().finish();
-                times.get(DataType.DEFORMATION).put((System.nanoTime() - time) / 1000 / 1000.0, lws0 + ";" + lws1);
+                times.get(DataType.DEFORMATION).put((System.nanoTime() - time) / 1000 / 1000.0, new int[]{lws0, lws1});
                 GPUDataGenerator.resourceCleanup();
             }
         }
@@ -394,7 +391,7 @@ public class LimitsTest {
             time = System.nanoTime();
             GPUDataGenerator.generateFacets(ch, GPUDataGenerator.storeCenters(ch, facetCenters), ps, lws0);
             ch.getQueue().finish();
-            times.get(DataType.FACET).put((System.nanoTime() - time) / 1000 / 1000.0, Integer.toString(lws0));
+            times.get(DataType.FACET).put((System.nanoTime() - time) / 1000 / 1000.0, new int[]{lws0});
             GPUDataGenerator.resourceCleanup();
         }
         for (int lws0 = 1; lws0 <= maxLws0; lws0 *= 2) {
@@ -402,22 +399,16 @@ public class LimitsTest {
                 time = System.nanoTime();
                 GPUDataGenerator.generateFacets(ch, GPUDataGenerator.storeCenters(ch, facetCenters), ps, lws0, lws1);
                 ch.getQueue().finish();
-                times.get(DataType.FACET).put((System.nanoTime() - time) / 1000 / 1000.0, lws0 + ";" + lws1);
+                times.get(DataType.FACET).put((System.nanoTime() - time) / 1000 / 1000.0, new int[]{lws0, lws1});
                 GPUDataGenerator.resourceCleanup();
             }
         }
 
-        return times;
-    }
+        final Map<DataType, int[]> result = new EnumMap<>(DataType.class);
+        result.put(DataType.FACET, times.get(DataType.FACET).values().iterator().next());
+        result.put(DataType.DEFORMATION, times.get(DataType.DEFORMATION).values().iterator().next());
 
-    private static void printTimes(final Map<DataType, Map<ParameterSet, Map<Double, String>>> times) {
-        for (DataType dt : DataType.values()) {
-            System.out.println("--- " + dt);
-            for (Entry<ParameterSet, Map<Double, String>> e : times.get(dt).entrySet()) {
-                System.out.println(e.getKey());
-                System.out.println(e.getValue());
-            }
-        }
+        return result;
     }
 
     private static enum DataType {

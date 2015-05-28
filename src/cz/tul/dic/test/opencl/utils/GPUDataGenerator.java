@@ -24,11 +24,7 @@ import java.util.List;
  * @author Lenam s.r.o.
  */
 public class GPUDataGenerator {
-
-    private static final int DEFAULT_LWS0_DEF = 1024;
-    private static final int DEFAULT_LWS1_DEF = 1;
-    private static final int DEFAULT_LWS0_FAC = 1;
-    private static final int DEFAULT_LWS1_FAC = 8;
+    
     private static final String CL_EXTENSION = ".cl";
     private static final List<CLResource> memoryObjects;
 
@@ -40,9 +36,12 @@ public class GPUDataGenerator {
         return createFloatBuffer(context, facetCenters, READ_ONLY);
     }
 
-    public static CLBuffer<FloatBuffer> generateDeformations(final ContextHandler context, final float[] deformationLimitsSingle, final int[] deformationCountsSingle, final ParameterSet params) {
-//        return generateDeformations(context, deformationLimitsSingle, deformationCountsSingle, params, DEFAULT_LWS0_DEF);
-        return generateDeformations(context, deformationLimitsSingle, deformationCountsSingle, params, DEFAULT_LWS0_DEF, DEFAULT_LWS1_DEF);
+    public static CLBuffer<FloatBuffer> generateDeformations(final ContextHandler context, final float[] deformationLimitsSingle, final int[] deformationCountsSingle, final ParameterSet params, final int[] lws) {
+        if (lws.length == 1) {
+            return generateDeformations(context, deformationLimitsSingle, deformationCountsSingle, params, lws[0]);
+        } else {
+            return generateDeformations(context, deformationLimitsSingle, deformationCountsSingle, params, lws[0], lws[1]);
+        }
     }
 
     public static CLBuffer<FloatBuffer> generateDeformations(final ContextHandler context, final float[] deformationLimitsSingle, final int[] deformationCountsSingle, final ParameterSet params, final int lws0) {
@@ -86,7 +85,7 @@ public class GPUDataGenerator {
         final CLCommandQueue queue = context.getQueue();
         queue.putWriteBuffer(bufferDeformationLimits, false);
         queue.putWriteBuffer(bufferDeformationCounts, false);
-        queue.put1DRangeKernel(kernelA, 0, roundUp(lws0, params.getValue(Parameter.DEFORMATION_COUNT)), lws0);        
+        queue.put1DRangeKernel(kernelA, 0, roundUp(lws0, params.getValue(Parameter.DEFORMATION_COUNT)), lws0);
         queue.put2DRangeKernel(kernelB, 0, 0, roundUp(lws0, params.getValue(Parameter.DEFORMATION_COUNT)), roundUp(lws1, params.getValue(Parameter.FACET_COUNT)), lws0, lws1);
 
         queue.putReadBuffer(bufferResult, true);
@@ -94,8 +93,13 @@ public class GPUDataGenerator {
         return bufferResult;
     }
 
-    public static CLBuffer<IntBuffer> generateFacets(final ContextHandler context, final CLBuffer<FloatBuffer> bufferFacetCenters, final ParameterSet params) {
-        return generateFacets(context, bufferFacetCenters, params, DEFAULT_LWS0_FAC, DEFAULT_LWS1_FAC);
+    public static CLBuffer<IntBuffer> generateFacets(final ContextHandler context, final CLBuffer<FloatBuffer> bufferFacetCenters, final ParameterSet params, final int[] lws) {
+        if (lws.length == 1) {
+            return generateFacets(context, bufferFacetCenters, params, lws[0]);
+        } else {
+            return generateFacets(context, bufferFacetCenters, params, lws[0], lws[1]);
+        }
+        
     }
 
     public static CLBuffer<IntBuffer> generateFacets(final ContextHandler context, final CLBuffer<FloatBuffer> bufferFacetCenters, final ParameterSet params, final int lws0) {
@@ -118,7 +122,7 @@ public class GPUDataGenerator {
 
         return bufferResult;
     }
-    
+
     public static CLBuffer<IntBuffer> generateFacets(final ContextHandler context, final CLBuffer<FloatBuffer> bufferFacetCenters, final ParameterSet params, final int lws0, final int lws1) {
         final CLKernel kernel = readKernel("generateFacets2D", context.getContext());
 
@@ -129,7 +133,7 @@ public class GPUDataGenerator {
         kernel.putArgs(bufferFacetCenters, bufferResult)
                 .putArg(facetCount)
                 .putArg(facetSize)
-                .rewind();                
+                .rewind();
         // execute kernel                
         final CLCommandQueue queue = context.getQueue();
         queue.putWriteBuffer(bufferFacetCenters, false);
