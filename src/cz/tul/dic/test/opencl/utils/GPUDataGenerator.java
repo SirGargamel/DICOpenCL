@@ -9,17 +9,13 @@ import static com.jogamp.opencl.CLMemory.Mem.READ_ONLY;
 import com.jogamp.opencl.CLProgram;
 import com.jogamp.opencl.CLResource;
 import cz.tul.dic.test.opencl.scenario.ContextHandler;
-import cz.tul.dic.test.opencl.scenario.ContextHandler;
 import cz.tul.dic.test.opencl.scenario.Parameter;
-import cz.tul.dic.test.opencl.scenario.Parameter;
-import cz.tul.dic.test.opencl.scenario.ParameterSet;
 import cz.tul.dic.test.opencl.scenario.ParameterSet;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,6 +25,10 @@ import java.util.List;
  */
 public class GPUDataGenerator {
 
+    private static final int DEFAULT_LWS0_DEF = 1024;
+    private static final int DEFAULT_LWS1_DEF = 1;
+    private static final int DEFAULT_LWS0_FAC = 1;
+    private static final int DEFAULT_LWS1_FAC = 8;
     private static final String CL_EXTENSION = ".cl";
     private static final List<CLResource> memoryObjects;
 
@@ -41,6 +41,11 @@ public class GPUDataGenerator {
     }
 
     public static CLBuffer<FloatBuffer> generateDeformations(final ContextHandler context, final float[] deformationLimitsSingle, final int[] deformationCountsSingle, final ParameterSet params) {
+//        return generateDeformations(context, deformationLimitsSingle, deformationCountsSingle, params, DEFAULT_LWS0_DEF);
+        return generateDeformations(context, deformationLimitsSingle, deformationCountsSingle, params, DEFAULT_LWS0_DEF, DEFAULT_LWS1_DEF);
+    }
+
+    public static CLBuffer<FloatBuffer> generateDeformations(final ContextHandler context, final float[] deformationLimitsSingle, final int[] deformationCountsSingle, final ParameterSet params, final int lws0) {
         final CLKernel kernel = readKernel("generateDeformations", context.getContext());
         final CLBuffer<FloatBuffer> bufferDeformationLimits = createFloatBuffer(context, deformationLimitsSingle, READ_ONLY);
         final CLBuffer<IntBuffer> bufferDeformationCounts = createIntBuffer(context, deformationCountsSingle, READ_ONLY);
@@ -50,8 +55,7 @@ public class GPUDataGenerator {
                 .putArg(params.getValue(Parameter.DEFORMATION_COUNT))
                 .putArg(params.getValue(Parameter.FACET_COUNT))
                 .rewind();
-        // prepare work sizes        
-        final int lws0 = 128;
+        // prepare work sizes                
         final int deformationsGlobalWorkSize = roundUp(lws0, params.getValue(Parameter.DEFORMATION_COUNT));
         // execute kernel                
         final CLCommandQueue queue = context.getQueue();
@@ -59,11 +63,43 @@ public class GPUDataGenerator {
         queue.putWriteBuffer(bufferDeformationCounts, false);
         queue.put1DRangeKernel(kernel, 0, deformationsGlobalWorkSize, lws0);
 
+        queue.putReadBuffer(bufferResult, true);
+
+        return bufferResult;
+    }
+
+    public static CLBuffer<FloatBuffer> generateDeformations(final ContextHandler context, final float[] deformationLimitsSingle, final int[] deformationCountsSingle, final ParameterSet params, final int lws0, final int lws1) {
+        final CLKernel kernelA = readKernel("deformationGenerate", context.getContext());
+        final CLKernel kernelB = readKernel("deformationCopy", context.getContext());
+        final CLBuffer<FloatBuffer> bufferDeformationLimits = createFloatBuffer(context, deformationLimitsSingle, READ_ONLY);
+        final CLBuffer<IntBuffer> bufferDeformationCounts = createIntBuffer(context, deformationCountsSingle, READ_ONLY);
+        final CLBuffer<FloatBuffer> bufferResult = createFloatBuffer(context, params.getValue(Parameter.FACET_COUNT) * params.getValue(Parameter.DEFORMATION_COUNT) * 6);
+
+        kernelA.putArgs(bufferDeformationLimits, bufferDeformationCounts, bufferResult)
+                .putArg(params.getValue(Parameter.DEFORMATION_COUNT))
+                .rewind();
+        kernelB.putArgs(bufferResult)
+                .putArg(params.getValue(Parameter.DEFORMATION_COUNT))
+                .putArg(params.getValue(Parameter.FACET_COUNT))
+                .rewind();
+        // execute kernel                
+        final CLCommandQueue queue = context.getQueue();
+        queue.putWriteBuffer(bufferDeformationLimits, false);
+        queue.putWriteBuffer(bufferDeformationCounts, false);
+        queue.put1DRangeKernel(kernelA, 0, roundUp(lws0, params.getValue(Parameter.DEFORMATION_COUNT)), lws0);        
+        queue.put2DRangeKernel(kernelB, 0, 0, roundUp(lws0, params.getValue(Parameter.DEFORMATION_COUNT)), roundUp(lws1, params.getValue(Parameter.FACET_COUNT)), lws0, lws1);
+
+        queue.putReadBuffer(bufferResult, true);
+
         return bufferResult;
     }
 
     public static CLBuffer<IntBuffer> generateFacets(final ContextHandler context, final CLBuffer<FloatBuffer> bufferFacetCenters, final ParameterSet params) {
-        final CLKernel kernel = readKernel("generateFacets", context.getContext());        
+        return generateFacets(context, bufferFacetCenters, params, DEFAULT_LWS0_FAC, DEFAULT_LWS1_FAC);
+    }
+
+    public static CLBuffer<IntBuffer> generateFacets(final ContextHandler context, final CLBuffer<FloatBuffer> bufferFacetCenters, final ParameterSet params, final int lws0) {
+        final CLKernel kernel = readKernel("generateFacets", context.getContext());
 
         final int facetSize = params.getValue(Parameter.FACET_SIZE);
         final int facetCount = params.getValue(Parameter.FACET_COUNT);
@@ -73,13 +109,31 @@ public class GPUDataGenerator {
                 .putArg(facetCount)
                 .putArg(facetSize)
                 .rewind();
-        // prepare work sizes        
-        final int lws0 = 8;
+        // prepare work sizes                
         final int facetsGlobalWorkSize = roundUp(lws0, facetCount);
         // execute kernel                
         final CLCommandQueue queue = context.getQueue();
         queue.putWriteBuffer(bufferFacetCenters, false);
         queue.put1DRangeKernel(kernel, 0, facetsGlobalWorkSize, lws0);
+
+        return bufferResult;
+    }
+    
+    public static CLBuffer<IntBuffer> generateFacets(final ContextHandler context, final CLBuffer<FloatBuffer> bufferFacetCenters, final ParameterSet params, final int lws0, final int lws1) {
+        final CLKernel kernel = readKernel("generateFacets2D", context.getContext());
+
+        final int facetSize = params.getValue(Parameter.FACET_SIZE);
+        final int facetCount = params.getValue(Parameter.FACET_COUNT);
+        final CLBuffer<IntBuffer> bufferResult = createIntBuffer(context, facetCount * facetSize * facetSize * 2);
+
+        kernel.putArgs(bufferFacetCenters, bufferResult)
+                .putArg(facetCount)
+                .putArg(facetSize)
+                .rewind();                
+        // execute kernel                
+        final CLCommandQueue queue = context.getQueue();
+        queue.putWriteBuffer(bufferFacetCenters, false);
+        queue.put2DRangeKernel(kernel, 0, 0, roundUp(lws0, facetCount), roundUp(lws1, facetSize * facetSize), lws0, lws1);
 
         return bufferResult;
     }
@@ -163,7 +217,7 @@ public class GPUDataGenerator {
         }
         return result;
     }
-    
+
     private static int[] readBuffer(final IntBuffer buffer) {
         buffer.rewind();
         int[] result = new int[buffer.remaining()];
