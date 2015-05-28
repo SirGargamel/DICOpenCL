@@ -1,6 +1,6 @@
 package cz.tul.dic.test.opencl;
 
-import cz.tul.dic.test.opencl.test.gen.ContextHandler;
+import cz.tul.dic.test.opencl.scenario.ContextHandler;
 
 /**
  *
