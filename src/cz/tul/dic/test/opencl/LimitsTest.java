@@ -1,6 +1,7 @@
 package cz.tul.dic.test.opencl;
 
 import com.jogamp.opencl.CLBuffer;
+import com.jogamp.opencl.CLCommandQueue;
 import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLException;
 import com.jogamp.opencl.CLPlatform;
@@ -176,11 +177,13 @@ public class LimitsTest {
                                                 case INVALID_PARAMS:
                                                     LOG.log(Level.INFO, "Invalid params for {0} - {1}", new Object[]{sc.getKernelName(), ps});
                                             }
+
+                                            GPUDataGenerator.resourceCleanup();
                                         }
                                     }
 
-                                    GPUDataGenerator.resourceCleanup();
                                     ch.initContext();
+                                    System.gc();
                                 }
                             }
                         }
@@ -370,10 +373,12 @@ public class LimitsTest {
         final int maxLws0 = ch.getDevice().getMaxWorkItemSizes()[0];
         final int maxTotal = ch.getDevice().getMaxWorkGroupSize();
 
+        final CLCommandQueue queue = ch.getQueue();
+
         for (int lws0 = 1; lws0 <= maxLws0; lws0 *= 2) {
             time = System.nanoTime();
             GPUDataGenerator.generateDeformations(ch, defomationLimitsSingle, defomationCountsSingle, ps, lws0);
-            ch.getQueue().finish();
+            queue.finish();
             times.get(DataType.DEFORMATION).put((System.nanoTime() - time) / 1000 / 1000.0, new int[]{lws0});
             GPUDataGenerator.resourceCleanup();
         }
@@ -381,7 +386,7 @@ public class LimitsTest {
             for (int lws1 = 1; lws1 <= maxTotal / lws0; lws1 *= 2) {
                 time = System.nanoTime();
                 GPUDataGenerator.generateDeformations(ch, defomationLimitsSingle, defomationCountsSingle, ps, lws0, lws1);
-                ch.getQueue().finish();
+                queue.finish();
                 times.get(DataType.DEFORMATION).put((System.nanoTime() - time) / 1000 / 1000.0, new int[]{lws0, lws1});
                 GPUDataGenerator.resourceCleanup();
             }
@@ -390,7 +395,7 @@ public class LimitsTest {
         for (int lws0 = 1; lws0 <= maxLws0; lws0 *= 2) {
             time = System.nanoTime();
             GPUDataGenerator.generateFacets(ch, GPUDataGenerator.storeCenters(ch, facetCenters), ps, lws0);
-            ch.getQueue().finish();
+            queue.finish();
             times.get(DataType.FACET).put((System.nanoTime() - time) / 1000 / 1000.0, new int[]{lws0});
             GPUDataGenerator.resourceCleanup();
         }
@@ -398,7 +403,7 @@ public class LimitsTest {
             for (int lws1 = 1; lws1 <= maxTotal / lws0; lws1 *= 2) {
                 time = System.nanoTime();
                 GPUDataGenerator.generateFacets(ch, GPUDataGenerator.storeCenters(ch, facetCenters), ps, lws0, lws1);
-                ch.getQueue().finish();
+                queue.finish();
                 times.get(DataType.FACET).put((System.nanoTime() - time) / 1000 / 1000.0, new int[]{lws0, lws1});
                 GPUDataGenerator.resourceCleanup();
             }

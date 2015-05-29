@@ -24,7 +24,7 @@ import java.util.List;
  * @author Lenam s.r.o.
  */
 public class GPUDataGenerator {
-    
+
     private static final String CL_EXTENSION = ".cl";
     private static final List<CLResource> memoryObjects;
 
@@ -62,8 +62,6 @@ public class GPUDataGenerator {
         queue.putWriteBuffer(bufferDeformationCounts, false);
         queue.put1DRangeKernel(kernel, 0, deformationsGlobalWorkSize, lws0);
 
-        queue.putReadBuffer(bufferResult, true);
-
         return bufferResult;
     }
 
@@ -88,7 +86,6 @@ public class GPUDataGenerator {
         queue.put1DRangeKernel(kernelA, 0, roundUp(lws0, params.getValue(Parameter.DEFORMATION_COUNT)), lws0);
         queue.put2DRangeKernel(kernelB, 0, 0, roundUp(lws0, params.getValue(Parameter.DEFORMATION_COUNT)), roundUp(lws1, params.getValue(Parameter.FACET_COUNT)), lws0, lws1);
 
-        queue.putReadBuffer(bufferResult, true);
 
         return bufferResult;
     }
@@ -99,7 +96,7 @@ public class GPUDataGenerator {
         } else {
             return generateFacets(context, bufferFacetCenters, params, lws[0], lws[1]);
         }
-        
+
     }
 
     public static CLBuffer<IntBuffer> generateFacets(final ContextHandler context, final CLBuffer<FloatBuffer> bufferFacetCenters, final ParameterSet params, final int lws0) {
@@ -204,31 +201,13 @@ public class GPUDataGenerator {
             }
             final CLProgram program = context.createProgram(sb.toString()).build();
             memoryObjects.add(program);
-            final CLKernel kernelReduce = program.createCLKernel(kernelName);
-            memoryObjects.add(kernelReduce);
+            final CLKernel kernel = program.createCLKernel(kernelName);
+            memoryObjects.add(kernel);
 
-            return kernelReduce;
+            return kernel;
         } catch (IOException ex) {
             throw new IllegalArgumentException(ex);
         }
-    }
-
-    private static float[] readBuffer(final FloatBuffer buffer) {
-        buffer.rewind();
-        float[] result = new float[buffer.remaining()];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = buffer.get(i);
-        }
-        return result;
-    }
-
-    private static int[] readBuffer(final IntBuffer buffer) {
-        buffer.rewind();
-        int[] result = new int[buffer.remaining()];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = buffer.get(i);
-        }
-        return result;
     }
 
     public static void resourceCleanup() {
