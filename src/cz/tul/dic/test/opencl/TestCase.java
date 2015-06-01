@@ -1,6 +1,5 @@
 package cz.tul.dic.test.opencl;
 
-import cz.tul.dic.test.opencl.Constants;
 import cz.tul.dic.test.opencl.utils.CustomMath;
 import cz.tul.dic.test.opencl.utils.Utils;
 import cz.tul.dic.test.opencl.scenario.ScenarioResult;
@@ -14,6 +13,8 @@ import java.util.logging.Logger;
 public class TestCase {
 
     private static final Logger LOG = Logger.getGlobal();
+    public static final float DEFORMATION_ABS_MAX_0 = 1;
+    public static final float DEFORMATION_ABS_MAX_1 = 0.1f;
 
     public int[][] generateImages(final int width, final int height) {
         final int length = width * height;
@@ -36,7 +37,7 @@ public class TestCase {
         final Random rnd = new Random();
         int centerX, centerY, baseIndex;
         final double sizeHalf = Math.ceil(size / 2.0);
-        final int offset = (int) (sizeHalf + Utils.DEFORMATION_ABS_MAX_0 + (2 * Utils.DEFORMATION_ABS_MAX_1 * sizeHalf));
+        final int offset = (int) (sizeHalf + DEFORMATION_ABS_MAX_0 + (2 * DEFORMATION_ABS_MAX_1 * sizeHalf));
         for (int i = 0; i < count; i++) {
             baseIndex = i * 2;
             centerX = rnd.nextInt(width - (2 * offset)) + offset;
@@ -116,10 +117,10 @@ public class TestCase {
 
         for (int dim = 0; dim < Utils.DEFORMATION_DIM; dim++) {
             deformationLimits[dim * 3] = 0;
-            deformationLimits[dim * 3 + 1] = Utils.DEFORMATION_ABS_MAX_1;
+            deformationLimits[dim * 3 + 1] = DEFORMATION_ABS_MAX_1;
         }
-        deformationLimits[1] = Utils.DEFORMATION_ABS_MAX_0;
-        deformationLimits[4] = Utils.DEFORMATION_ABS_MAX_0;
+        deformationLimits[1] = DEFORMATION_ABS_MAX_0;
+        deformationLimits[4] = DEFORMATION_ABS_MAX_0;
 
         int rest = deformationCount;
         int div, optimal;
