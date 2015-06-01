@@ -72,9 +72,9 @@ public class OptimizationsTest {
             initializeDataStorage(scenarios, testCases.size());
 
             int[][] images;
-            int[] facetData, deformationCountsSingle, deformationCountsFull;
+            int[] facetData, deformationCountsSingle;
             float[] facetCenters;
-            float[] deformationsSingle, deformationsFull, defomationLimitsSingle, defomationLimitsFull;
+            float[] deformationsSingle, deformationsFull, defomationLimitsSingle;
             ParameterSet ps;
             ScenarioResult result;
             Scenario sc;
@@ -98,11 +98,9 @@ public class OptimizationsTest {
 
                                 for (int d : Constants.DEFORMATION_COUNTS) {
                                     defomationLimitsSingle = tc.generateDeformationLimits(d);
-                                    defomationLimitsFull = repeatArray(defomationLimitsSingle, facetCount);
                                     deformationCountsSingle = tc.generateDeformationCounts(defomationLimitsSingle);
-                                    deformationCountsFull = repeatArray(deformationCountsSingle, facetCount);
                                     deformationsSingle = tc.generateDeformations(defomationLimitsSingle, deformationCountsSingle);
-                                    deformationsFull = repeatArray(deformationsSingle, facetCount);
+                                    deformationsFull = Utils.repeatArray(deformationsSingle, facetCount);
 
                                     for (int sci = 0; sci < scenarios.size(); sci++) {
                                         sc = scenarios.get(sci);
@@ -224,7 +222,7 @@ public class OptimizationsTest {
             final float[] deformationsFull) {
         ScenarioResult result;
         if (sc instanceof ScenarioDrivenOpenCL) {
-            result = ((ScenarioDrivenOpenCL) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);        
+            result = ((ScenarioDrivenOpenCL) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
         } else {
             LOG.log(Level.SEVERE, "Illegal type of driven scenario - {0}", sc.getClass().toGenericString());
             result = new ScenarioResult(-1, true);
@@ -264,7 +262,7 @@ public class OptimizationsTest {
         } else if (sc instanceof JavaPerDeformation) {
             result = ((JavaPerDeformation) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
         } else if (sc instanceof ScenarioOpenCL) {
-            result = ((ScenarioOpenCL) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);        
+            result = ((ScenarioOpenCL) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
         } else {
             LOG.log(Level.SEVERE, "Illegal type of normal scenario - {0}", sc.getClass().toGenericString());
             result = new ScenarioResult(-1, true);
@@ -283,24 +281,6 @@ public class OptimizationsTest {
         lineCount *= Constants.FACET_MULTI.length;
         lineCount *= Constants.DEFORMATION_COUNTS.length;
         DataStorage.setCounts(lineCount, testCaseCount);
-    }
-
-    private static float[] repeatArray(final float[] input, final int repetitionCount) {
-        final int l = input.length;
-        final float[] result = new float[l * repetitionCount];
-        for (int i = 0; i < repetitionCount; i++) {
-            System.arraycopy(input, 0, result, i * l, l);
-        }
-        return result;
-    }
-
-    private static int[] repeatArray(final int[] input, final int repetitionCount) {
-        final int l = input.length;
-        final int[] result = new int[l * repetitionCount];
-        for (int i = 0; i < repetitionCount; i++) {
-            System.arraycopy(input, 0, result, i * l, l);
-        }
-        return result;
     }
 
     private static List<TestCase> prepareTestCases() {

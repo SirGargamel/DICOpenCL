@@ -56,6 +56,7 @@ import cz.tul.dic.test.opencl.scenario.limitsNO.CL_NO_2DInt;
 import cz.tul.dic.test.opencl.scenario.limitsNO.CL_NO_2DInt_GPU;
 import cz.tul.dic.test.opencl.scenario.limitsNO.ScenarioOpenCL_NO;
 import cz.tul.dic.test.opencl.scenario.limitsNO.ScenarioOpenCL_NO_GPU;
+import cz.tul.dic.test.opencl.utils.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -240,7 +241,7 @@ public class LimitsTest {
         final int facetCount = facetCenters.length / 2;
         if (sc instanceof ScenarioOpenCL_NO) {
             final int[] facetData = tc.generateFacetData(facetCenters, ps.getValue(Parameter.FACET_SIZE));
-            final float[] deformationsFull = repeatArray(tc.generateDeformations(defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle)), facetCount);
+            final float[] deformationsFull = Utils.repeatArray(tc.generateDeformations(defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle)), facetCount);
             result = ((ScenarioOpenCL_NO) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
         } else if (sc instanceof ScenarioOpenCL_NO_GPU) {
             final CLBuffer<FloatBuffer> bufferFacetCenters = GPUDataGenerator.storeCenters(context, facetCenters);
@@ -249,24 +250,24 @@ public class LimitsTest {
             result = ((ScenarioOpenCL_NO_GPU) sc).compute(images[0], images[1], bufferFacetData, bufferFacetCenters, bufferDeformations, ps);
         } else if (sc instanceof ScenarioOpenCL_LD) {
             final int[] facetData = tc.generateFacetData(facetCenters, ps.getValue(Parameter.FACET_SIZE));
-            final float[] defomationLimitsFull = repeatArray(defomationLimitsSingle, facetCount);
-            final int[] deformationCountsFull = repeatArray(tc.generateDeformationCounts(defomationLimitsSingle), facetCount);
+            final float[] defomationLimitsFull = Utils.repeatArray(defomationLimitsSingle, facetCount);
+            final int[] deformationCountsFull = Utils.repeatArray(tc.generateDeformationCounts(defomationLimitsSingle), facetCount);
             result = ((ScenarioOpenCL_LD) sc).compute(images[0], images[1], facetData, facetCenters, defomationLimitsFull, deformationCountsFull, ps);
         } else if (sc instanceof ScenarioOpenCL_LD_GPU) {
             final CLBuffer<FloatBuffer> bufferFacetCenters = GPUDataGenerator.storeCenters(context, facetCenters);
             final CLBuffer<IntBuffer> bufferFacetData = GPUDataGenerator.generateFacets(context, bufferFacetCenters, ps, bestLws.get(DataType.FACET));
-            final float[] defomationLimitsFull = repeatArray(defomationLimitsSingle, facetCount);
-            final int[] deformationCountsFull = repeatArray(tc.generateDeformationCounts(defomationLimitsSingle), facetCount);
+            final float[] defomationLimitsFull = Utils.repeatArray(defomationLimitsSingle, facetCount);
+            final int[] deformationCountsFull = Utils.repeatArray(tc.generateDeformationCounts(defomationLimitsSingle), facetCount);
             result = ((ScenarioOpenCL_LD_GPU) sc).compute(images[0], images[1], bufferFacetData, bufferFacetCenters, defomationLimitsFull, deformationCountsFull, ps);
         } else if (sc instanceof ScenarioOpenCL_LF) {
-            final float[] deformationsFull = repeatArray(tc.generateDeformations(defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle)), facetCount);
+            final float[] deformationsFull = Utils.repeatArray(tc.generateDeformations(defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle)), facetCount);
             result = ((ScenarioOpenCL_LF) sc).compute(images[0], images[1], facetCenters, deformationsFull, ps);
         } else if (sc instanceof ScenarioOpenCL_LF_GPU) {
             final CLBuffer<FloatBuffer> bufferDeformations = GPUDataGenerator.generateDeformations(context, defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle), ps, bestLws.get(DataType.DEFORMATION));
             result = ((ScenarioOpenCL_LF_GPU) sc).compute(images[0], images[1], facetCenters, bufferDeformations, ps);
         } else if (sc instanceof ScenarioOpenCL_LFD) {
-            final float[] defomationLimitsFull = repeatArray(defomationLimitsSingle, facetCount);
-            final int[] deformationCountsFull = repeatArray(tc.generateDeformationCounts(defomationLimitsSingle), facetCount);
+            final float[] defomationLimitsFull = Utils.repeatArray(defomationLimitsSingle, facetCount);
+            final int[] deformationCountsFull = Utils.repeatArray(tc.generateDeformationCounts(defomationLimitsSingle), facetCount);
             result = ((ScenarioOpenCL_LFD) sc).compute(images[0], images[1], facetCenters, defomationLimitsFull, deformationCountsFull, ps);
         } else {
             LOG.log(Level.SEVERE, "Illegal type of normal scenario - {0}", sc.getClass().toGenericString());
@@ -286,24 +287,6 @@ public class LimitsTest {
         lineCount *= Constants.FACET_MULTI.length;
         lineCount *= Constants.DEFORMATION_COUNTS.length;
         DataStorage.setCounts(lineCount, testCaseCount);
-    }
-
-    private static float[] repeatArray(final float[] input, final int repetitionCount) {
-        final int l = input.length;
-        final float[] result = new float[l * repetitionCount];
-        for (int i = 0; i < repetitionCount; i++) {
-            System.arraycopy(input, 0, result, i * l, l);
-        }
-        return result;
-    }
-
-    private static int[] repeatArray(final int[] input, final int repetitionCount) {
-        final int l = input.length;
-        final int[] result = new int[l * repetitionCount];
-        for (int i = 0; i < repetitionCount; i++) {
-            System.arraycopy(input, 0, result, i * l, l);
-        }
-        return result;
     }
 
     private static List<TestCase> prepareTestCases() {
