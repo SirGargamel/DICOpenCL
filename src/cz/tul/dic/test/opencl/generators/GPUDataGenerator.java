@@ -1,4 +1,4 @@
-package cz.tul.dic.test.opencl.utils;
+package cz.tul.dic.test.opencl.generators;
 
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;

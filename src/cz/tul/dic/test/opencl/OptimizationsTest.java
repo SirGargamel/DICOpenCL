@@ -44,7 +44,6 @@ import cz.tul.dic.test.opencl.scenario.fulldata.d2.opt.CL2DImageMC;
 import cz.tul.dic.test.opencl.scenario.fulldata.d2.opt.CL2DImageV;
 import cz.tul.dic.test.opencl.scenario.java.JavaPerDeformation;
 import cz.tul.dic.test.opencl.scenario.java.JavaPerFacet;
-import cz.tul.dic.test.opencl.testcase.TestCase;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;

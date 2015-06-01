@@ -1,4 +1,4 @@
-package cz.tul.dic.test.opencl.testcase;
+package cz.tul.dic.test.opencl;
 
 import cz.tul.dic.test.opencl.Constants;
 import cz.tul.dic.test.opencl.utils.CustomMath;
