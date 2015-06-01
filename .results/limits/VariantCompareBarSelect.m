@@ -13,7 +13,7 @@ ANALYZED_TIME = TIME_TOTAL;
 % ANALYZED_VARIANTS = [8 9 11:13 15:25];
 % ANALYZED_VARIANTS = [1:3 5 7:13 15:25];
 % ANALYZED_VARIANTS = [1 2];
-ANALYZED_VARIANTS = [1:5:16 2:5:17 3:5:18 4:5:19 5:5:20];
+ANALYZED_VARIANTS = [1:5:35 2:5:35 3:5:35 4:5:35 5:5:35];
 varCount = size(ANALYZED_VARIANTS, 2);
 NAMES_VARIANTS_INNER = cell(varCount);
 for i=1:varCount
@@ -42,10 +42,10 @@ graphCountY = 1;
 graphsPerWindowCount = graphCountX * graphCountY;
 windowCount = ceil(graphCount / graphsPerWindowCount);
 for win=1:windowCount
-    if (~(win == 1 || win == 10 || win == 20 || win == 30 || win == 40))
-%     if (win > 5)
-        continue;
-    end;
+%     if (~(win == 1 || win == 10 || win == 20 || win == 30 || win == 40))
+%     if (win > 1)
+%         continue;
+%     end;
     
     index = (win-1) * graphsPerWindowCount * pointCount + 1;
     name = 'Kernel running time';
@@ -65,14 +65,14 @@ for win=1:windowCount
             title(cellstr([int2str(data(index, INDEX_RESX)) 'x' int2str(data(index, INDEX_RESY)) ', fs=' int2str(data(index, INDEX_FACET_SIZE)) ', fc=' int2str(data(index, INDEX_FACET_COUNT)) ', dc=' int2str(data(index, INDEX_DEFORMATION_COUNT))]));
             % plot both curves to one subfigure       
             hold on;                                    
-            bar(bestCurves(1:2, :, innerBase)','stacked');                        
+            bar(bestCurves(1:2, :, innerBase)','stacked','BarWidth', 0.9);                        
             % values on top
             text(1:numel(bestCurves(1, :, innerBase)),bestCurves(3, :, innerBase)',num2str(bestCurves(3, :, innerBase)','%0.2f'),...
                 'HorizontalAlignment','center',...
                 'VerticalAlignment','bottom');
             % Finish plotting to subfigure
-            set(findall(gcf, '-property', 'FontSize'), 'FontSize', 25);
-            set(gca,'XTick', 1:numel(bestCurves(1, :, innerBase)), 'XTickLabel', NAMES_VARIANTS_INNER);
+            set(findall(gcf, '-property', 'FontSize'), 'FontSize', 25);            
+            set(gca,'XTick', 1:size(NAMES_VARIANTS_INNER), 'XTickLabel', NAMES_VARIANTS_INNER);
             fix_xticklabels();            
             hold off;
         end;
