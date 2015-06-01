@@ -8,6 +8,7 @@ import com.jogamp.opencl.CLMemory;
 import static com.jogamp.opencl.CLMemory.Mem.READ_ONLY;
 import com.jogamp.opencl.CLProgram;
 import com.jogamp.opencl.CLResource;
+import cz.tul.dic.test.opencl.LimitsTest;
 import cz.tul.dic.test.opencl.scenario.ContextHandler;
 import cz.tul.dic.test.opencl.scenario.Parameter;
 import cz.tul.dic.test.opencl.scenario.ParameterSet;
@@ -16,8 +17,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  *
@@ -30,6 +34,60 @@ public class GPUDataGenerator {
 
     static {
         memoryObjects = new LinkedList<>();
+    }
+    
+    public static Map<DataType, int[]> runGPUDataGenerationTest(
+            final ContextHandler ch, final ParameterSet ps,
+            final float[] defomationLimitsSingle, final int[] defomationCountsSingle, final float[] facetCenters) {
+        long time;
+        final Map<DataType, Map<Double, int[]>> times = new EnumMap<>(DataType.class);
+        times.put(DataType.DEFORMATION, new TreeMap<>());
+        times.put(DataType.FACET, new TreeMap<>());
+
+        final int maxLws0 = ch.getDevice().getMaxWorkItemSizes()[0];
+        final int maxTotal = ch.getDevice().getMaxWorkGroupSize();
+
+        final CLCommandQueue queue = ch.getQueue();
+
+        for (int lws0 = 1; lws0 <= maxLws0; lws0 *= 2) {
+            time = System.nanoTime();
+            GPUDataGenerator.generateDeformations(ch, defomationLimitsSingle, defomationCountsSingle, ps, lws0);
+            queue.finish();
+            times.get(DataType.DEFORMATION).put((System.nanoTime() - time) / 1000 / 1000.0, new int[]{lws0});
+            GPUDataGenerator.resourceCleanup();
+        }
+        for (int lws0 = 1; lws0 <= maxLws0; lws0 *= 2) {
+            for (int lws1 = 1; lws1 <= maxTotal / lws0; lws1 *= 2) {
+                time = System.nanoTime();
+                GPUDataGenerator.generateDeformations(ch, defomationLimitsSingle, defomationCountsSingle, ps, lws0, lws1);
+                queue.finish();
+                times.get(DataType.DEFORMATION).put((System.nanoTime() - time) / 1000 / 1000.0, new int[]{lws0, lws1});
+                GPUDataGenerator.resourceCleanup();
+            }
+        }
+
+        for (int lws0 = 1; lws0 <= maxLws0; lws0 *= 2) {
+            time = System.nanoTime();
+            GPUDataGenerator.generateFacets(ch, GPUDataGenerator.storeCenters(ch, facetCenters), ps, lws0);
+            queue.finish();
+            times.get(DataType.FACET).put((System.nanoTime() - time) / 1000 / 1000.0, new int[]{lws0});
+            GPUDataGenerator.resourceCleanup();
+        }
+        for (int lws0 = 1; lws0 <= maxLws0; lws0 *= 2) {
+            for (int lws1 = 1; lws1 <= maxTotal / lws0; lws1 *= 2) {
+                time = System.nanoTime();
+                GPUDataGenerator.generateFacets(ch, GPUDataGenerator.storeCenters(ch, facetCenters), ps, lws0, lws1);
+                queue.finish();
+                times.get(DataType.FACET).put((System.nanoTime() - time) / 1000 / 1000.0, new int[]{lws0, lws1});
+                GPUDataGenerator.resourceCleanup();
+            }
+        }
+
+        final Map<DataType, int[]> result = new EnumMap<>(DataType.class);
+        result.put(DataType.FACET, times.get(DataType.FACET).values().iterator().next());
+        result.put(DataType.DEFORMATION, times.get(DataType.DEFORMATION).values().iterator().next());
+
+        return result;
     }
 
     public static CLBuffer<FloatBuffer> storeCenters(final ContextHandler context, final float[] facetCenters) {
@@ -220,5 +278,11 @@ public class GPUDataGenerator {
     }
 
     private GPUDataGenerator() {
+    }
+    
+    public static enum DataType {
+
+        DEFORMATION,
+        FACET
     }
 }

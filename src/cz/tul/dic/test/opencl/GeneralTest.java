@@ -11,52 +11,37 @@ import cz.tul.dic.test.opencl.scenario.ContextHandler.DeviceType;
 import cz.tul.dic.test.opencl.scenario.DataStorage;
 import cz.tul.dic.test.opencl.scenario.Parameter;
 import cz.tul.dic.test.opencl.scenario.ParameterSet;
+import cz.tul.dic.test.opencl.utils.Utils;
+import cz.tul.dic.test.opencl.scenario.WorkSizeManager;
 import cz.tul.dic.test.opencl.scenario.ScenarioResult;
 import cz.tul.dic.test.opencl.scenario.ScenarioResult.State;
+import static cz.tul.dic.test.opencl.scenario.ScenarioResult.State.FAIL;
+import static cz.tul.dic.test.opencl.scenario.ScenarioResult.State.INVALID_PARAMS;
+import static cz.tul.dic.test.opencl.scenario.ScenarioResult.State.SUCCESS;
+import static cz.tul.dic.test.opencl.scenario.ScenarioResult.State.WRONG_RESULT_DYNAMIC;
+import static cz.tul.dic.test.opencl.scenario.ScenarioResult.State.WRONG_RESULT_FIXED;
 import cz.tul.dic.test.opencl.scenario.fulldata.Scenario;
-import cz.tul.dic.test.opencl.scenario.limitsD.CL_LD_1DImageLL;
-import cz.tul.dic.test.opencl.scenario.limitsD.CL_LD_1DImageLL_GPU;
-import cz.tul.dic.test.opencl.scenario.limitsD.CL_LD_1D_I_V_LL;
-import cz.tul.dic.test.opencl.scenario.limitsD.CL_LD_1D_I_V_LL_GPU;
-import cz.tul.dic.test.opencl.scenario.limitsD.CL_LD_2DImage;
-import cz.tul.dic.test.opencl.scenario.limitsD.CL_LD_2DImageV;
-import cz.tul.dic.test.opencl.scenario.limitsD.CL_LD_2DImageV_GPU;
-import cz.tul.dic.test.opencl.scenario.limitsD.CL_LD_2DImage_GPU;
-import cz.tul.dic.test.opencl.scenario.limitsD.CL_LD_2DInt;
-import cz.tul.dic.test.opencl.scenario.limitsD.CL_LD_2DInt_GPU;
+import cz.tul.dic.test.opencl.scenario.fulldata.ScenarioDrivenOpenCL;
+import cz.tul.dic.test.opencl.scenario.fulldata.ScenarioOpenCL;
+import cz.tul.dic.test.opencl.scenario.fulldata.comb.CL1D_I_V_LL;
+import cz.tul.dic.test.opencl.scenario.fulldata.d1.opt.CL1DImageLL;
+import cz.tul.dic.test.opencl.scenario.fulldata.d2.CL2DImage;
+import cz.tul.dic.test.opencl.scenario.fulldata.d2.CL2DInt;
+import cz.tul.dic.test.opencl.scenario.fulldata.d2.opt.CL2DImageV;
+import cz.tul.dic.test.opencl.scenario.java.JavaPerDeformation;
+import cz.tul.dic.test.opencl.scenario.java.JavaPerFacet;
 import cz.tul.dic.test.opencl.scenario.limitsD.ScenarioOpenCL_LD;
 import cz.tul.dic.test.opencl.scenario.limitsD.ScenarioOpenCL_LD_GPU;
-import cz.tul.dic.test.opencl.scenario.limitsF.CL_LF_1DImageLL;
-import cz.tul.dic.test.opencl.scenario.limitsF.CL_LF_1DImageLL_GPU;
-import cz.tul.dic.test.opencl.scenario.limitsF.CL_LF_1D_I_V_LL;
-import cz.tul.dic.test.opencl.scenario.limitsF.CL_LF_1D_I_V_LL_GPU;
-import cz.tul.dic.test.opencl.scenario.limitsF.CL_LF_2DImage;
-import cz.tul.dic.test.opencl.scenario.limitsF.CL_LF_2DImageV;
-import cz.tul.dic.test.opencl.scenario.limitsF.CL_LF_2DImageV_GPU;
-import cz.tul.dic.test.opencl.scenario.limitsF.CL_LF_2DImage_GPU;
-import cz.tul.dic.test.opencl.scenario.limitsF.CL_LF_2DInt;
-import cz.tul.dic.test.opencl.scenario.limitsF.CL_LF_2DInt_GPU;
 import cz.tul.dic.test.opencl.scenario.limitsF.ScenarioOpenCL_LF;
 import cz.tul.dic.test.opencl.scenario.limitsF.ScenarioOpenCL_LF_GPU;
-import cz.tul.dic.test.opencl.scenario.limitsFD.CL_L_1DImageLL;
-import cz.tul.dic.test.opencl.scenario.limitsFD.CL_L_1D_I_V_LL;
-import cz.tul.dic.test.opencl.scenario.limitsFD.CL_L_2DImage;
-import cz.tul.dic.test.opencl.scenario.limitsFD.CL_L_2DImageV;
-import cz.tul.dic.test.opencl.scenario.limitsFD.CL_L_2DInt;
 import cz.tul.dic.test.opencl.scenario.limitsFD.ScenarioOpenCL_LFD;
 import cz.tul.dic.test.opencl.scenario.limitsNO.CL_NO_1DImageLL;
-import cz.tul.dic.test.opencl.scenario.limitsNO.CL_NO_1DImageLL_GPU;
 import cz.tul.dic.test.opencl.scenario.limitsNO.CL_NO_1D_I_V_LL;
-import cz.tul.dic.test.opencl.scenario.limitsNO.CL_NO_1D_I_V_LL_GPU;
 import cz.tul.dic.test.opencl.scenario.limitsNO.CL_NO_2DImage;
 import cz.tul.dic.test.opencl.scenario.limitsNO.CL_NO_2DImageV;
-import cz.tul.dic.test.opencl.scenario.limitsNO.CL_NO_2DImageV_GPU;
-import cz.tul.dic.test.opencl.scenario.limitsNO.CL_NO_2DImage_GPU;
 import cz.tul.dic.test.opencl.scenario.limitsNO.CL_NO_2DInt;
-import cz.tul.dic.test.opencl.scenario.limitsNO.CL_NO_2DInt_GPU;
 import cz.tul.dic.test.opencl.scenario.limitsNO.ScenarioOpenCL_NO;
 import cz.tul.dic.test.opencl.scenario.limitsNO.ScenarioOpenCL_NO_GPU;
-import cz.tul.dic.test.opencl.utils.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -73,7 +58,7 @@ import java.util.logging.Logger;
  *
  * @author Petr Jecmen
  */
-public class LimitsTest {
+public class GeneralTest {
 
     private static final Logger LOG = Logger.getGlobal();
 
@@ -82,13 +67,15 @@ public class LimitsTest {
             CLPlatform.initialize();
             DataStorage.reset();
             final ContextHandler ch = new ContextHandler(device);
-            final List<Scenario> scenarios = prepareScenarios(ch);
+            final WorkSizeManager wsm = new WorkSizeManager();
+            final List<Scenario> scenarios = prepareScenarios(ch, wsm);
             final List<TestCase> testCases = prepareTestCases();
 
             initializeDataStorage(scenarios, testCases.size());
 
             Map<DataType, int[]> bestLws;
             int[][] images;
+            int[] facetData;
             float[] facetCenters;
             float[] defomationLimitsSingle;
             ParameterSet ps;
@@ -109,6 +96,7 @@ public class LimitsTest {
 
                             for (int fm = 0; fm < Constants.FACET_MULTI.length; fm++) {
                                 facetCenters = tc.generateFacetCenters(dim[0], dim[1], s, Constants.FACET_MULTI[fm]);
+                                facetData = tc.generateFacetData(facetCenters, s);
 
                                 for (int d : Constants.DEFORMATION_COUNTS) {
                                     defomationLimitsSingle = tc.generateDeformationLimits(d);
@@ -130,7 +118,7 @@ public class LimitsTest {
                                             ps.addParameter(Parameter.IMAGE_WIDTH, dim[0]);
                                             ps.addParameter(Parameter.IMAGE_HEIGHT, dim[1]);
                                             ps.addParameter(Parameter.FACET_SIZE, s);
-                                            ps.addParameter(Parameter.FACET_COUNT, facetCenters.length / 2);
+                                            ps.addParameter(Parameter.FACET_COUNT, facetData.length / Utils.calculateFacetArraySize(s));
                                             ps.addParameter(Parameter.DEFORMATION_COUNT, d);
                                             ps.addParameter(Parameter.VARIANT, sci);
                                             ps.addParameter(Parameter.TEST_CASE, tci);
@@ -139,7 +127,7 @@ public class LimitsTest {
 
                                             try {
                                                 if (sc.isDriven()) {
-                                                    throw new UnsupportedOperationException("No driven version available.");
+                                                    result = runDrivenKernel(tc, sc, ps, images, facetCenters, defomationLimitsSingle);
                                                 } else {
                                                     result = runNormalKernel(tc, sc, ps, ch, images, facetCenters, defomationLimitsSingle, bestLws);
                                                 }
@@ -204,6 +192,58 @@ public class LimitsTest {
         }
     }
 
+    private static ScenarioResult runDrivenKernel(
+            final TestCase tc, final Scenario sc, final ParameterSet ps,
+            final int[][] images,
+            final float[] facetCenters,
+            final float[] defomationLimitsSingle) {
+        ScenarioResult result = null, tempResult;
+        long minTime = Long.MAX_VALUE;
+        long time;
+        int bestLwsSub = 1;
+        while (sc.hasNext()) {
+            time = System.nanoTime();
+            tempResult = executeDrivenKernel(tc, sc, ps, images, facetCenters, defomationLimitsSingle);
+            time = System.nanoTime() - time;
+
+            if (tempResult != null && time < minTime) {
+                tc.checkResult(tempResult, ps.getValue(Parameter.FACET_COUNT));
+
+                if (tempResult.getState() == State.SUCCESS) {
+                    result = tempResult;
+                    minTime = time;
+                    bestLwsSub = ps.getValue(Parameter.LWS_SUB);
+                    result.setTotalTime(minTime);
+                }
+            }
+        }
+
+        if (result == null) {
+            result = new ScenarioResult(-1, false);
+        } else {
+            ps.addParameter(Parameter.LWS_SUB, bestLwsSub);
+        }
+
+        return result;
+    }
+
+    private static ScenarioResult executeDrivenKernel(
+            final TestCase tc, final Scenario sc, final ParameterSet ps,
+            final int[][] images,
+            final float[] facetCenters,
+            final float[] defomationLimitsSingle) {
+        ScenarioResult result;
+        if (sc instanceof ScenarioDrivenOpenCL) {
+            final int[] facetData = tc.generateFacetData(facetCenters, ps.getValue(Parameter.FACET_SIZE));
+            final float[] deformationsFull = Utils.repeatArray(tc.generateDeformations(defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle)), facetCenters.length / 2);
+            result = ((ScenarioDrivenOpenCL) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
+        } else {
+            LOG.log(Level.SEVERE, "Illegal type of driven scenario - {0}", sc.getClass().toGenericString());
+            result = new ScenarioResult(-1, true);
+        }
+        return result;
+    }
+
     private static ScenarioResult runNormalKernel(
             final TestCase tc, final Scenario sc, final ParameterSet ps,
             final ContextHandler context,
@@ -234,10 +274,22 @@ public class LimitsTest {
             final int[][] images,
             final float[] facetCenters,
             final float[] defomationLimitsSingle,
-            final Map<DataType, int[]> bestLws) {
+            final Map<GPUDataGenerator.DataType, int[]> bestLws) {
         ScenarioResult result;
         final int facetCount = facetCenters.length / 2;
-        if (sc instanceof ScenarioOpenCL_NO) {
+        if (sc instanceof JavaPerFacet) {
+            final int[] facetData = tc.generateFacetData(facetCenters, ps.getValue(Parameter.FACET_SIZE));
+            final float[] deformationsFull = Utils.repeatArray(tc.generateDeformations(defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle)), facetCount);
+            result = ((JavaPerFacet) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
+        } else if (sc instanceof JavaPerDeformation) {
+            final int[] facetData = tc.generateFacetData(facetCenters, ps.getValue(Parameter.FACET_SIZE));
+            final float[] deformationsFull = Utils.repeatArray(tc.generateDeformations(defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle)), facetCount);
+            result = ((JavaPerDeformation) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
+        } else if (sc instanceof ScenarioOpenCL) {
+            final int[] facetData = tc.generateFacetData(facetCenters, ps.getValue(Parameter.FACET_SIZE));
+            final float[] deformationsFull = Utils.repeatArray(tc.generateDeformations(defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle)), facetCount);
+            result = ((ScenarioOpenCL) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
+        } else if (sc instanceof ScenarioOpenCL_NO) {
             final int[] facetData = tc.generateFacetData(facetCenters, ps.getValue(Parameter.FACET_SIZE));
             final float[] deformationsFull = Utils.repeatArray(tc.generateDeformations(defomationLimitsSingle, tc.generateDeformationCounts(defomationLimitsSingle)), facetCount);
             result = ((ScenarioOpenCL_NO) sc).compute(images[0], images[1], facetData, facetCenters, deformationsFull, ps);
@@ -296,48 +348,23 @@ public class LimitsTest {
         return result;
     }
 
-    private static List<Scenario> prepareScenarios(final ContextHandler contextHandler) throws IOException {
+    private static List<Scenario> prepareScenarios(final ContextHandler contextHandler, final WorkSizeManager wsm) throws IOException {
         final List<Scenario> scenarios = new LinkedList<>();
 
-        // OpenCL limits performance test
-        scenarios.add(new CL_NO_2DInt("CL_NO_2DInt", contextHandler));  // basic variants - full data        
+        scenarios.add(new CL2DInt("CL2DInt", contextHandler));
+        scenarios.add(new CL_NO_2DInt("CL_NO_2DInt", contextHandler));
+
+        scenarios.add(new CL2DImage(contextHandler));
         scenarios.add(new CL_NO_2DImage(contextHandler));
+
+        scenarios.add(new CL2DImageV(contextHandler));
         scenarios.add(new CL_NO_2DImageV(contextHandler));
+
+        scenarios.add(new CL1DImageLL(contextHandler));
         scenarios.add(new CL_NO_1DImageLL(contextHandler));
+
+        scenarios.add(new CL1D_I_V_LL(contextHandler));
         scenarios.add(new CL_NO_1D_I_V_LL(contextHandler));
-        scenarios.add(new CL_NO_2DInt_GPU("CL_NO_2DInt_GPU", contextHandler)); // offline GPU generated data
-        scenarios.add(new CL_NO_2DImage_GPU(contextHandler));
-        scenarios.add(new CL_NO_2DImageV_GPU(contextHandler));
-        scenarios.add(new CL_NO_1DImageLL_GPU(contextHandler));
-        scenarios.add(new CL_NO_1D_I_V_LL_GPU(contextHandler));
-
-        scenarios.add(new CL_L_2DInt("CL_L_2DInt", contextHandler)); // variants with both facet and deformation limits
-        scenarios.add(new CL_L_2DImage(contextHandler));
-        scenarios.add(new CL_L_2DImageV(contextHandler));
-        scenarios.add(new CL_L_1DImageLL(contextHandler));
-        scenarios.add(new CL_L_1D_I_V_LL(contextHandler));
-
-        scenarios.add(new CL_LD_2DInt("CL_LD_2DInt", contextHandler)); // variants with facet data and deformation limits
-        scenarios.add(new CL_LD_2DImage(contextHandler));
-        scenarios.add(new CL_LD_2DImageV(contextHandler));
-        scenarios.add(new CL_LD_1DImageLL(contextHandler));
-        scenarios.add(new CL_LD_1D_I_V_LL(contextHandler));
-        scenarios.add(new CL_LD_2DInt_GPU("CL_LD_2DInt_GPU", contextHandler)); // offline GPU generated data
-        scenarios.add(new CL_LD_2DImage_GPU(contextHandler));
-        scenarios.add(new CL_LD_2DImageV_GPU(contextHandler));
-        scenarios.add(new CL_LD_1DImageLL_GPU(contextHandler));
-        scenarios.add(new CL_LD_1D_I_V_LL_GPU(contextHandler));
-
-        scenarios.add(new CL_LF_2DInt("CL_LF_2DInt", contextHandler)); // variants with facet limits and deformation data
-        scenarios.add(new CL_LF_2DImage(contextHandler));
-        scenarios.add(new CL_LF_2DImageV(contextHandler));
-        scenarios.add(new CL_LF_1DImageLL(contextHandler));
-        scenarios.add(new CL_LF_1D_I_V_LL(contextHandler));
-        scenarios.add(new CL_LF_2DInt_GPU("CL_LF_2DInt_GPU", contextHandler)); // offline GPU generated data
-        scenarios.add(new CL_LF_2DImage_GPU(contextHandler));
-        scenarios.add(new CL_LF_2DImageV_GPU(contextHandler));
-        scenarios.add(new CL_LF_1DImageLL_GPU(contextHandler));
-        scenarios.add(new CL_LF_1D_I_V_LL_GPU(contextHandler));
 
         return scenarios;
     }
