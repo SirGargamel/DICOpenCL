@@ -13,7 +13,8 @@ ANALYZED_TIME = TIME_TOTAL;
 % ANALYZED_VARIANTS = [8 9 11:13 15:25];
 % ANALYZED_VARIANTS = [1:3 5 7:13 15:25];
 % ANALYZED_VARIANTS = [1 2];
-ANALYZED_VARIANTS = [1:5:35 2:5:35 3:5:35 4:5:35 5:5:35];
+% ANALYZED_VARIANTS = [1:5:35 2:5:35 3:5:35 4:5:35 5:5:35];
+ANALYZED_VARIANTS = [1:4:28 2:4:28 3:4:28 4:4:28];
 varCount = size(ANALYZED_VARIANTS, 2);
 NAMES_VARIANTS_INNER = cell(varCount);
 for i=1:varCount
@@ -42,17 +43,22 @@ graphCountY = 1;
 graphsPerWindowCount = graphCountX * graphCountY;
 windowCount = ceil(graphCount / graphsPerWindowCount);
 for win=1:windowCount
+    % window picking
 %     if (~(win == 1 || win == 10 || win == 20 || win == 30 || win == 40))
 %     if (win > 1)
 %         continue;
 %     end;
     
     index = (win-1) * graphsPerWindowCount * pointCount + 1;
+    
+    % Data picking
+%     if (data(index, INDEX_FACET_SIZE) > 21) continue; end;
+    
     name = 'Kernel running time';
     figure('units','normalized','outerposition',[0 0.05 1 0.95],'name',name)    
     
     for graphX=1:graphCountX
-        for graphY=1:graphCountY
+        for graphY=1:graphCountY            
             % compute line index
             innerBase = ((win-1) * graphsPerWindowCount) + ((graphY-1) * graphCountX) + graphX;
             if (innerBase > graphCount)
@@ -71,7 +77,7 @@ for win=1:windowCount
                 'HorizontalAlignment','center',...
                 'VerticalAlignment','bottom');
             % Finish plotting to subfigure
-            set(findall(gcf, '-property', 'FontSize'), 'FontSize', 25);            
+%             set(findall(gcf, '-property', 'FontSize'), 'FontSize', 25);            
             set(gca,'XTick', 1:size(NAMES_VARIANTS_INNER), 'XTickLabel', NAMES_VARIANTS_INNER);
             fix_xticklabels();            
             hold off;
